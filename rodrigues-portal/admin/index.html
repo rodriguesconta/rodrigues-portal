@@ -1553,36 +1553,29 @@ async function enviarCobrancaWhatsApp(id,nome,telefone){
 
 async function gerarPix(id,valor,nome,email,cpf){
   if(!confirm('Gerar Pix para '+nome+' no valor de '+fmt(valor)+'?'))return;
-  alerta('alerta-cob','Gerando Pix via Mercado Pago, aguarde...','s');
+  alerta('alerta-cob','Gerando Pix, aguarde...','s');
   try{
-    const r=await fetch('https://api.mercadopago.com/v1/payments',{
+    const r=await fetch('/.netlify/functions/pagar',{
       method:'POST',
-      headers:{'Authorization':'Bearer '+MP_TOKEN,'Content-Type':'application/json','X-Idempotency-Key':id+'-avulsa-'+Date.now()},
-      body:JSON.stringify({
-        transaction_amount:parseFloat(valor),
-        description:'Honorários contábeis - Rodrigues Assessoria',
-        payment_method_id:'pix',
-        date_of_expiration:formatDate(addDays(new Date(),30))+'T23:59:59.000-03:00',
-        payer:{email:email,first_name:nome.split(' ')[0],last_name:nome.split(' ').slice(1).join(' ')||'.',identification:{type:'CNPJ',number:cpf}},
-        external_reference:id
-      })
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({cobranca_id:id,valor:valor,descricao:'Honorários contábeis - Rodrigues Assessoria',nome:nome,email:email,cpf:cpf})
     });
     const d=await r.json();
-    if(d.id&&d.point_of_interaction?.transaction_data){
-      const qr=d.point_of_interaction.transaction_data.qr_code||'';
-      await db.from('cobrancas').update({mp_payment_id:String(d.id),pix_qr_code:qr}).eq('id',id);
+    if(d.pix_copia_cola){
+      const qr=d.pix_copia_cola;
+      await db.from('cobrancas').update({mp_payment_id:String(d.payment_id),pix_qr_code:qr}).eq('id',id);
       document.getElementById('pix-codigo').textContent=qr;
-      document.getElementById('pix-payment-id').textContent=d.id;
+      document.getElementById('pix-payment-id').textContent=d.payment_id;
       document.getElementById('alerta-cob').innerHTML='';
       document.getElementById('m-pix').classList.remove('hidden');
-      await logEvento({tipo_evento:'pix_gerado',canal:'portal_mp',status:'sucesso',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mp_payment_id:d.id,mensagem:'Pix gerado (avulsa) via API MP direta: '+nome,dados_json:{payment_id:d.id}});
+      await logEvento({tipo_evento:'pix_gerado',canal:'netlify_function',status:'sucesso',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mp_payment_id:d.payment_id,mensagem:'Pix gerado via Netlify Function: '+nome,dados_json:{payment_id:d.payment_id}});
     }else{
-      alerta('alerta-cob','Erro ao gerar Pix: '+(d.message||JSON.stringify(d)),'e');
-      await logEvento({tipo_evento:'erro',canal:'portal_mp',status:'erro',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mensagem:'Falha ao gerar Pix (avulsa): '+nome,erro_detalhe:d.message||JSON.stringify(d),dados_json:d});
+      alerta('alerta-cob','Erro ao gerar Pix: '+(d.erro||JSON.stringify(d)),'e');
+      await logEvento({tipo_evento:'erro',canal:'netlify_function',status:'erro',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mensagem:'Falha ao gerar Pix: '+nome,erro_detalhe:d.erro||JSON.stringify(d),dados_json:d});
     }
   }catch(e){
     alerta('alerta-cob','Erro de conexão: '+e.message,'e');
-    await logEvento({tipo_evento:'erro',canal:'portal_mp',status:'erro',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mensagem:'Erro de conexão ao gerar Pix: '+nome,erro_detalhe:e.message});
+    await logEvento({tipo_evento:'erro',canal:'netlify_function',status:'erro',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mensagem:'Erro de conexão ao gerar Pix: '+nome,erro_detalhe:e.message});
   }
 }
 
