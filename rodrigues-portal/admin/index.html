@@ -2826,7 +2826,9 @@ function kbCard(t,hoje,nextStatus){
   const isOv=t.data_prazo<hoje;
   const btnLabel=nextStatus==='executado'?'✓ Executar':'📤 Enviar';
   const btnClass=nextStatus==='executado'?'tar-btn-exec':'tar-btn-send';
-  return '<div class="kb-card'+(isOv?' tar-overdue':'')+'"><div class="kb-card-title">'+t.titulo+'</div><div class="kb-card-sub">'+(t.cliente_nome||'')+' · '+fmtDt(t.data_prazo)+'</div><div class="kb-card-actions"><button class="'+btnClass+'" style="font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer" onclick="mudarStatusTarefa(\''+t.id+'\',\''+nextStatus+'\')">'+btnLabel+'</button></div></div>';
+  const anexarBtn='<label style="font-size:11px;padding:2px 8px;border-radius:4px;background:#f3e8ff;color:#7c3aed;cursor:pointer;display:inline-flex;align-items:center;gap:2px"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 PDF</label>';
+  const sendBtn=nextStatus==='enviado'?'<button class="'+btnClass+'" style="font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer" onclick="prepararEnvio(\''+t.id+'\')">'+btnLabel+'</button>':'<button class="'+btnClass+'" style="font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer" onclick="mudarStatusTarefa(\''+t.id+'\',\''+nextStatus+'\')">'+btnLabel+'</button>';
+  return '<div class="kb-card'+(isOv?' tar-overdue':'')+'"><div class="kb-card-title">'+t.titulo+'</div><div class="kb-card-sub">'+(t.cliente_nome||'')+' · '+fmtDt(t.data_prazo)+'</div><div class="kb-card-actions" style="display:flex;gap:4px;flex-wrap:wrap">'+sendBtn+anexarBtn+'</div></div>';
 }
 
 function buildAcoes(t){
@@ -2836,8 +2838,9 @@ function buildAcoes(t){
   return '<button class="tar-btn-upload" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')" title="Voltar para Executado">↩ Desfazer</button><span style="font-size:11px;color:#16a34a">✓ Enviado'+(dtEnv?' em '+dtEnv:'')+'</span>';
 }
 function buildAcoesCompact(t){
-  if(t.status==='pendente') return '<button class="btn btn-sm" style="font-size:11px;background:#dbeafe;color:#1d4ed8;border:none" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">✓ Executar</button>';
-  if(t.status==='executado') return '<button class="btn btn-sm" style="font-size:11px" onclick="mudarStatusTarefa(\''+t.id+'\',\'pendente\')">↩</button><button class="btn btn-sm" style="font-size:11px;background:#dcfce7;color:#166534;border:none" onclick="prepararEnvio(\''+t.id+'\')">📤 Enviar</button>';
+  const anexarBtn='<label class="btn btn-sm" style="font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:2px;background:#f3e8ff;color:#7c3aed;border:none"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 Anexar PDF</label>';
+  if(t.status==='pendente') return '<button class="btn btn-sm" style="font-size:11px;background:#dbeafe;color:#1d4ed8;border:none" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">✓ Executar</button>'+anexarBtn;
+  if(t.status==='executado') return '<button class="btn btn-sm" style="font-size:11px" onclick="mudarStatusTarefa(\''+t.id+'\',\'pendente\')">↩ Desfazer</button>'+anexarBtn+'<button class="btn btn-sm" style="font-size:11px;background:#dcfce7;color:#166534;border:none" onclick="prepararEnvio(\''+t.id+'\')">📤 Enviar</button>';
   return '<button class="btn btn-sm" style="font-size:11px" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">↩</button><span style="font-size:11px;color:#16a34a">✓</span>';
 }
 
