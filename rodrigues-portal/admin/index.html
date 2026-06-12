@@ -459,6 +459,22 @@ tr:hover td{background:#f8fafc}
       </div>
     </div>
 
+    <!-- MODAL NOVO COLABORADOR -->
+    <div id="m-novo-colab" class="overlay hidden">
+      <div class="modal" style="max-width:440px">
+        <h2>Novo colaborador</h2>
+        <p style="font-size:12px;color:#64748b;margin-bottom:1rem">Cria o login de acesso e o perfil do colaborador. Depois, selecione-o na lista para liberar departamentos e clientes.</p>
+        <div class="fg"><label>Nome completo *</label><input id="nc-nome" placeholder="Ex: Maria Silva"></div>
+        <div class="fg"><label>E-mail (login) *</label><input type="email" id="nc-email" placeholder="email@exemplo.com"></div>
+        <div class="fg"><label>Senha provisória * <span style="font-size:11px;color:#94a3b8;font-weight:400">(mín. 6 caracteres)</span></label><input type="text" id="nc-senha" placeholder="Senha que o colaborador usará para entrar"></div>
+        <p class="err hidden" id="nc-err"></p>
+        <div class="ma">
+          <button class="btn btn-sm" onclick="fecharModal('m-novo-colab')">Cancelar</button>
+          <button class="btn btn-success btn-sm" id="nc-btn-salvar" onclick="salvarNovoColab()">Criar colaborador</button>
+        </div>
+      </div>
+    </div>
+
     <div id="pg-historico" class="hidden">
       <div class="page-hdr">
         <h1>Históricos de comunicação</h1>
@@ -534,7 +550,7 @@ tr:hover td{background:#f8fafc}
       </div>
       <div id="alerta-perm"></div>
       <div class="card" style="margin-bottom:1rem">
-        <div class="card-hdr"><h2>Colaboradores</h2></div>
+        <div class="card-hdr"><h2>Colaboradores</h2><button class="btn btn-success btn-sm" onclick="abrirModalNovoColab()">+ Novo colaborador</button></div>
         <div style="padding:1rem">
           <div class="fg"><label>Selecione o colaborador</label>
             <select id="perm-user" class="si" style="width:100%;max-width:400px" onchange="carregarPermissoes()">
@@ -655,7 +671,7 @@ tr:hover td{background:#f8fafc}
       <!-- VIEW: LISTA -->
       <div id="tar-lista-container" class="hidden">
         <div class="card"><div class="tbl-wrap">
-          <table><thead><tr><th>Tarefa</th><th>Cliente</th><th>Prazo</th><th>Dept.</th><th>Status</th><th>Ações</th></tr></thead>
+          <table><thead><tr><th>Tarefa</th><th>Cliente</th><th>CNPJ/CPF</th><th>Prazo</th><th>Dept.</th><th>Status</th><th>Ações</th></tr></thead>
           <tbody id="tb-tar-lista"></tbody></table>
         </div></div>
       </div>
@@ -1080,6 +1096,7 @@ const mesAtual=()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMo
 const ultimoDia=m=>{const[y,mo]=m.split('-');return new Date(parseInt(y),parseInt(mo),0).getDate();};
 const nomeMes=m=>{const ms=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];const[y,mo]=m.split('-');return ms[parseInt(mo)-1]+' de '+y;};
 const nomeMesS=m=>{const ms=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];const[y,mo]=m.split('-');return ms[parseInt(mo)-1]+'/'+y.slice(2);};
+const mesAnterior=comp=>{if(!comp)return'';const[y,m]=comp.split('-').map(Number);const d=new Date(y,m-2,1);return String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();};
 const mesesAnt=n=>{const r=[];const d=new Date();for(let i=n-1;i>=0;i--){const t=new Date(d.getFullYear(),d.getMonth()-i,1);r.push(t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0'));}return r;};
 
 function toggleSidebar(){
@@ -1747,17 +1764,32 @@ async function sincronizarMP(){
     if(!mpData.results){alerta('alerta-cob','Erro ao buscar no MP: '+(mpData.message||JSON.stringify(mpData)),'e');btn.textContent='🔄 Sincronizar MP';btn.disabled=false;return;}
 
     const mes=document.getElementById('fil-mes-cob').value||mesAtual();
-    const {data:cobs}=await db.from('cobrancas').select('*,clientes(nome,email)').eq('status','a_receber').gte('data_vencimento',mes+'-01').lte('data_vencimento',mes+'-'+ultimoDia(mes));
+    const {data:cobs}=await db.from('cobrancas').select('*,clientes(nome,email,documento)').eq('status','a_receber').gte('data_vencimento',mes+'-01').lte('data_vencimento',mes+'-'+ultimoDia(mes));
 
+    const usadas=new Set();
     syncPagamentos=[];
     for(const pag of (mpData.results||[])){
       const valorPag=parseFloat(pag.transaction_amount);
       const dataPag=pag.date_approved?.split('T')[0]||new Date().toISOString().split('T')[0];
-      let cob=cobs?.find(c=>c.mp_payment_id&&String(c.mp_payment_id)===String(pag.id));
-      if(!cob) cob=cobs?.find(c=>parseFloat(c.valor)===valorPag&&c.status==='a_receber');
+      const docPag=(pag.payer?.identification?.number||'').replace(/\D/g,'');
+      let cob=null,criterio='';
+      // 1) Vínculo direto pelo mp_payment_id (Pix gerado pelo portal)
+      cob=cobs?.find(c=>!usadas.has(c.id)&&c.mp_payment_id&&String(c.mp_payment_id)===String(pag.id));
+      if(cob)criterio='ID';
+      // 2) CNPJ/CPF do pagador = documento do cliente (Pix pago direto na chave)
+      if(!cob&&docPag.length>=11){
+        const cobsCli=(cobs||[]).filter(c=>!usadas.has(c.id)&&(c.clientes?.documento||'').replace(/\D/g,'')===docPag);
+        cob=cobsCli.find(c=>parseFloat(c.valor)===valorPag)||(cobsCli.length===1?cobsCli[0]:null);
+        if(cob)criterio='CNPJ';
+      }
+      // 3) Último recurso: valor exato
+      if(!cob){
+        cob=cobs?.find(c=>!usadas.has(c.id)&&parseFloat(c.valor)===valorPag);
+        if(cob)criterio='Valor';
+      }
       if(!cob)continue;
-      if(syncPagamentos.find(s=>s.cobId===cob.id))continue;
-      syncPagamentos.push({mpId:pag.id,cobId:cob.id,nome:cob.clientes?.nome||'--',email:cob.clientes?.email||'',valor:valorPag,dataPag,cobValor:cob.valor});
+      usadas.add(cob.id);
+      syncPagamentos.push({mpId:pag.id,cobId:cob.id,nome:cob.clientes?.nome||'--',email:cob.clientes?.email||'',valor:valorPag,dataPag,cobValor:cob.valor,criterio});
     }
 
     if(!syncPagamentos.length){alerta('alerta-cob','Nenhum pagamento encontrado para sincronizar.','s');btn.textContent='🔄 Sincronizar MP';btn.disabled=false;return;}
@@ -1765,15 +1797,19 @@ async function sincronizarMP(){
     const lista=document.getElementById('sync-lista');
     lista.innerHTML='';
     syncPagamentos.forEach((p,i)=>{
+      const critCor=p.criterio==='ID'?'background:#dcfce7;color:#166534':p.criterio==='CNPJ'?'background:#dbeafe;color:#1e40af':'background:#fef3c7;color:#92400e';
+      const critBadge=`<span style="font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;${critCor}" title="Critério de conciliação">${p.criterio}</span>`;
+      const difValor=parseFloat(p.cobValor)!==p.valor?`<div style="font-size:11px;color:#d97706">⚠ cobrança: ${fmt(p.cobValor)}</div>`:'';
       lista.innerHTML+=`<div style="display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-bottom:1px solid #f1f5f9">
         <input type="checkbox" id="sync-chk-${i}" checked style="width:16px;height:16px;cursor:pointer" onchange="atualizarContSync()">
         <div style="flex:1">
-          <div style="font-weight:500;font-size:13px">${p.nome}</div>
+          <div style="font-weight:500;font-size:13px">${p.nome} ${critBadge}</div>
           <div style="font-size:11px;color:#64748b">${p.email}</div>
         </div>
         <div style="text-align:right">
           <div style="font-weight:600;color:#16a34a">${fmt(p.valor)}</div>
           <div style="font-size:11px;color:#64748b">${fmtDt(p.dataPag)}</div>
+          ${difValor}
         </div>
       </div>`;
     });
@@ -2612,6 +2648,42 @@ async function carregarPermPage(){
   document.getElementById('perm-clientes-wrap').classList.add('hidden');
 }
 
+function abrirModalNovoColab(){
+  ['nc-nome','nc-email','nc-senha'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nc-err').classList.add('hidden');
+  document.getElementById('m-novo-colab').classList.remove('hidden');
+}
+
+async function salvarNovoColab(){
+  const nome=document.getElementById('nc-nome').value.trim();
+  const email=document.getElementById('nc-email').value.trim().toLowerCase();
+  const senha=document.getElementById('nc-senha').value;
+  const err=document.getElementById('nc-err');
+  const btn=document.getElementById('nc-btn-salvar');
+  err.classList.add('hidden');
+  if(!nome||!email||!email.includes('@')){err.textContent='Preencha nome e um e-mail válido.';err.classList.remove('hidden');return;}
+  if(!senha||senha.length<6){err.textContent='A senha deve ter no mínimo 6 caracteres.';err.classList.remove('hidden');return;}
+  btn.disabled=true;btn.textContent='Criando...';
+  try{
+    // Cliente auxiliar: cria o login SEM derrubar a sessão do admin
+    const dbAux=supabase.createClient(SURL,SKEY,{auth:{persistSession:false,autoRefreshToken:false}});
+    const {error:e1}=await dbAux.auth.signUp({email:email,password:senha});
+    if(e1)throw new Error('Falha ao criar login: '+e1.message);
+    const {error:e2}=await db.from('usuarios').insert([{nome:nome,email:email,role:'colaborador',ativo:true,departamentos_permitidos:['fiscal','pessoal','contabil']}]);
+    if(e2)throw new Error('Login criado, mas falha ao registrar perfil: '+e2.message);
+    fecharModal('m-novo-colab');
+    alerta('alerta-perm','✅ Colaborador "'+nome+'" criado! Selecione-o abaixo para ajustar departamentos e clientes.','s');
+    await carregarPermPage();
+    document.getElementById('perm-user').value=email;
+    carregarPermissoes();
+  }catch(e){
+    err.textContent=e.message;
+    err.classList.remove('hidden');
+  }finally{
+    btn.disabled=false;btn.textContent='Criar colaborador';
+  }
+}
+
 async function carregarPermissoes(){
   const email=document.getElementById('perm-user').value;
   if(!email){document.getElementById('perm-clientes-wrap').classList.add('hidden');return;}
@@ -2784,7 +2856,7 @@ function renderCards(lista,hoje){
     let acoes=buildAcoes(t);
     return '<div class="'+(isOv?'tar-card tar-overdue':'tar-card')+'">'+
       '<div class="tar-card-dept" style="background:'+deptColor+'"></div>'+
-      '<div class="tar-card-top"><div><div class="tar-card-title">'+t.titulo+'</div><div class="tar-card-cli">'+(t.cliente_nome||'Sem cliente')+'</div></div>'+stHtml+'</div>'+
+      '<div class="tar-card-top"><div><div class="tar-card-title">'+t.titulo+'</div><div class="tar-card-cli">'+(t.cliente_nome||'Sem cliente')+(t.cliente_documento?' <span style="font-family:monospace;color:#94a3b8;font-size:11px">· '+t.cliente_documento+'</span>':'')+'</div></div>'+stHtml+'</div>'+
       descHtml+
       '<div class="tar-card-meta"><span>📅 '+fmtDt(t.data_prazo)+'</span><span style="background:'+(t.departamento==='fiscal'?'#eff6ff;color:#1d4ed8':t.departamento==='pessoal'?'#fef3c7;color:#92400e':'#f0fdf4;color:#166534')+';padding:1px 8px;border-radius:4px">'+t.departamento+'</span>'+(t.responsavel?'<span>👤 '+t.responsavel+'</span>':'')+prioHtml+ovHtml+anexoHtml+'</div>'+
       '<div class="tar-card-actions">'+acoes+'</div></div>';
@@ -2793,14 +2865,14 @@ function renderCards(lista,hoje){
 
 function renderLista(lista,hoje){
   const tb=document.getElementById('tb-tar-lista');
-  if(!lista.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:2rem">Nenhuma tarefa</td></tr>';return;}
+  if(!lista.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:2rem">Nenhuma tarefa</td></tr>';return;}
   tb.innerHTML=lista.map(t=>{
     const badge=t.status==='pendente'?'badge-amber':t.status==='executado'?'badge-blue':'badge-green';
     const label=t.status==='pendente'?'Pendente':t.status==='executado'?'Executado':'Enviado';
     const deptSt=t.departamento==='fiscal'?'background:#eff6ff;color:#1d4ed8':t.departamento==='pessoal'?'background:#fef3c7;color:#92400e':'background:#f0fdf4;color:#166534';
     const pc=t.data_prazo<hoje&&t.status!=='enviado'?'color:#dc2626;font-weight:600':'';
     let acoes=buildAcoesCompact(t);
-    return '<tr><td style="font-weight:500;font-size:13px">'+t.titulo+'</td><td style="font-size:12px">'+(t.cliente_nome||'—')+'</td><td style="font-size:12px;white-space:nowrap;'+pc+'">'+fmtDt(t.data_prazo)+'</td><td><span style="font-size:11px;padding:2px 8px;border-radius:4px;'+deptSt+'">'+t.departamento+'</span></td><td><span class="badge '+badge+'">'+label+'</span></td><td style="white-space:nowrap">'+acoes+'</td></tr>';
+    return '<tr><td style="font-weight:500;font-size:13px">'+t.titulo+'</td><td style="font-size:12px">'+(t.cliente_nome||'—')+'</td><td style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap">'+(t.cliente_documento||'—')+'</td><td style="font-size:12px;white-space:nowrap;'+pc+'">'+fmtDt(t.data_prazo)+'</td><td><span style="font-size:11px;padding:2px 8px;border-radius:4px;'+deptSt+'">'+t.departamento+'</span></td><td><span class="badge '+badge+'">'+label+'</span></td><td style="white-space:nowrap">'+acoes+'</td></tr>';
   }).join('');
 }
 
@@ -2813,7 +2885,7 @@ function renderKanban(lista,hoje){
   document.getElementById('kb-env-n').textContent='('+env.length+')';
   document.getElementById('kb-pend').innerHTML=pend.map(t=>kbCard(t,hoje,'executado')).join('')||'<div style="text-align:center;color:#9ca3af;font-size:11px;padding:1rem">Nenhuma</div>';
   document.getElementById('kb-exec').innerHTML=exec.map(t=>kbCard(t,hoje,'enviado')).join('')||'<div style="text-align:center;color:#9ca3af;font-size:11px;padding:1rem">Nenhuma</div>';
-  document.getElementById('kb-env').innerHTML=env.map(t=>'<div class="kb-card"><div class="kb-card-title">'+t.titulo+'</div><div class="kb-card-sub">'+(t.cliente_nome||'')+'</div><div class="kb-card-sub" style="color:#16a34a;margin-top:2px">✓ '+(t.enviado_em?new Date(t.enviado_em).toLocaleDateString('pt-BR'):'Concluído')+'</div></div>').join('')||'<div style="text-align:center;color:#9ca3af;font-size:11px;padding:1rem">Nenhuma</div>';
+  document.getElementById('kb-env').innerHTML=env.map(t=>{const semEnv=Array.isArray(t.enviado_para)&&t.enviado_para[0]==='sem_envio';return '<div class="kb-card"><div class="kb-card-title">'+t.titulo+'</div><div class="kb-card-sub">'+(t.cliente_nome||'')+(t.cliente_documento?' · '+t.cliente_documento:'')+'</div><div class="kb-card-sub" style="color:#16a34a;margin-top:2px">✓ '+(semEnv?'Concluído sem envio':(t.enviado_em?new Date(t.enviado_em).toLocaleDateString('pt-BR'):'Concluído'))+'</div></div>';}).join('')||'<div style="text-align:center;color:#9ca3af;font-size:11px;padding:1rem">Nenhuma</div>';
 }
 function kbCard(t,hoje,nextStatus){
   const isOv=t.data_prazo<hoje;
@@ -2821,20 +2893,22 @@ function kbCard(t,hoje,nextStatus){
   const btnClass=nextStatus==='executado'?'tar-btn-exec':'tar-btn-send';
   const anexarBtn='<label style="font-size:11px;padding:2px 8px;border-radius:4px;background:#f3e8ff;color:#7c3aed;cursor:pointer;display:inline-flex;align-items:center;gap:2px"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 PDF</label>';
   const sendBtn=nextStatus==='enviado'?'<button class="'+btnClass+'" style="font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer" onclick="prepararEnvio(\''+t.id+'\')">'+btnLabel+'</button>':'<button class="'+btnClass+'" style="font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer" onclick="mudarStatusTarefa(\''+t.id+'\',\''+nextStatus+'\')">'+btnLabel+'</button>';
-  return '<div class="kb-card'+(isOv?' tar-overdue':'')+'"><div class="kb-card-title">'+t.titulo+'</div><div class="kb-card-sub">'+(t.cliente_nome||'')+' · '+fmtDt(t.data_prazo)+'</div><div class="kb-card-actions" style="display:flex;gap:4px;flex-wrap:wrap">'+sendBtn+anexarBtn+'</div></div>';
+  return '<div class="kb-card'+(isOv?' tar-overdue':'')+'"><div class="kb-card-title">'+t.titulo+'</div><div class="kb-card-sub">'+(t.cliente_nome||'')+(t.cliente_documento?' · '+t.cliente_documento:'')+' · '+fmtDt(t.data_prazo)+'</div><div class="kb-card-actions" style="display:flex;gap:4px;flex-wrap:wrap">'+sendBtn+anexarBtn+(nextStatus==='enviado'?'<button style="font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer;background:#f0fdf4;color:#166534" onclick="concluirSemEnvio(\''+t.id+'\')" title="Concluir sem envio de email">✔ s/ envio</button>':'')+'</div></div>';
 }
 
 function buildAcoes(t){
   if(t.status==='pendente') return '<button class="tar-btn-exec" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">✓ Marcar executado</button><label class="tar-btn-upload" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 Anexar PDF</label>';
-  if(t.status==='executado') return '<button class="tar-btn-upload" onclick="mudarStatusTarefa(\''+t.id+'\',\'pendente\')" title="Voltar para Pendente">↩ Desfazer</button><label class="tar-btn-upload" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 Anexar PDF</label><button class="tar-btn-send" onclick="prepararEnvio(\''+t.id+'\')">📤 Enviar ao cliente</button>';
+  if(t.status==='executado') return '<button class="tar-btn-upload" onclick="mudarStatusTarefa(\''+t.id+'\',\'pendente\')" title="Voltar para Pendente">↩ Desfazer</button><label class="tar-btn-upload" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 Anexar PDF</label><button class="tar-btn-send" onclick="prepararEnvio(\''+t.id+'\')">📤 Enviar ao cliente</button><button style="font-size:12px;padding:.35rem .75rem;border-radius:6px;border:none;cursor:pointer;font-weight:500;background:#f0fdf4;color:#166534" onclick="concluirSemEnvio(\''+t.id+'\')" title="Concluir sem envio de email ao cliente">✔ Concluir sem envio</button>';
   const dtEnv=t.enviado_em?new Date(t.enviado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
-  return '<button class="tar-btn-upload" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')" title="Voltar para Executado">↩ Desfazer</button><span style="font-size:11px;color:#16a34a">✓ Enviado'+(dtEnv?' em '+dtEnv:'')+'</span>';
+  const semEnvio=Array.isArray(t.enviado_para)&&t.enviado_para[0]==='sem_envio';
+  return '<button class="tar-btn-upload" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')" title="Voltar para Executado">↩ Desfazer</button><span style="font-size:11px;color:#16a34a">'+(semEnvio?'✓ Concluído sem envio':'✓ Enviado'+(dtEnv?' em '+dtEnv:''))+'</span>';
 }
 function buildAcoesCompact(t){
   const anexarBtn='<label class="btn btn-sm" style="font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:2px;background:#f3e8ff;color:#7c3aed;border:none"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 Anexar PDF</label>';
   if(t.status==='pendente') return '<button class="btn btn-sm" style="font-size:11px;background:#dbeafe;color:#1d4ed8;border:none" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">✓ Executar</button>'+anexarBtn;
-  if(t.status==='executado') return '<button class="btn btn-sm" style="font-size:11px" onclick="mudarStatusTarefa(\''+t.id+'\',\'pendente\')">↩ Desfazer</button>'+anexarBtn+'<button class="btn btn-sm" style="font-size:11px;background:#dcfce7;color:#166534;border:none" onclick="prepararEnvio(\''+t.id+'\')">📤 Enviar</button>';
-  return '<button class="btn btn-sm" style="font-size:11px" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">↩</button><span style="font-size:11px;color:#16a34a">✓</span>';
+  if(t.status==='executado') return '<button class="btn btn-sm" style="font-size:11px" onclick="mudarStatusTarefa(\''+t.id+'\',\'pendente\')">↩ Desfazer</button>'+anexarBtn+'<button class="btn btn-sm" style="font-size:11px;background:#dcfce7;color:#166534;border:none" onclick="prepararEnvio(\''+t.id+'\')">📤 Enviar</button><button class="btn btn-sm" style="font-size:11px;background:#f0fdf4;color:#166534;border:none" onclick="concluirSemEnvio(\''+t.id+'\')" title="Concluir sem envio de email">✔ s/ envio</button>';
+  const semEnvioC=Array.isArray(t.enviado_para)&&t.enviado_para[0]==='sem_envio';
+  return '<button class="btn btn-sm" style="font-size:11px" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">↩</button><span style="font-size:11px;color:#16a34a" title="'+(semEnvioC?'Concluído sem envio':'Enviado')+'">✓'+(semEnvioC?' s/ envio':'')+'</span>';
 }
 
 async function mudarStatusTarefa(id,novoStatus){
@@ -2847,6 +2921,19 @@ async function mudarStatusTarefa(id,novoStatus){
   if(novoStatus==='pendente'){payload.executado_em=null;payload.executado_por=null;payload.enviado_em=null;payload.enviado_por=null;payload.enviado_para=null;}
   if(novoStatus==='executado'){payload.enviado_em=null;payload.enviado_por=null;payload.enviado_para=null;}
   await db.from('tarefas').update(payload).eq('id',id);
+  carregarTarefas();
+}
+
+async function concluirSemEnvio(id){
+  if(!confirm('Concluir esta tarefa SEM envio de email ao cliente?'))return;
+  const usuario=document.getElementById('u-email').textContent||'admin';
+  await db.from('tarefas').update({
+    status:'enviado',
+    enviado_em:new Date().toISOString(),
+    enviado_por:usuario,
+    enviado_para:['sem_envio']
+  }).eq('id',id);
+  alerta('alert-tar','✔ Tarefa concluída sem envio.','s');
   carregarTarefas();
 }
 
@@ -2878,7 +2965,7 @@ async function prepararEnvio(tarefaId){
   document.getElementById('env-emails').innerHTML=emails.filter(Boolean).map(e=>'<span style="background:#eff6ff;color:#1d4ed8;padding:2px 8px;border-radius:4px;font-size:12px;margin-right:4px">'+e+'</span>').join('')||'<span style="color:#dc2626">Nenhum email cadastrado</span>';
 
   const comp=t.competencia||'';
-  const compFmt=comp?comp.split('-').reverse().join('/'):'';
+  const compFmt=mesAnterior(comp);
   document.getElementById('env-assunto').value='[Rodrigues Assessoria] '+(t.obrigacao_nome||t.titulo)+(compFmt?' - Competência '+compFmt:'');
 
   // Mostrar seletor COM/SEM MOVIMENTO apenas para DAS Simples Nacional
@@ -2902,7 +2989,7 @@ function atualizarEmailMovimento(){
   const tarefaId=document.getElementById('env-tarefa-id').value;
   const t=todasTarefas.find(x=>x.id===tarefaId);if(!t)return;
   const comp=t.competencia||'';
-  const compFmt=comp?comp.split('-').reverse().join('/'):'';
+  const compFmt=mesAnterior(comp);
   const mov=document.getElementById('env-movimento').value;
   gerarEmailPreview(t,compFmt,mov);
 }
@@ -2920,7 +3007,7 @@ function gerarEmailPreview(t,compFmt,movimento){
     '<div style="text-align:center;margin-bottom:12px"><img src="https://xuzcczbdbgihkurcbepw.supabase.co/storage/v1/object/public/assets/LOGO%20RODRIGUES%20CONT.png" style="height:40px"></div>'+
     '<p>Prezado(a) <strong>'+(t.cliente_nome||'Cliente')+'</strong>,</p>'+
     '<p>'+descricao+'</p>'+
-    (t.data_prazo?'<p>Prazo: <strong>'+fmtDt(t.data_prazo)+'</strong></p>':'')+
+    (t.data_prazo?'<p>Vencimento: <strong>'+fmtDt(t.data_prazo)+'</strong></p>':'')+
     '<p>Em caso de dúvidas, entre em contato conosco.</p>'+
     '<br><p>Atenciosamente,<br><strong>Rodrigues Assessoria Contábil</strong><br>'+
     '<span style="font-size:11px;color:#64748b">(21) 99401-4601 · contato@rodriguesconta.com.br</span></p>';
