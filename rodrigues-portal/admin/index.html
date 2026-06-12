@@ -1141,8 +1141,9 @@ async function logout(){await db.auth.signOut();location.reload();}
 
 async function iniciar(u){
   document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
   document.getElementById('u-email').textContent=u.email;
+  // ⚠ O app permanece OCULTO até o perfil ser carregado e o menu ajustado,
+  // para o colaborador nunca ver (nem por um instante) as abas de admin.
 
   // Buscar role do usuário
   const {data:usr}=await db.from('usuarios').select('role,nome,departamentos_permitidos,ativo').eq('email',u.email).single();
@@ -1186,6 +1187,8 @@ async function iniciar(u){
     carregarCats();
     go('dashboard');
   }
+  // Agora sim: interface pronta para o perfil correto
+  document.getElementById('app').classList.remove('hidden');
 }
 
 function go(pg){
