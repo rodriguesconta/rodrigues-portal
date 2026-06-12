@@ -56,9 +56,33 @@ exports.handler = async (event) => {
     const lData = await lRes.json();
     const users = lData.users || [];
     const alvo = users.find(u => (u.email || '').toLowerCase() === email.toLowerCase());
+
+    // 5) Ação DELETE: apaga login (se existir) + perfil + vínculos de clientes
+    if (action === 'delete') {
+      if (alvo) {
+        const dRes = await fetch(SURL + '/auth/v1/admin/users/' + alvo.id, {
+          method: 'DELETE',
+          headers: { apikey: SERVICE, Authorization: 'Bearer ' + SERVICE }
+        });
+        if (!dRes.ok) {
+          const dErr = await dRes.json().catch(() => ({}));
+          return { statusCode: dRes.status, headers: cors, body: JSON.stringify({ error: dErr.msg || dErr.message || 'Erro ao excluir login no Auth' }) };
+        }
+      }
+      await fetch(SURL + '/rest/v1/usuario_clientes?usuario_email=eq.' + encodeURIComponent(email), {
+        method: 'DELETE',
+        headers: { apikey: SERVICE, Authorization: 'Bearer ' + SERVICE }
+      });
+      await fetch(SURL + '/rest/v1/usuarios?email=eq.' + encodeURIComponent(email), {
+        method: 'DELETE',
+        headers: { apikey: SERVICE, Authorization: 'Bearer ' + SERVICE }
+      });
+      return { statusCode: 200, headers: cors, body: JSON.stringify({ ok: true, action: 'delete', email: email, auth_removido: !!alvo }) };
+    }
+
     if (!alvo) return { statusCode: 404, headers: cors, body: JSON.stringify({ error: 'Usuário não encontrado no Auth' }) };
 
-    // 5) Executa a ação
+    // 6) Demais ações
     let body = {};
     if (action === 'set_password') {
       if (!password || password.length < 6) {
