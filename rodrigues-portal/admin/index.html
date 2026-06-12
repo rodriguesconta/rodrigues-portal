@@ -557,6 +557,10 @@ tr:hover td{background:#f8fafc}
               <option value="">Selecione...</option>
             </select>
           </div>
+          <div id="perm-conta-wrap" class="hidden" style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button class="btn btn-sm" onclick="alterarSenhaColab()" style="background:#4A6BD4;color:#fff;border-color:#4A6BD4">🔑 Alterar senha</button>
+            <button class="btn btn-sm" id="btn-bloquear" onclick="toggleBloqueioColab()" style="background:#dc2626;color:#fff;border-color:#dc2626">🔒 Bloquear acesso</button>
+          </div>
         </div>
       </div>
       <div id="perm-clientes-wrap" class="hidden">
@@ -1123,7 +1127,16 @@ async function iniciar(u){
   document.getElementById('u-email').textContent=u.email;
 
   // Buscar role do usuário
-  const {data:usr}=await db.from('usuarios').select('role,nome,departamentos_permitidos').eq('email',u.email).single();
+  const {data:usr}=await db.from('usuarios').select('role,nome,departamentos_permitidos,ativo').eq('email',u.email).single();
+  if(usr&&usr.ativo===false){
+    await db.auth.signOut();
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+    const erBloq=document.getElementById('l-err');
+    erBloq.textContent='Acesso bloqueado. Fale com o administrador.';
+    erBloq.classList.remove('hidden');
+    return;
+  }
   userRole=(usr&&usr.role)||'colaborador';
 
   // Se colaborador, buscar carteira de clientes
@@ -2638,14 +2651,72 @@ async function excluirPL(id){
 let permClisList=[];
 let userDepartamentos=null; // null=todos (admin), array=filtrado (colaborador)
 
+let permUsersCache=[];
 async function carregarPermPage(){
   const sel=document.getElementById('perm-user');
   sel.innerHTML='<option value="">Selecione...</option>';
-  const {data:users}=await db.from('usuarios').select('*').eq('role','colaborador').eq('ativo',true).order('nome');
-  (users||[]).forEach(u=>{
-    const o=document.createElement('option');o.value=u.email;o.textContent=u.nome+' ('+u.email+')';sel.appendChild(o);
+  const {data:users}=await db.from('usuarios').select('*').eq('role','colaborador').order('nome');
+  permUsersCache=users||[];
+  permUsersCache.forEach(u=>{
+    const o=document.createElement('option');o.value=u.email;o.textContent=u.nome+' ('+u.email+')'+(u.ativo===false?' — 🔒 BLOQUEADO':'');sel.appendChild(o);
   });
   document.getElementById('perm-clientes-wrap').classList.add('hidden');
+  atualizarBotoesConta();
+}
+
+function atualizarBotoesConta(){
+  const email=document.getElementById('perm-user').value;
+  const wrap=document.getElementById('perm-conta-wrap');
+  if(!email){wrap.classList.add('hidden');return;}
+  const u=permUsersCache.find(x=>x.email===email);
+  const btn=document.getElementById('btn-bloquear');
+  if(u&&u.ativo===false){btn.textContent='🔓 Desbloquear acesso';btn.style.background='#16a34a';btn.style.borderColor='#16a34a';}
+  else{btn.textContent='🔒 Bloquear acesso';btn.style.background='#dc2626';btn.style.borderColor='#dc2626';}
+  wrap.classList.remove('hidden');
+}
+
+async function chamarAdminUser(payload){
+  const {data:{session}}=await db.auth.getSession();
+  const r=await fetch('/.netlify/functions/admin-user',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+(session?.access_token||'')},
+    body:JSON.stringify(payload)
+  });
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.error||('HTTP '+r.status));
+  return d;
+}
+
+async function alterarSenhaColab(){
+  const email=document.getElementById('perm-user').value;
+  if(!email)return;
+  const nova=prompt('Nova senha para '+email+' (mínimo 6 caracteres):');
+  if(nova===null)return;
+  if(!nova||nova.length<6){alerta('alerta-perm','⚠ A senha deve ter no mínimo 6 caracteres.','e');return;}
+  try{
+    await chamarAdminUser({action:'set_password',email:email,password:nova});
+    alerta('alerta-perm','🔑 Senha alterada com sucesso para '+email+'.','s');
+  }catch(e){
+    alerta('alerta-perm','Erro ao alterar senha: '+e.message,'e');
+  }
+}
+
+async function toggleBloqueioColab(){
+  const email=document.getElementById('perm-user').value;
+  if(!email)return;
+  const u=permUsersCache.find(x=>x.email===email);
+  const bloquear=!(u&&u.ativo===false);
+  if(!confirm((bloquear?'BLOQUEAR':'DESBLOQUEAR')+' o acesso de '+email+'?'))return;
+  try{
+    await chamarAdminUser({action:bloquear?'ban':'unban',email:email});
+    await db.from('usuarios').update({ativo:!bloquear}).eq('email',email);
+    alerta('alerta-perm',(bloquear?'🔒 Acesso bloqueado':'🔓 Acesso desbloqueado')+' para '+email+'.','s');
+    await carregarPermPage();
+    document.getElementById('perm-user').value=email;
+    atualizarBotoesConta();
+  }catch(e){
+    alerta('alerta-perm','Erro: '+e.message,'e');
+  }
 }
 
 function abrirModalNovoColab(){
@@ -2685,6 +2756,7 @@ async function salvarNovoColab(){
 }
 
 async function carregarPermissoes(){
+  atualizarBotoesConta();
   const email=document.getElementById('perm-user').value;
   if(!email){document.getElementById('perm-clientes-wrap').classList.add('hidden');return;}
   // Buscar dados do user
