@@ -560,6 +560,7 @@ tr:hover td{background:#f8fafc}
           <div id="perm-conta-wrap" class="hidden" style="display:flex;gap:.5rem;flex-wrap:wrap">
             <button class="btn btn-sm" onclick="alterarSenhaColab()" style="background:#4A6BD4;color:#fff;border-color:#4A6BD4">🔑 Alterar senha</button>
             <button class="btn btn-sm" id="btn-bloquear" onclick="toggleBloqueioColab()" style="background:#dc2626;color:#fff;border-color:#dc2626">🔒 Bloquear acesso</button>
+            <button class="btn btn-sm" onclick="excluirColab()" style="background:#1e293b;color:#fff;border-color:#1e293b">🗑 Excluir colaborador</button>
           </div>
         </div>
       </div>
@@ -616,11 +617,12 @@ tr:hover td{background:#f8fafc}
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           <label style="font-size:12px;font-weight:600;color:#475569;white-space:nowrap">📋 Status</label>
-          <select id="fil-tar-status" class="si" style="width:120px" onchange="carregarTarefas()">
+          <select id="fil-tar-status" class="si" style="width:130px" onchange="carregarTarefas()">
             <option value="">Todos</option>
             <option value="pendente">Pendente</option>
             <option value="executado">Executado</option>
             <option value="enviado">Enviado</option>
+            <option value="arquivada">📦 Arquivadas</option>
           </select>
         </div>
         <div style="flex:1;min-width:200px">
@@ -883,6 +885,22 @@ tr:hover td{background:#f8fafc}
     <div class="ma">
       <button class="btn btn-sm" onclick="fecharModal('m-enviar')">Cancelar</button>
       <button class="btn btn-sm" style="background:#16a34a;color:#fff;border:none" onclick="confirmarEnvio()">📤 Confirmar envio</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMENTÁRIOS DA TAREFA -->
+<div id="m-coment" class="overlay hidden">
+  <div class="modal" style="max-width:520px">
+    <h2 style="display:flex;align-items:center;gap:.5rem">💬 Comentários da tarefa</h2>
+    <p id="coment-task-info" style="font-size:12px;color:#64748b;margin-bottom:.75rem"></p>
+    <div id="coment-lista" style="max-height:320px;min-height:120px;overflow-y:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;padding:.75rem;margin-bottom:.75rem;display:flex;flex-direction:column;gap:.5rem"></div>
+    <div style="display:flex;gap:.5rem">
+      <input id="coment-texto" class="si" style="flex:1" placeholder="Escreva um comentário..." onkeydown="if(event.key==='Enter')enviarComentario()">
+      <button class="btn btn-primary btn-sm" onclick="enviarComentario()">Enviar</button>
+    </div>
+    <div class="ma">
+      <button class="btn btn-sm" onclick="fecharModal('m-coment');carregarTarefas()">Fechar</button>
     </div>
   </div>
 </div>
@@ -2719,6 +2737,27 @@ async function toggleBloqueioColab(){
   }
 }
 
+async function excluirColab(){
+  const email=document.getElementById('perm-user').value;
+  if(!email)return;
+  if(!confirm('EXCLUIR definitivamente o colaborador '+email+'?\n\nIsso apaga o LOGIN, o PERFIL e os VÍNCULOS de clientes. Esta ação não pode ser desfeita.'))return;
+  const adminEmail=document.getElementById('u-email').textContent;
+  const senha=prompt('Para confirmar a exclusão, digite a senha do administrador ('+adminEmail+'):');
+  if(senha===null)return;
+  if(!senha){alerta('alerta-perm','⚠ Senha não informada. Exclusão cancelada.','e');return;}
+  try{
+    // Valida a senha do admin sem afetar a sessão atual
+    const dbAux=supabase.createClient(SURL,SKEY,{auth:{persistSession:false,autoRefreshToken:false}});
+    const {error:eAuth}=await dbAux.auth.signInWithPassword({email:adminEmail,password:senha});
+    if(eAuth)throw new Error('Senha do administrador incorreta. Exclusão cancelada.');
+    await chamarAdminUser({action:'delete',email:email});
+    alerta('alerta-perm','🗑 Colaborador '+email+' excluído por completo (login, perfil e vínculos).','s');
+    await carregarPermPage();
+  }catch(e){
+    alerta('alerta-perm','Erro: '+e.message,'e');
+  }
+}
+
 function abrirModalNovoColab(){
   ['nc-nome','nc-email','nc-senha'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('nc-err').classList.add('hidden');
@@ -2872,7 +2911,9 @@ async function carregarTarefas(){
   // Filtro por competência
   q=q.eq('competencia',comp);
   if(dept) q=q.eq('departamento',dept);
-  if(st) q=q.eq('status',st);
+  // Arquivadas: filtro especial (fora do fluxo normal)
+  if(st==='arquivada'){q=q.eq('arquivada',true);}
+  else{if(st) q=q.eq('status',st);q=q.eq('arquivada',false);}
   // Filtro por aba
   if(tarAbaAtiva==='obrigacoes') q=q.eq('tipo','recorrente');
   else q=q.eq('tipo','avulsa');
@@ -2925,13 +2966,15 @@ function renderCards(lista,hoje){
     const ovHtml=isOv?'<span style="color:#dc2626;font-size:11px;font-weight:600">⚠ Atrasada</span>':'';
     const descHtml=t.descricao?'<div class="tar-card-desc">'+t.descricao+'</div>':'';
     const anexoHtml=t.qtd_anexos>0?'<span class="tar-card-file">📎 '+t.qtd_anexos+' anexo'+(t.qtd_anexos>1?'s':'')+'</span>':'';
+    const comentBadge=t.qtd_comentarios>0?'<span class="tar-card-file" style="background:#fef9c3;color:#92400e">💬 '+t.qtd_comentarios+'</span>':'';
     let acoes=buildAcoes(t);
+    const comentBtn='<button class="tar-btn-upload" onclick="abrirComentarios(\''+t.id+'\')">💬 Comentários'+(t.qtd_comentarios>0?' ('+t.qtd_comentarios+')':'')+'</button>';
     return '<div class="'+(isOv?'tar-card tar-overdue':'tar-card')+'">'+
       '<div class="tar-card-dept" style="background:'+deptColor+'"></div>'+
       '<div class="tar-card-top"><div><div class="tar-card-title">'+t.titulo+'</div><div class="tar-card-cli">'+(t.cliente_nome||'Sem cliente')+(t.cliente_documento?' <span style="font-family:monospace;color:#94a3b8;font-size:11px">· '+t.cliente_documento+'</span>':'')+'</div></div>'+stHtml+'</div>'+
       descHtml+
-      '<div class="tar-card-meta"><span>📅 '+fmtDt(t.data_prazo)+'</span><span style="background:'+(t.departamento==='fiscal'?'#eff6ff;color:#1d4ed8':t.departamento==='pessoal'?'#fef3c7;color:#92400e':'#f0fdf4;color:#166534')+';padding:1px 8px;border-radius:4px">'+t.departamento+'</span>'+(t.responsavel?'<span>👤 '+t.responsavel+'</span>':'')+prioHtml+ovHtml+anexoHtml+'</div>'+
-      '<div class="tar-card-actions">'+acoes+'</div></div>';
+      '<div class="tar-card-meta"><span>📅 '+fmtDt(t.data_prazo)+'</span><span style="background:'+(t.departamento==='fiscal'?'#eff6ff;color:#1d4ed8':t.departamento==='pessoal'?'#fef3c7;color:#92400e':'#f0fdf4;color:#166534')+';padding:1px 8px;border-radius:4px">'+t.departamento+'</span>'+(t.responsavel?'<span>👤 '+t.responsavel+'</span>':'')+prioHtml+ovHtml+anexoHtml+comentBadge+'</div>'+
+      '<div class="tar-card-actions">'+acoes+comentBtn+'</div></div>';
   }).join('');
 }
 
@@ -2944,7 +2987,8 @@ function renderLista(lista,hoje){
     const deptSt=t.departamento==='fiscal'?'background:#eff6ff;color:#1d4ed8':t.departamento==='pessoal'?'background:#fef3c7;color:#92400e':'background:#f0fdf4;color:#166534';
     const pc=t.data_prazo<hoje&&t.status!=='enviado'?'color:#dc2626;font-weight:600':'';
     let acoes=buildAcoesCompact(t);
-    return '<tr><td style="font-weight:500;font-size:13px">'+t.titulo+'</td><td style="font-size:12px">'+(t.cliente_nome||'—')+'</td><td style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap">'+(t.cliente_documento||'—')+'</td><td style="font-size:12px;white-space:nowrap;'+pc+'">'+fmtDt(t.data_prazo)+'</td><td><span style="font-size:11px;padding:2px 8px;border-radius:4px;'+deptSt+'">'+t.departamento+'</span></td><td><span class="badge '+badge+'">'+label+'</span></td><td style="white-space:nowrap">'+acoes+'</td></tr>';
+    const comentBtnL='<button class="btn btn-sm" style="font-size:11px;background:#fef9c3;color:#92400e;border:none" onclick="abrirComentarios(\''+t.id+'\')">💬'+(t.qtd_comentarios>0?' '+t.qtd_comentarios:'')+'</button>';
+    return '<tr><td style="font-weight:500;font-size:13px">'+t.titulo+'</td><td style="font-size:12px">'+(t.cliente_nome||'—')+'</td><td style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap">'+(t.cliente_documento||'—')+'</td><td style="font-size:12px;white-space:nowrap;'+pc+'">'+fmtDt(t.data_prazo)+'</td><td><span style="font-size:11px;padding:2px 8px;border-radius:4px;'+deptSt+'">'+t.departamento+'</span></td><td><span class="badge '+badge+'">'+label+'</span></td><td style="white-space:nowrap">'+acoes+comentBtnL+'</td></tr>';
   }).join('');
 }
 
@@ -2965,19 +3009,22 @@ function kbCard(t,hoje,nextStatus){
   const btnClass=nextStatus==='executado'?'tar-btn-exec':'tar-btn-send';
   const anexarBtn='<label style="font-size:11px;padding:2px 8px;border-radius:4px;background:#f3e8ff;color:#7c3aed;cursor:pointer;display:inline-flex;align-items:center;gap:2px"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 PDF</label>';
   const sendBtn=nextStatus==='enviado'?'<button class="'+btnClass+'" style="font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer" onclick="prepararEnvio(\''+t.id+'\')">'+btnLabel+'</button>':'<button class="'+btnClass+'" style="font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer" onclick="mudarStatusTarefa(\''+t.id+'\',\''+nextStatus+'\')">'+btnLabel+'</button>';
-  return '<div class="kb-card'+(isOv?' tar-overdue':'')+'"><div class="kb-card-title">'+t.titulo+'</div><div class="kb-card-sub">'+(t.cliente_nome||'')+(t.cliente_documento?' · '+t.cliente_documento:'')+' · '+fmtDt(t.data_prazo)+'</div><div class="kb-card-actions" style="display:flex;gap:4px;flex-wrap:wrap">'+sendBtn+anexarBtn+(nextStatus==='enviado'?'<button style="font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer;background:#f0fdf4;color:#166534" onclick="concluirSemEnvio(\''+t.id+'\')" title="Concluir sem envio de email">✔ s/ envio</button>':'')+'</div></div>';
+  const arqBtn=nextStatus==='executado'?'<button style="font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer;background:#f1f5f9;color:#475569" onclick="arquivarTarefa(\''+t.id+'\')" title="Arquivar">📦</button>':'';
+  return '<div class="kb-card'+(isOv?' tar-overdue':'')+'"><div class="kb-card-title">'+t.titulo+'</div><div class="kb-card-sub">'+(t.cliente_nome||'')+(t.cliente_documento?' · '+t.cliente_documento:'')+' · '+fmtDt(t.data_prazo)+'</div><div class="kb-card-actions" style="display:flex;gap:4px;flex-wrap:wrap">'+sendBtn+anexarBtn+arqBtn+(nextStatus==='enviado'?'<button style="font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer;background:#f0fdf4;color:#166534" onclick="concluirSemEnvio(\''+t.id+'\')" title="Concluir sem envio de email">✔ s/ envio</button>':'')+'</div></div>';
 }
 
 function buildAcoes(t){
-  if(t.status==='pendente') return '<button class="tar-btn-exec" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">✓ Marcar executado</button><label class="tar-btn-upload" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 Anexar PDF</label>';
+  if(t.arquivada) return '<button class="tar-btn-upload" onclick="restaurarTarefa(\''+t.id+'\')">↩ Restaurar</button><span style="font-size:11px;color:#64748b">📦 Arquivada'+(t.arquivada_por?' por '+t.arquivada_por:'')+'</span>';
+  if(t.status==='pendente') return '<button class="tar-btn-exec" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">✓ Marcar executado</button><label class="tar-btn-upload" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 Anexar PDF</label><button class="tar-btn-upload" onclick="arquivarTarefa(\''+t.id+'\')" title="Arquivar — não se aplica neste mês">📦 Arquivar</button>';
   if(t.status==='executado') return '<button class="tar-btn-upload" onclick="mudarStatusTarefa(\''+t.id+'\',\'pendente\')" title="Voltar para Pendente">↩ Desfazer</button><label class="tar-btn-upload" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 Anexar PDF</label><button class="tar-btn-send" onclick="prepararEnvio(\''+t.id+'\')">📤 Enviar ao cliente</button><button style="font-size:12px;padding:.35rem .75rem;border-radius:6px;border:none;cursor:pointer;font-weight:500;background:#f0fdf4;color:#166534" onclick="concluirSemEnvio(\''+t.id+'\')" title="Concluir sem envio de email ao cliente">✔ Concluir sem envio</button>';
   const dtEnv=t.enviado_em?new Date(t.enviado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
   const semEnvio=Array.isArray(t.enviado_para)&&t.enviado_para[0]==='sem_envio';
   return '<button class="tar-btn-upload" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')" title="Voltar para Executado">↩ Desfazer</button><span style="font-size:11px;color:#16a34a">'+(semEnvio?'✓ Concluído sem envio':'✓ Enviado'+(dtEnv?' em '+dtEnv:''))+'</span>';
 }
 function buildAcoesCompact(t){
+  if(t.arquivada) return '<button class="btn btn-sm" style="font-size:11px" onclick="restaurarTarefa(\''+t.id+'\')">↩ Restaurar</button><span style="font-size:11px;color:#64748b">📦</span>';
   const anexarBtn='<label class="btn btn-sm" style="font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:2px;background:#f3e8ff;color:#7c3aed;border:none"><input type="file" accept=".pdf" style="display:none" onchange="uploadAnexo(\''+t.id+'\',this)">📎 Anexar PDF</label>';
-  if(t.status==='pendente') return '<button class="btn btn-sm" style="font-size:11px;background:#dbeafe;color:#1d4ed8;border:none" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">✓ Executar</button>'+anexarBtn;
+  if(t.status==='pendente') return '<button class="btn btn-sm" style="font-size:11px;background:#dbeafe;color:#1d4ed8;border:none" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">✓ Executar</button>'+anexarBtn+'<button class="btn btn-sm" style="font-size:11px;background:#f1f5f9;color:#475569;border:none" onclick="arquivarTarefa(\''+t.id+'\')" title="Arquivar — não se aplica neste mês">📦</button>';
   if(t.status==='executado') return '<button class="btn btn-sm" style="font-size:11px" onclick="mudarStatusTarefa(\''+t.id+'\',\'pendente\')">↩ Desfazer</button>'+anexarBtn+'<button class="btn btn-sm" style="font-size:11px;background:#dcfce7;color:#166534;border:none" onclick="prepararEnvio(\''+t.id+'\')">📤 Enviar</button><button class="btn btn-sm" style="font-size:11px;background:#f0fdf4;color:#166534;border:none" onclick="concluirSemEnvio(\''+t.id+'\')" title="Concluir sem envio de email">✔ s/ envio</button>';
   const semEnvioC=Array.isArray(t.enviado_para)&&t.enviado_para[0]==='sem_envio';
   return '<button class="btn btn-sm" style="font-size:11px" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">↩</button><span style="font-size:11px;color:#16a34a" title="'+(semEnvioC?'Concluído sem envio':'Enviado')+'">✓'+(semEnvioC?' s/ envio':'')+'</span>';
@@ -3007,6 +3054,77 @@ async function concluirSemEnvio(id){
   }).eq('id',id);
   alerta('alert-tar','✔ Tarefa concluída sem envio.','s');
   carregarTarefas();
+}
+
+async function validarSenhaMaster(motivo){
+  let adminEmail='contato@rodriguesconta.com.br';
+  try{
+    const {data:adm}=await db.from('usuarios').select('email').eq('role','admin').limit(1);
+    if(adm&&adm.length)adminEmail=adm[0].email;
+  }catch(e){}
+  const senha=prompt((motivo||'Confirme a ação')+'\n\nDigite a senha master ('+adminEmail+'):');
+  if(senha===null)return false;
+  if(!senha){alerta('alert-tar','⚠ Senha não informada. Ação cancelada.','e');return false;}
+  const dbAux=supabase.createClient(SURL,SKEY,{auth:{persistSession:false,autoRefreshToken:false}});
+  const {error}=await dbAux.auth.signInWithPassword({email:adminEmail,password:senha});
+  if(error){alerta('alert-tar','⚠ Senha master incorreta. Ação cancelada.','e');return false;}
+  return true;
+}
+
+async function arquivarTarefa(id){
+  if(!confirm('Arquivar esta tarefa?\n\nUse quando a obrigação NÃO se aplica neste mês. Ela sai da lista e do progresso (consultável no filtro 📦 Arquivadas).'))return;
+  if(!await validarSenhaMaster('Arquivar tarefa'))return;
+  const usuario=document.getElementById('u-email').textContent||'admin';
+  await db.from('tarefas').update({arquivada:true,arquivada_em:new Date().toISOString(),arquivada_por:usuario}).eq('id',id);
+  alerta('alert-tar','📦 Tarefa arquivada.','s');
+  carregarTarefas();
+}
+
+async function restaurarTarefa(id){
+  if(!confirm('Restaurar esta tarefa para a lista do mês?'))return;
+  await db.from('tarefas').update({arquivada:false,arquivada_em:null,arquivada_por:null}).eq('id',id);
+  alerta('alert-tar','↩ Tarefa restaurada.','s');
+  carregarTarefas();
+}
+
+let comentTarefaId=null;
+async function abrirComentarios(id){
+  comentTarefaId=id;
+  const t=todasTarefas.find(x=>x.id===id);
+  document.getElementById('coment-task-info').textContent=t?(t.titulo+' — '+(t.cliente_nome||'sem cliente')):'';
+  document.getElementById('coment-texto').value='';
+  document.getElementById('m-coment').classList.remove('hidden');
+  await carregarComentarios();
+  document.getElementById('coment-texto').focus();
+}
+
+async function carregarComentarios(){
+  const lista=document.getElementById('coment-lista');
+  const {data,error}=await db.from('tarefa_comentarios').select('*').eq('tarefa_id',comentTarefaId).order('created_at');
+  if(error){lista.innerHTML='<div style="text-align:center;color:#dc2626;font-size:12px;padding:1rem">Erro: '+error.message+'</div>';return;}
+  if(!data||!data.length){lista.innerHTML='<div style="text-align:center;color:#94a3b8;font-size:12px;padding:1.5rem">Nenhum comentário ainda. Seja o primeiro!</div>';return;}
+  const meuEmail=document.getElementById('u-email').textContent;
+  lista.innerHTML=data.map(c=>{
+    const dt=new Date(c.created_at);
+    const dtFmt=dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const meu=c.autor===meuEmail;
+    const msgSafe=String(c.mensagem||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return '<div style="align-self:'+(meu?'flex-end':'flex-start')+';max-width:85%;background:'+(meu?'#dcfce7':'#fff')+';border:1px solid #e2e8f0;border-radius:10px;padding:.5rem .75rem;box-shadow:0 1px 2px rgba(0,0,0,.04)">'+
+      '<div style="font-size:10px;font-weight:700;color:'+(meu?'#166534':'#4A6BD4')+'">'+(c.autor||'—')+'</div>'+
+      '<div style="font-size:12.5px;color:#1e293b;white-space:pre-wrap;word-break:break-word;margin:2px 0">'+msgSafe+'</div>'+
+      '<div style="font-size:10px;color:#94a3b8;text-align:right">'+dtFmt+'</div></div>';
+  }).join('');
+  lista.scrollTop=lista.scrollHeight;
+}
+
+async function enviarComentario(){
+  const txt=document.getElementById('coment-texto').value.trim();
+  if(!txt||!comentTarefaId)return;
+  const autor=document.getElementById('u-email').textContent||'admin';
+  const {error}=await db.from('tarefa_comentarios').insert([{tarefa_id:comentTarefaId,autor:autor,mensagem:txt}]);
+  if(error){alerta('alert-tar','Erro ao comentar: '+error.message,'e');return;}
+  document.getElementById('coment-texto').value='';
+  await carregarComentarios();
 }
 
 async function uploadAnexo(tarefaId,input){
