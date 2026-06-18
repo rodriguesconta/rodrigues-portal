@@ -2668,10 +2668,12 @@ async function carregarProlabore(){
   const ano=mes.substring(0,4);
   const mesNum=mes.substring(5,7);
 
-  // Dados do mês selecionado
+  // Dados do mês selecionado — usa início do próximo mês como limite (evita dia 31 inexistente)
+  const anoN=parseInt(ano), mesN=parseInt(mesNum);
+  const proxMes=mesN===12?(anoN+1)+'-01':anoN+'-'+String(mesN+1).padStart(2,'0');
   const {data}=await db.from('prolabore_transferencias').select('*')
     .gte('data_transferencia',mes+'-01')
-    .lte('data_transferencia',mes+'-31')
+    .lt('data_transferencia',proxMes+'-01')
     .order('data_transferencia',{ascending:false});
   const lista=data||[];
   plListaCache=lista;
