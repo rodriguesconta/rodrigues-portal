@@ -423,13 +423,15 @@ tr:hover td{background:#f8fafc}
         </div>
       </div>
       <div class="card" style="margin-bottom:1rem">
-        <div class="card-hdr"><h2>Evolução anual</h2></div>
-        <canvas id="chart-pl" height="200"></canvas>
-      </div>
-      <div class="card">
         <div class="card-hdr"><h2>Transferências do mês</h2></div>
         <div class="tbl-wrap">
           <table><thead><tr><th>Data</th><th>Beneficiário</th><th>Valor</th><th>Observação</th><th>Ações</th></tr></thead><tbody id="tb-pl"></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><h2>Evolução anual</h2></div>
+        <div style="position:relative;height:240px;max-height:240px">
+          <canvas id="chart-pl"></canvas>
         </div>
       </div>
     </div>
@@ -2633,10 +2635,16 @@ async function carregarProlabore(){
   const tb=document.getElementById('tb-pl');
   tb.innerHTML='';
   if(!lista.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:2rem">Nenhuma transferência neste mês</td></tr>';}
-  else lista.forEach(t=>{
-    const obs=(t.observacao||'—').replace(/'/g,"\\'");
-    tb.innerHTML+='<tr><td>'+fmtDt(t.data_transferencia)+'</td><td>'+t.beneficiario_nome+'</td><td style="font-weight:600">'+fmt(t.valor)+'</td><td style="font-size:12px;color:#64748b">'+(t.observacao||'—')+'</td><td style="white-space:nowrap"><button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:none" onclick="editarPL(\''+t.id+'\')">✏ Editar</button> <button class="btn btn-danger btn-sm" onclick="excluirPL(\''+t.id+'\')">Excluir</button></td></tr>';
-  });
+  else{
+    lista.forEach(t=>{
+      const ehEz=t.beneficiario_cpf==='17747174764';
+      const corBadge=ehEz?'background:#eff6ff;color:#1d4ed8':'background:#fff7ed;color:#c2410c';
+      const badge='<span style="font-size:11px;padding:2px 8px;border-radius:10px;'+corBadge+'">'+t.beneficiario_nome+'</span>';
+      tb.innerHTML+='<tr><td>'+fmtDt(t.data_transferencia)+'</td><td>'+badge+'</td><td style="font-weight:600">'+fmt(t.valor)+'</td><td style="font-size:12px;color:#64748b">'+(t.observacao||'—')+'</td><td style="white-space:nowrap"><button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:none" onclick="editarPL(\''+t.id+'\')">✏ Editar</button> <button class="btn btn-danger btn-sm" onclick="excluirPL(\''+t.id+'\')">Excluir</button></td></tr>';
+    });
+    const totalMes=lista.reduce((s,t)=>s+parseFloat(t.valor),0);
+    tb.innerHTML+='<tr style="border-top:2px solid #e2e8f0;background:#f8fafc"><td colspan="2" style="font-weight:600;text-align:right">Total do mês:</td><td style="font-weight:700;color:#16a34a">'+fmt(totalMes)+'</td><td colspan="2"></td></tr>';
+  }
 
   // Gráfico evolução anual (todos os meses do ano)
   const {data:anoData}=await db.from('prolabore_transferencias').select('*')
@@ -2652,7 +2660,7 @@ async function carregarProlabore(){
     chartPL=new Chart(ctx,{type:'bar',data:{labels,datasets:[
       {label:'Ezequiel',data:ezMes,backgroundColor:'#4A6BD4'},
       {label:'Lucas',data:lcMes,backgroundColor:'#f59e0b'}
-    ]},options:{responsive:true,plugins:{legend:{position:'top'}},scales:{y:{ticks:{callback:v=>'R$ '+v.toLocaleString('pt-BR')}}}}});
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{ticks:{callback:v=>'R$ '+v.toLocaleString('pt-BR')}}}}});
   }
 }
 
