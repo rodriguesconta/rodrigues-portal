@@ -3311,10 +3311,17 @@ async function uploadAnexo(tarefaId,input){
 }
 
 let anexosTarefaId=null;
+let anexosIdsIrmas=[];
 async function verAnexos(tarefaId){
   anexosTarefaId=tarefaId;
   const t=todasTarefas.find(x=>x.id===tarefaId);
   document.getElementById('anexos-task-info').textContent=t?(t.titulo+' — '+(t.cliente_nome||'sem cliente')):'';
+  // Descobre tarefas-irmãs (mesmo cliente + mesma obrigação) para reunir todos os anexos
+  anexosIdsIrmas=[tarefaId];
+  if(t&&t.cliente_id&&t.obrigacao_modelo_id){
+    const {data:irmas}=await db.from('tarefas').select('id').eq('cliente_id',t.cliente_id).eq('obrigacao_modelo_id',t.obrigacao_modelo_id);
+    if(irmas&&irmas.length)anexosIdsIrmas=irmas.map(x=>x.id);
+  }
   document.getElementById('m-anexos').classList.remove('hidden');
   await carregarAnexosModal();
 }
@@ -3322,7 +3329,8 @@ async function verAnexos(tarefaId){
 async function carregarAnexosModal(){
   const cont=document.getElementById('anexos-lista');
   cont.innerHTML='<p style="font-size:12px;color:#94a3b8">Carregando...</p>';
-  const {data:anexos}=await db.from('tarefa_anexos').select('*').eq('tarefa_id',anexosTarefaId).order('created_at',{ascending:false});
+  const ids=(anexosIdsIrmas&&anexosIdsIrmas.length)?anexosIdsIrmas:[anexosTarefaId];
+  const {data:anexos}=await db.from('tarefa_anexos').select('*').in('tarefa_id',ids).order('id',{ascending:false});
   if(!anexos||!anexos.length){cont.innerHTML='<p style="text-align:center;color:#94a3b8;font-size:12px;padding:1rem">Nenhum anexo nesta tarefa ainda.</p>';return;}
   const linhas=await Promise.all(anexos.map(async a=>{
     const {data:urlData}=await db.storage.from('tarefa-anexos').createSignedUrl(a.storage_path,3600);
