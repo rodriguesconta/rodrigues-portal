@@ -529,6 +529,7 @@ tr:hover td{background:#f8fafc}
           </div>
         </div>
         <div class="tbl-wrap"><table><thead><tr><th>Data/hora</th><th>Tipo</th><th>Canal</th><th>Cliente</th><th>Valor</th><th>Status</th><th>Mensagem</th><th></th></tr></thead><tbody id="tb-hist"></tbody></table></div>
+        <div id="hist-paginacao" style="display:flex;align-items:center;justify-content:center;gap:1rem;padding:1rem"></div>
       </div>
     </div>
 
@@ -556,6 +557,7 @@ tr:hover td{background:#f8fafc}
           <h2>Conversas <span id="msg-count" style="font-size:12px;color:#94a3b8;font-weight:400"></span></h2>
         </div>
         <div class="tbl-wrap"><table><thead><tr><th>Direção</th><th>Status</th><th>Cliente</th><th>Telefone</th><th>Mensagem</th><th>Data/Hora</th><th>Ações</th></tr></thead><tbody id="tb-msg"></tbody></table></div>
+        <div id="msg-paginacao" style="display:flex;align-items:center;justify-content:center;gap:1rem;padding:1rem"></div>
       </div>
     </div>
 
@@ -2292,22 +2294,31 @@ async function logEvento(params){
   }
 }
 
-async function carregarHistorico(){
+let histPagina=0;
+const HIST_POR_PAGINA=100;
+function mudarPaginaHist(delta){
+  histPagina=Math.max(0,histPagina+delta);
+  carregarHistorico(true);
+}
+async function carregarHistorico(manterPagina){
+  if(!manterPagina)histPagina=0;
   const tipo=document.getElementById('fil-tipo-hist').value;
   const status=document.getElementById('fil-status-hist').value;
   const dataIni=document.getElementById('fil-data-ini').value;
   const dataFim=document.getElementById('fil-data-fim').value;
   const busca=(document.getElementById('busca-hist').value||'').toLowerCase().trim();
-  
-  let q=db.from('historico_comunicacoes').select('*').order('created_at',{ascending:false}).limit(100);
+
+  const ini=histPagina*HIST_POR_PAGINA;
+  const fim=ini+HIST_POR_PAGINA-1;
+  let q=db.from('historico_comunicacoes').select('*',{count:'exact'}).order('created_at',{ascending:false}).range(ini,fim);
   if(tipo)q=q.eq('tipo_evento',tipo);
   if(status)q=q.eq('status',status);
   if(dataIni)q=q.gte('created_at',dataIni+'T00:00:00');
   if(dataFim)q=q.lte('created_at',dataFim+'T23:59:59');
-  
-  const {data,error}=await q;
+
+  const {data,error,count}=await q;
   if(error){alerta('alerta-hist','Erro: '+error.message,'e');return;}
-  
+
   const filtrados=busca?(data||[]).filter(r=>
     (r.cliente_nome||'').toLowerCase().includes(busca)||
     (r.mensagem||'').toLowerCase().includes(busca)
@@ -2331,7 +2342,8 @@ async function carregarHistorico(){
     '<div class="metric m-green"><div class="lbl">Emails (mês)</div><div class="val green">'+emailMes+'</div></div>'+
     '<div class="metric m-red"><div class="lbl">WhatsApp (mês)</div><div class="val red">'+whatsMes+'</div></div>';
   
-  document.getElementById('hist-count').textContent='('+filtrados.length+' eventos'+(filtrados.length>=100?' — exibindo os 100 mais recentes':'')+')';
+  const totalPaginas=Math.max(1,Math.ceil((count||0)/HIST_POR_PAGINA));
+  document.getElementById('hist-count').textContent='('+(count||0)+' eventos no total — página '+(histPagina+1)+' de '+totalPaginas+')';
   
   const tb=document.getElementById('tb-hist');
   tb.innerHTML='';
@@ -2347,6 +2359,16 @@ async function carregarHistorico(){
     const rowStyle=r.status==='erro'?'background:#fef2f2':'';
     tb.innerHTML+='<tr style="'+rowStyle+'"><td style="font-family:monospace;font-size:11px;color:#64748b">'+dtFmt+'</td><td>'+tipo+'</td><td style="font-size:11px;color:#64748b">'+(r.canal||'--')+'</td><td style="font-weight:500">'+(r.cliente_nome||'--')+'</td><td>'+(r.valor?fmt(r.valor):'--')+'</td><td>'+statusBadge+'</td><td style="font-size:12px;color:#475569;max-width:300px">'+(r.mensagem||'').substring(0,100)+((r.mensagem||'').length>100?'...':'')+'</td><td><button class="btn btn-sm" onclick="verDetalheEvento(\''+r.id+'\')" style="padding:.25rem .5rem">👁️</button></td></tr>';
   });
+
+  const pag=document.getElementById('hist-paginacao');
+  if(pag){
+    const temAnterior=histPagina>0;
+    const temProxima=histPagina+1<totalPaginas;
+    pag.innerHTML=
+      '<button class="btn btn-sm" '+(temAnterior?'':'disabled')+' onclick="mudarPaginaHist(-1)" style="'+(temAnterior?'':'opacity:.4;cursor:not-allowed')+'">← Anterior</button>'+
+      '<span style="font-size:13px;color:#64748b">Página '+(histPagina+1)+' de '+totalPaginas+'</span>'+
+      '<button class="btn btn-sm" '+(temProxima?'':'disabled')+' onclick="mudarPaginaHist(1)" style="'+(temProxima?'':'opacity:.4;cursor:not-allowed')+'">Próxima →</button>';
+  }
 }
 
 async function verDetalheEvento(id){
@@ -2467,7 +2489,15 @@ async function resgatarHistoricoMP(){
   }
 }
 
+let msgPagina=0;
+let msgTodasCache=[];
+const MSG_POR_PAGINA=50;
+function mudarPaginaMsg(delta){
+  msgPagina=Math.max(0,msgPagina+delta);
+  renderMensagensPagina();
+}
 async function carregarMensagens(){
+  msgPagina=0;
   const filDir=document.getElementById('fil-msg-dir').value;
   const filStatus=document.getElementById('fil-msg-status').value;
   const busca=(document.getElementById('busca-msg').value||'').toLowerCase().trim();
@@ -2475,7 +2505,7 @@ async function carregarMensagens(){
 
   // 1) RECEBIDAS — tabela mensagens_whatsapp
   if(filDir===''||filDir==='recebida'){
-    let qR=db.from('mensagens_whatsapp').select('*').order('timestamp_msg',{ascending:false}).limit(100);
+    let qR=db.from('mensagens_whatsapp').select('*').order('timestamp_msg',{ascending:false}).limit(500);
     if(filStatus)qR=qR.eq('status',filStatus);
     const {data:recebidas}=await qR;
     (recebidas||[]).forEach(m=>{
@@ -2494,7 +2524,7 @@ async function carregarMensagens(){
 
   // 2) ENVIADAS — tabela historico_comunicacoes (whatsapp_enviado)
   if(filDir===''||filDir==='enviada'){
-    let qE=db.from('historico_comunicacoes').select('*').eq('tipo_evento','whatsapp_enviado').order('created_at',{ascending:false}).limit(100);
+    let qE=db.from('historico_comunicacoes').select('*').eq('tipo_evento','whatsapp_enviado').order('created_at',{ascending:false}).limit(500);
     if(filStatus==='nao_lida')qE=qE.eq('status','erro');
     else if(filStatus==='lida')qE=qE.eq('status','sucesso');
     const {data:enviadas}=await qE;
@@ -2537,17 +2567,29 @@ async function carregarMensagens(){
     (naoLidas?'<div class="metric m-red"><div class="lbl">Não lidas</div><div class="val red">'+naoLidas+'</div></div>':'')+
     (erros?'<div class="metric m-red"><div class="lbl">Erros envio</div><div class="val red">'+erros+'</div></div>':'');
 
-  document.getElementById('msg-count').textContent='('+todas.length+' mensagens'+(totalRecebidas>=100||totalEnviadas>=100?' — exibindo as 100 mais recentes de cada lado':'')+')';
+  document.getElementById('msg-count').textContent='('+todas.length+' mensagens'+(totalRecebidas>=500||totalEnviadas>=500?' — exibindo as 500 mais recentes de cada lado':'')+')';
+
+  msgTodasCache=todas;
+  renderMensagensPagina();
+}
+
+function renderMensagensPagina(){
+  const todas=msgTodasCache;
+  const totalPaginas=Math.max(1,Math.ceil(todas.length/MSG_POR_PAGINA));
+  if(msgPagina>=totalPaginas)msgPagina=totalPaginas-1;
+  const ini=msgPagina*MSG_POR_PAGINA;
+  const pagina=todas.slice(ini,ini+MSG_POR_PAGINA);
 
   // 6) Renderizar tabela
   const tb=document.getElementById('tb-msg');
   tb.innerHTML='';
   if(!todas.length){
     tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:2rem">Nenhuma mensagem encontrada</td></tr>';
+    const pag0=document.getElementById('msg-paginacao');if(pag0)pag0.innerHTML='';
     return;
   }
 
-  todas.forEach(m=>{
+  pagina.forEach(m=>{
     const dirBadge=m.direcao==='recebida'
       ?'<span class="badge badge-green">📥 Recebida</span>'
       :'<span class="badge badge-blue">📤 Enviada</span>';
@@ -2589,6 +2631,16 @@ async function carregarMensagens(){
       '<td>'+acoes+'</td>'+
       '</tr>';
   });
+
+  const pag=document.getElementById('msg-paginacao');
+  if(pag){
+    const temAnterior=msgPagina>0;
+    const temProxima=msgPagina+1<totalPaginas;
+    pag.innerHTML=
+      '<button class="btn btn-sm" '+(temAnterior?'':'disabled')+' onclick="mudarPaginaMsg(-1)" style="'+(temAnterior?'':'opacity:.4;cursor:not-allowed')+'">← Anterior</button>'+
+      '<span style="font-size:13px;color:#64748b">Página '+(msgPagina+1)+' de '+totalPaginas+'</span>'+
+      '<button class="btn btn-sm" '+(temProxima?'':'disabled')+' onclick="mudarPaginaMsg(1)" style="'+(temProxima?'':'opacity:.4;cursor:not-allowed')+'">Próxima →</button>';
+  }
 }
 
 async function marcarLida(id){
