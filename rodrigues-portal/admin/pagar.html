@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Pagamento Pix — Rodrigues Assessoria Contábil</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1e293b;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+  .card{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:2rem 1.5rem;box-shadow:0 10px 40px rgba(0,0,0,.2);text-align:center}
+  .logo{height:44px;margin-bottom:1rem}
+  h1{font-size:18px;color:#1e293b;margin-bottom:.25rem}
+  .sub{font-size:13px;color:#64748b;margin-bottom:1.5rem}
+  .info{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1rem;margin-bottom:1.25rem}
+  .info .valor{font-size:30px;font-weight:700;color:#16a34a}
+  .info .venc{font-size:13px;color:#64748b;margin-top:4px}
+  #qrcode{display:flex;justify-content:center;margin:1.25rem 0}
+  #qrcode img,#qrcode canvas{border:8px solid #fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+  .pix-label{font-size:12px;color:#475569;font-weight:600;margin-bottom:.5rem;text-align:left}
+  .pix-box{background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:.75rem;font-family:'Courier New',monospace;font-size:11px;color:#334155;word-break:break-all;text-align:left;max-height:90px;overflow-y:auto;margin-bottom:.75rem}
+  .btn{width:100%;padding:.9rem;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.2s}
+  .btn-copy{background:#4A6BD4;color:#fff}
+  .btn-copy:hover{background:#3b56b0}
+  .btn-copy.ok{background:#16a34a}
+  .foot{font-size:11px;color:#94a3b8;margin-top:1.5rem;line-height:1.5}
+  .loading,.erro{padding:2rem;color:#64748b;font-size:14px}
+  .erro{color:#dc2626}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+  <div class="card">
+    <img src="https://xuzcczbdbgihkurcbepw.supabase.co/storage/v1/object/public/assets/LOGO%20RODRIGUES%20CONT.png" class="logo" alt="Rodrigues Assessoria Contábil" onerror="this.style.display='none'">
+    <h1>Rodrigues Assessoria Contábil</h1>
+    <p class="sub">Pagamento via Pix</p>
+
+    <div id="loading" class="loading">Carregando sua cobrança...</div>
+    <div id="erro" class="erro hidden"></div>
+
+    <div id="conteudo" class="hidden">
+      <div class="info">
+        <div class="valor" id="valor">R$ 0,00</div>
+        <div class="venc" id="venc"></div>
+      </div>
+      <div id="qrcode"></div>
+      <p class="pix-label">Pix copia e cola:</p>
+      <div class="pix-box" id="pix-codigo"></div>
+      <button class="btn btn-copy" id="btn-copy" onclick="copiar()">📋 Copiar código Pix</button>
+      <p class="foot">Após copiar, abra o app do seu banco, escolha pagar com Pix → "Pix copia e cola", e cole o código.<br>Em caso de dúvidas: contato@rodriguesconta.com.br</p>
+    </div>
+  </div>
+
+<script>
+const SURL='https://xuzcczbdbgihkurcbepw.supabase.co';
+const SKEY='sb_publishable_7xC7UlKxPMdivffyuXPN2Q_rOjh6O8o';
+
+function fmt(v){return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDt(d){if(!d)return '';const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+
+function mostrarErro(msg){
+  document.getElementById('loading').classList.add('hidden');
+  const e=document.getElementById('erro');
+  e.textContent=msg;e.classList.remove('hidden');
+}
+
+async function carregar(){
+  const params=new URLSearchParams(location.search);
+  const id=params.get('c');
+  if(!id){mostrarErro('Link inválido. Procure o setor financeiro.');return;}
+
+  try{
+    const r=await fetch(SURL+'/rest/v1/cobrancas?id=eq.'+encodeURIComponent(id)+'&select=valor,data_vencimento,pix_qr_code,status',{
+      headers:{apikey:SKEY,Authorization:'Bearer '+SKEY}
+    });
+    const data=await r.json();
+    if(!Array.isArray(data)||!data.length){mostrarErro('Cobrança não encontrada.');return;}
+    const c=data[0];
+
+    if(c.status==='pago'){mostrarErro('✅ Esta cobrança já foi paga. Obrigado!');return;}
+    if(!c.pix_qr_code){mostrarErro('O Pix desta cobrança ainda não foi gerado. Tente novamente em instantes ou fale com o financeiro.');return;}
+
+    document.getElementById('valor').textContent=fmt(c.valor);
+    document.getElementById('venc').textContent='Vencimento: '+fmtDt(c.data_vencimento);
+    document.getElementById('pix-codigo').textContent=c.pix_qr_code;
+
+    // QR Code
+    new QRCode(document.getElementById('qrcode'),{
+      text:c.pix_qr_code,width:180,height:180,correctLevel:QRCode.CorrectLevel.M
+    });
+
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('conteudo').classList.remove('hidden');
+  }catch(e){
+    mostrarErro('Erro ao carregar. Tente novamente mais tarde.');
+  }
+}
+
+function copiar(){
+  const codigo=document.getElementById('pix-codigo').textContent;
+  const btn=document.getElementById('btn-copy');
+  const done=()=>{btn.textContent='✅ Código copiado!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='📋 Copiar código Pix';btn.classList.remove('ok');},2500);};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(codigo).then(done).catch(()=>fallback(codigo,done));
+  }else{fallback(codigo,done);}
+}
+function fallback(texto,cb){
+  const ta=document.createElement('textarea');ta.value=texto;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');cb();}catch(e){alert('Copie manualmente o código acima.');}
+  document.body.removeChild(ta);
+}
+
+carregar();
+</script>
+</body>
+</html>
