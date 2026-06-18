@@ -2822,7 +2822,9 @@ async function salvarPL(){
 
 async function excluirPL(id){
   if(!confirm('Excluir esta transferência?'))return;
-  await db.from('prolabore_transferencias').delete().eq('id',id);
+  const {error,count}=await db.from('prolabore_transferencias').delete({count:'exact'}).eq('id',id);
+  if(error){alert('Erro ao excluir: '+error.message);return;}
+  if(count===0){alert('Nada foi excluído. Provável bloqueio de permissão (RLS) na tabela. Verifique a política de DELETE no Supabase.');return;}
   carregarProlabore();
 }
 
