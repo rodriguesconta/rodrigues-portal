@@ -3389,7 +3389,7 @@ async function prepararEnvio(tarefaId){
   document.getElementById('env-assunto').value='[Rodrigues Assessoria] '+(t.obrigacao_nome||t.titulo)+(compFmt?' - Competência '+compFmt:'');
 
   // Mostrar seletor COM/SEM MOVIMENTO apenas para DAS Simples Nacional
-  const isDAS=(t.obrigacao_nome||'').toLowerCase().includes('emitir das')&&(t.obrigacao_nome||'').toLowerCase().includes('simples');
+  const isDAS=(t.obrigacao_nome||'').toLowerCase().includes('das')&&(t.obrigacao_nome||'').toLowerCase().includes('simples');
   document.getElementById('env-movimento-wrap').classList.toggle('hidden',!isDAS);
   document.getElementById('env-movimento').value='com_movimento';
 
