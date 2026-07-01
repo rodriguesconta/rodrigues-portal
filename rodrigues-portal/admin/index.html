@@ -1674,50 +1674,47 @@ async function gerarBoleto(id,valor,nome,cpf){
   if(!confirm('Gerar boleto para '+nome+' no valor de '+fmt(valor)+'?'))return;
   alerta('alerta-cob','Gerando boleto, aguarde...','s');
   try{
-    // Busca dados completos do cliente pelo id da cobrança
+    // Busca dados completos do cliente pelo id da cobrança (para endereço)
     const {data:cobData}=await db.from('cobrancas').select('*,clientes(*)').eq('id',id).single();
     const cli=cobData?.clientes||{};
-    const payload={
-      transaction_amount:parseFloat(valor),
-      description:'Honorários contábeis - Rodrigues Assessoria',
-      payment_method_id:'bolbradesco',
-      payer:{
-        email:cli.email||'cliente@rodriguesconta.com.br',
-        first_name:(cli.nome||nome).split(' ')[0],
-        last_name:(cli.nome||nome).split(' ').slice(1).join(' ')||'.',
-        identification:{type:'CNPJ',number:cpf},
-        address:{
-          zip_code:(cli.cep||'27270000').replace(/\D/g,''),
-          street_name:cli.rua||'Rua não informada',
-          street_number:cli.numero||'S/N',
-          neighborhood:cli.bairro||'Centro',
-          city:cli.cidade||'Volta Redonda',
-          federal_unit:cli.estado||'RJ'
-        }
-      }
-    };
-    const r=await fetch('https://api.mercadopago.com/v1/payments',{
+    // Chama a Netlify Function (servidor) — evita bloqueio de CORS do Mercado Pago
+    const r=await fetch('/.netlify/functions/boleto',{
       method:'POST',
-      headers:{'Authorization':'Bearer '+MP_TOKEN,'Content-Type':'application/json','X-Idempotency-Key':id+'-bol-'+Date.now()},
-      body:JSON.stringify(payload)
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        cobranca_id:id,
+        valor:valor,
+        descricao:'Honorários contábeis - Rodrigues Assessoria',
+        nome:cli.nome||nome,
+        email:cli.email||'cliente@rodriguesconta.com.br',
+        cpf:cpf,
+        endereco:{
+          cep:cli.cep||'',
+          rua:cli.rua||'',
+          numero:cli.numero||'',
+          bairro:cli.bairro||'',
+          cidade:cli.cidade||'',
+          estado:cli.estado||''
+        }
+      })
     });
     const d=await r.json();
-    if(d.id&&d.barcode){
-      const linha=d.barcode.content||'';
-      const pdfUrl=d.transaction_details?.external_resource_url||'';
-      await db.from('cobrancas').update({mp_payment_id:String(d.id),boleto_url:pdfUrl,boleto_linha_digitavel:linha}).eq('id',id);
+    if(r.ok&&d.payment_id&&d.linha_digitavel){
+      const linha=d.linha_digitavel;
+      const pdfUrl=d.pdf_url||'';
+      await db.from('cobrancas').update({mp_payment_id:String(d.payment_id),boleto_url:pdfUrl,boleto_linha_digitavel:linha}).eq('id',id);
       document.getElementById('bol-linha').textContent=linha;
       document.getElementById('bol-link').href=pdfUrl;
       document.getElementById('alerta-cob').innerHTML='';
       document.getElementById('m-bol').classList.remove('hidden');
-      await logEvento({tipo_evento:'boleto_gerado',canal:'portal_mp',status:'sucesso',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mp_payment_id:d.id,mensagem:'Boleto gerado para '+nome,dados_json:{payment_id:d.id,linha_digitavel:linha,pdf:pdfUrl}});
+      await logEvento({tipo_evento:'boleto_gerado',canal:'netlify_function',status:'sucesso',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mp_payment_id:d.payment_id,mensagem:'Boleto gerado para '+nome,dados_json:{payment_id:d.payment_id,linha_digitavel:linha,pdf:pdfUrl}});
     }else{
-      alerta('alerta-cob','Erro ao gerar boleto: '+(d.message||d.error||JSON.stringify(d)),'e');
-      await logEvento({tipo_evento:'erro',canal:'portal_mp',status:'erro',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mensagem:'Falha ao gerar boleto: '+nome,erro_detalhe:d.message||d.error||JSON.stringify(d),dados_json:d});
+      alerta('alerta-cob','Erro ao gerar boleto: '+(d.erro||JSON.stringify(d)),'e');
+      await logEvento({tipo_evento:'erro',canal:'netlify_function',status:'erro',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mensagem:'Falha ao gerar boleto: '+nome,erro_detalhe:d.erro||JSON.stringify(d),dados_json:d});
     }
   }catch(e){
     alerta('alerta-cob','Erro de conexão: '+e.message,'e');
-    await logEvento({tipo_evento:'erro',canal:'portal_mp',status:'erro',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mensagem:'Erro ao gerar boleto: '+nome,erro_detalhe:e.message});
+    await logEvento({tipo_evento:'erro',canal:'netlify_function',status:'erro',cobranca_id:id,cliente_nome:nome,valor:parseFloat(valor),mensagem:'Erro ao gerar boleto: '+nome,erro_detalhe:e.message});
   }
 }
 
