@@ -3085,8 +3085,10 @@ async function carregarTarefas(){
   // Filtro por carteira (colaborador)
   if(userClienteIds&&userClienteIds.length>0) q=q.in('cliente_id',userClienteIds);
   else if(userClienteIds&&userClienteIds.length===0) {todasTarefas=[];renderView();return;}
-  // Filtro por departamento (colaborador)
-  if(userDepartamentos&&userDepartamentos.length>0) q=q.in('departamento',userDepartamentos);
+  // Filtro por departamento (colaborador) — só nas OBRIGAÇÕES.
+  // Demandas avulsas não têm departamento (fica NULL na view) e um IN(...) descarta NULL,
+  // o que escondia todas as avulsas do colaborador. Por isso não filtramos avulsa por depto.
+  if(tarAbaAtiva==='obrigacoes'&&userDepartamentos&&userDepartamentos.length>0) q=q.in('departamento',userDepartamentos);
   q=q.order('data_prazo').order('titulo');
 
   const {data}=await q;
