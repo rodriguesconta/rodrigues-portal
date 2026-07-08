@@ -1567,7 +1567,7 @@ async function carregarCobs(){
     const dupBadge=isDup?'<span class="badge badge-red">⚠️ Duplicado</span>':'<span style="color:#94a3b8;font-size:12px">—</span>';
     const rowStyle=isDup?'background:#fff7ed':'';
     const isAvulsa=!!c.observacao;
-    const pixBtn=c.status==='a_receber'&&isAvulsa?'<button class="btn btn-success btn-sm" onclick="gerarPix(\''+c.id+'\','+c.valor+',\''+nomeCli+'\',\''+emailCli+'\',\''+cpfCli+'\')">Gerar Pix</button>':'';
+    const pixBtn=c.status==='a_receber'?'<button class="btn btn-success btn-sm" onclick="gerarPix(\''+c.id+'\','+c.valor+',\''+nomeCli+'\',\''+emailCli+'\',\''+cpfCli+'\')">'+(c.pix_qr_code?'🔄 Regerar Pix':'Gerar Pix')+'</button>':'';
     const enviarBtn=c.status==='a_receber'&&!isAvulsa?'<button class="btn btn-sm" style="background:#0ea5e9;color:#fff;border-color:#0ea5e9" onclick="enviarCobrancaWhatsApp(\''+c.id+'\',\''+nomeCli+'\',\''+c.clientes?.telefone+'\')">📲 Enviar</button>':'';
     const copiarPixBtn=c.status==='a_receber'&&c.pix_qr_code?'<button class="btn btn-sm" style="background:#16a34a;color:#fff;border-color:#16a34a" onclick="copiarPixCobranca(\''+c.pix_qr_code.replace(/\'/g,"\\'")+'\')" title="Copiar código Pix">📋 Pix</button>':'';
     const bolBtn=c.status==='a_receber'?'<button class="btn btn-sm" style="background:#7c3aed;color:#fff;border-color:#7c3aed" onclick="gerarBoleto(\''+c.id+'\','+c.valor+',\''+nomeCli+'\',\''+cpfCli+'\')">Boleto</button>':'';
@@ -1688,6 +1688,7 @@ async function gerarBoleto(id,valor,nome,cpf){
         nome:cli.nome||nome,
         email:cli.email||'cliente@rodriguesconta.com.br',
         cpf:cpf,
+        vencimento:cobData?.data_vencimento||null,
         endereco:{
           cep:cli.cep||'',
           rua:cli.rua||'',
