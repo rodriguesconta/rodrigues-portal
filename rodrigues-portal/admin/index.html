@@ -1218,7 +1218,12 @@ async function iniciar(u){
     document.getElementById('fil-mes-desp').value=mesAtual();
     document.getElementById('fil-mes-cob').value=mesAtual();
     carregarCats();
-    go('dashboard');
+    // Restaura a última tela em que o usuário estava (item: não voltar ao Dashboard ao atualizar)
+    let _last='dashboard';
+    try{_last=localStorage.getItem('rc_last_page')||'dashboard';}catch(e){}
+    const _paginasValidas=['dashboard','clientes','cobrancas','irpf','despesas','relatorios','prolabore','historico','mensagens','permissoes','tarefas'];
+    if(!_paginasValidas.includes(_last))_last='dashboard';
+    go(_last);
   }
   // Agora sim: interface pronta para o perfil correto
   document.getElementById('app').classList.remove('hidden');
@@ -1227,6 +1232,8 @@ async function iniciar(u){
 function go(pg){
   // Colaborador só acessa tarefas
   if(userRole==='colaborador'&&pg!=='tarefas'){pg='tarefas';}
+  // Lembra a última tela aberta (para não voltar ao Dashboard quando a página é atualizada)
+  try{localStorage.setItem('rc_last_page',pg);}catch(e){}
   document.querySelectorAll('[id^="pg-"]').forEach(el=>el.classList.add('hidden'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   document.getElementById('pg-'+pg).classList.remove('hidden');
@@ -3312,21 +3319,21 @@ async function uploadAnexo(tarefaId,input){
     uploaded_por:document.getElementById('u-email').textContent||'admin'
   }]);
   alerta('alert-tar','PDF "'+file.name+'" anexado com sucesso!','s');
-  carregarTarefas();
+  // Atualiza só o contador local e re-renderiza mantendo a rolagem (sem recarregar tudo do banco).
+  const t=todasTarefas.find(x=>x.id===tarefaId);
+  if(t){t.qtd_anexos=(t.qtd_anexos||0)+1;}
+  const _y=window.scrollY;
+  renderView();
+  window.scrollTo(0,_y);
+  input.value='';
 }
 
 let anexosTarefaId=null;
-let anexosIdsIrmas=[];
 async function verAnexos(tarefaId){
   anexosTarefaId=tarefaId;
   const t=todasTarefas.find(x=>x.id===tarefaId);
   document.getElementById('anexos-task-info').textContent=t?(t.titulo+' — '+(t.cliente_nome||'sem cliente')):'';
-  // Descobre tarefas-irmãs (mesmo cliente + mesma obrigação) para reunir todos os anexos
-  anexosIdsIrmas=[tarefaId];
-  if(t&&t.cliente_id&&t.obrigacao_modelo_id){
-    const {data:irmas}=await db.from('tarefas').select('id').eq('cliente_id',t.cliente_id).eq('obrigacao_modelo_id',t.obrigacao_modelo_id);
-    if(irmas&&irmas.length)anexosIdsIrmas=irmas.map(x=>x.id);
-  }
+  // Mostra APENAS os anexos desta tarefa/competência (não junta meses anteriores).
   document.getElementById('m-anexos').classList.remove('hidden');
   await carregarAnexosModal();
 }
@@ -3334,8 +3341,7 @@ async function verAnexos(tarefaId){
 async function carregarAnexosModal(){
   const cont=document.getElementById('anexos-lista');
   cont.innerHTML='<p style="font-size:12px;color:#94a3b8">Carregando...</p>';
-  const ids=(anexosIdsIrmas&&anexosIdsIrmas.length)?anexosIdsIrmas:[anexosTarefaId];
-  const {data:anexos}=await db.from('tarefa_anexos').select('*').in('tarefa_id',ids).order('id',{ascending:false});
+  const {data:anexos}=await db.from('tarefa_anexos').select('*').eq('tarefa_id',anexosTarefaId).order('id',{ascending:false});
   if(!anexos||!anexos.length){cont.innerHTML='<p style="text-align:center;color:#94a3b8;font-size:12px;padding:1rem">Nenhum anexo nesta tarefa ainda.</p>';return;}
   const linhas=await Promise.all(anexos.map(async a=>{
     const {data:urlData}=await db.storage.from('tarefa-anexos').createSignedUrl(a.storage_path,3600);
