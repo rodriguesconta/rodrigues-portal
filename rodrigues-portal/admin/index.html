@@ -993,6 +993,19 @@ tr:hover td{background:#f8fafc}
   </div>
 </div>
 
+<!-- MODAL PERFIL DO CLIENTE -->
+<div id="m-perfil" class="overlay hidden">
+  <div class="modal" style="max-width:640px">
+    <h2 id="perfil-nome" style="margin-bottom:.25rem">Perfil do cliente</h2>
+    <p id="perfil-doc" style="font-family:monospace;font-size:12px;color:#94a3b8;margin-bottom:1rem"></p>
+    <div id="perfil-corpo" style="font-size:13px;color:#475569">Carregando...</div>
+    <div class="ma">
+      <button class="btn btn-sm" onclick="fecharModal('m-perfil');document.getElementById('m-cli').classList.add('hidden');editarCli(perfilClienteId)">✏ Editar cadastro</button>
+      <button class="btn btn-sm" onclick="fecharModal('m-perfil')">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL COBRANÇA -->
 <div id="m-cob" class="overlay hidden">
   <div class="modal" style="max-width:420px">
@@ -1358,7 +1371,7 @@ function renderClis(lista){
     const isDup=docCount[c.documento.trim()]>1;
     const dupBadge=isDup?'<span class="badge badge-red">⚠️ Duplicado</span>':'<span style="color:#94a3b8;font-size:12px">—</span>';
     const rowStyle=isDup?'background:#fff7ed':'';
-    let acoes='<button class="btn btn-sm" onclick="editarCli(\''+c.id+'\')">Editar</button>';
+    let acoes='<button class="btn btn-sm" style="background:#eef2ff;color:#4A6BD4;border-color:#c7d2fe" onclick="abrirPerfilCliente(\''+c.id+'\')">👤 Perfil</button><button class="btn btn-sm" onclick="editarCli(\''+c.id+'\')">Editar</button>';
     if(c.status==='ativo'){
       acoes+='<button class="btn btn-sm" style="background:#f59e0b;color:#fff;border-color:#f59e0b;font-size:11px" onclick="pararCobranca(\''+c.id+'\',\''+c.nome.replace(/\'/g,"\\'")+'\')">Parar</button>';
     }else if(c.status==='paralisado'){
@@ -1449,6 +1462,67 @@ async function consultarCNPJ(){
   }finally{
     btn.disabled=false;
   }
+}
+
+let perfilClienteId=null;
+async function abrirPerfilCliente(id){
+  perfilClienteId=id;
+  const c=todosClis.find(x=>x.id===id);
+  document.getElementById('perfil-nome').textContent='👤 '+(c?c.nome:'Perfil do cliente');
+  document.getElementById('perfil-doc').textContent=c?(c.documento||''):'';
+  document.getElementById('perfil-corpo').innerHTML='<p style="color:#94a3b8;padding:1rem 0">Carregando dados...</p>';
+  document.getElementById('m-perfil').classList.remove('hidden');
+
+  const [{data:cobs},{data:tars}]=await Promise.all([
+    db.from('cobrancas').select('*').eq('cliente_id',id).order('data_vencimento',{ascending:false}).limit(500),
+    db.from('tarefas').select('*').eq('cliente_id',id).order('data_prazo',{ascending:false}).limit(500)
+  ]);
+  const cobsL=cobs||[], tarsL=tars||[];
+
+  const grp=st=>{const a=cobsL.filter(x=>x.status===st);return {n:a.length,v:a.reduce((s,x)=>s+parseFloat(x.valor||0),0)};};
+  const pg=grp('pago'), ar=grp('a_receber'), at=grp('atrasado');
+
+  const enviadas=tarsL.filter(t=>t.status==='enviado');
+  const emAberto=tarsL.filter(t=>t.status!=='enviado'&&!t.arquivada);
+
+  const regimeLbl={mei:'MEI',simples_nacional:'Simples Nacional',lucro_presumido:'Lucro Presumido',lucro_real:'Lucro Real',domestica:'Doméstica',imune:'Imune (Igreja/ONG)'};
+  const stBadge=c&&c.status==='ativo'?'<span class="badge badge-green">ativo</span>':c&&c.status==='paralisado'?'<span class="badge badge-amber">paralisado</span>':'<span class="badge badge-red">'+(c?c.status:'—')+'</span>';
+
+  const info=(rot,val)=>'<div style="margin-bottom:.35rem"><span style="color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:.03em">'+rot+'</span><div style="color:#1e293b">'+(val||'—')+'</div></div>';
+
+  const cad='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1rem;margin-bottom:1rem;display:grid;grid-template-columns:1fr 1fr;gap:.5rem 1.25rem">'+
+    info('E-mail',c?c.email:'')+
+    info('Telefone',c?c.telefone:'')+
+    info('Honorário',c?fmt(c.honorario):'')+
+    info('Dia de vencimento',c&&c.dia_vencimento?('Dia '+c.dia_vencimento):'')+
+    info('Cidade / UF',c?((c.cidade||'—')+(c.estado?(' / '+c.estado):'')):'')+
+    info('Regime',c&&c.regime?(regimeLbl[c.regime]||c.regime):'')+
+    info('Início da cobrança',c&&c.inicio_cobranca?c.inicio_cobranca:'')+
+    info('Status',stBadge)+
+    '</div>';
+
+  const cardCob=(rot,g,cor)=>'<div class="metric" style="border-top-color:'+cor+';padding:.85rem"><div class="lbl">'+rot+' ('+g.n+')</div><div class="val" style="color:'+cor+';font-size:18px">'+fmt(g.v)+'</div></div>';
+  const cobBox='<h3 style="font-size:13px;font-weight:600;color:#475569;margin:0 0 .5rem">💰 Cobranças</h3>'+
+    '<div class="metrics" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:1.25rem">'+
+    cardCob('Pagas',pg,'#16a34a')+
+    cardCob('A vencer',ar,'#F57C1A')+
+    cardCob('Em atraso',at,'#dc2626')+
+    '</div>';
+
+  const ultEnv=enviadas.slice(0,6).map(t=>{
+    const comp=t.competencia?mesAnterior(t.competencia):'';
+    const dt=t.enviado_em?new Date(t.enviado_em).toLocaleDateString('pt-BR'):'';
+    return '<tr><td style="font-size:12px">'+(t.titulo||'—')+'</td><td style="font-size:12px;color:#64748b;white-space:nowrap">'+(comp||'—')+'</td><td style="font-size:12px;color:#16a34a;white-space:nowrap">'+(dt?'✓ '+dt:'✓')+'</td></tr>';
+  }).join('')||'<tr><td colspan="3" style="text-align:center;color:#94a3b8;padding:1rem;font-size:12px">Nenhum documento enviado ainda</td></tr>';
+
+  const tarBox='<h3 style="font-size:13px;font-weight:600;color:#475569;margin:0 0 .5rem">📤 Tarefas / documentos</h3>'+
+    '<div style="display:flex;gap:1rem;margin-bottom:.75rem;flex-wrap:wrap">'+
+      '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.5rem .9rem"><span style="font-size:11px;color:#166534">Enviados</span><div style="font-size:20px;font-weight:700;color:#16a34a">'+enviadas.length+'</div></div>'+
+      '<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:.5rem .9rem"><span style="font-size:11px;color:#9a3412">Em aberto</span><div style="font-size:20px;font-weight:700;color:#c2410c">'+emAberto.length+'</div></div>'+
+    '</div>'+
+    '<div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:8px"><table><thead><tr><th>Últimos enviados</th><th>Competência</th><th>Data</th></tr></thead><tbody>'+ultEnv+'</tbody></table></div>';
+
+  document.getElementById('perfil-corpo').innerHTML=cad+cobBox+tarBox;
 }
 
 async function salvarCliente(){
