@@ -4088,7 +4088,7 @@ async function confirmarDemandaIA(){
 // CATÁLOGO DE OBRIGAÇÕES
 // ============================================================
 async function carregarCatalogo(){
-  const {data}=await db.from('obrigacoes_modelo').select('*').order('departamento').order('nome');
+  const {data}=await db.from('obrigacoes_modelo').select('*').order('ativo',{ascending:false}).order('departamento').order('nome');
   const tb=document.getElementById('tb-catalogo');
   if(!data||!data.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem">Nenhuma obrigação cadastrada</td></tr>';return;}
   tb.innerHTML=data.map(o=>{
