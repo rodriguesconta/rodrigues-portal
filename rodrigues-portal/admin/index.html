@@ -993,15 +993,6 @@ tr:hover td{background:#f8fafc}
       <div class="fg"><label>Status</label><select id="c-status" class="si" style="width:100%"><option value="ativo">Ativo</option><option value="paralisado">Paralisado</option><option value="inativo">Inativo</option></select></div>
     </div>
     <div style="border-top:1px solid #e2e8f0;margin:1rem 0 .75rem;padding-top:.75rem">
-      <label style="font-size:13px;font-weight:600;color:#1e293b">Responsáveis por departamento</label>
-      <p style="font-size:11px;color:#94a3b8;margin-bottom:.5rem">Quem cuida de cada área deste cliente. Em branco = Ezequiel/Lucas.</p>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:.5rem">
-      <div class="fg" style="margin-bottom:0"><label>📊 Fiscal</label><select id="c-resp-fiscal" class="si" style="width:100%"></select></div>
-      <div class="fg" style="margin-bottom:0"><label>👥 Pessoal</label><select id="c-resp-pessoal" class="si" style="width:100%"></select></div>
-      <div class="fg" style="margin-bottom:0"><label>📒 Contábil</label><select id="c-resp-contabil" class="si" style="width:100%"></select></div>
-    </div>
-    <div style="border-top:1px solid #e2e8f0;margin:1rem 0 .75rem;padding-top:.75rem">
       <label style="font-size:13px;font-weight:600;color:#1e293b">Obrigações do cliente</label>
       <p style="font-size:11px;color:#94a3b8;margin-bottom:.75rem">Marque as obrigações que serão geradas mensalmente</p>
     </div>
@@ -1445,7 +1436,6 @@ async function abrirModalCliente(){
   document.getElementById('c-regime').value='';
   document.getElementById('c-err').classList.add('hidden');
   document.getElementById('cnpj-status').textContent='';
-  preencherRespSelects(null);
   await carregarObrigacoesGrid(null);
   document.getElementById('m-cli').classList.remove('hidden');
 }
@@ -1466,7 +1456,6 @@ async function editarCli(id){
   document.getElementById('c-inicio-cob').value=c.inicio_cobranca||'';
   document.getElementById('c-err').classList.add('hidden');
   document.getElementById('cnpj-status').textContent='';
-  preencherRespSelects(c);
   await carregarObrigacoesGrid(id);
   document.getElementById('m-cli').classList.remove('hidden');
 }
@@ -1508,18 +1497,6 @@ async function consultarCNPJ(){
   }finally{
     btn.disabled=false;
   }
-}
-
-// Funcionários que podem ser responsáveis por área. Em branco = Ezequiel/Lucas (interno).
-const RESP_FUNCIONARIOS=['Gabriel','Laura','Luciana'];
-function preencherRespSelects(c){
-  ['fiscal','pessoal','contabil'].forEach(dep=>{
-    const el=document.getElementById('c-resp-'+dep);
-    if(!el)return;
-    const atual=c?(c['responsavel_'+dep]||''):'';
-    el.innerHTML='<option value="">— Ezequiel/Lucas</option>'+
-      RESP_FUNCIONARIOS.map(n=>'<option value="'+n+'"'+(atual===n?' selected':'')+'>'+n+'</option>').join('');
-  });
 }
 
 let perfilClienteId=null;
@@ -1586,7 +1563,7 @@ async function abrirPerfilCliente(id){
 async function salvarCliente(){
   const id=document.getElementById('c-id').value;
   const regime=document.getElementById('c-regime').value;
-  const p={nome:document.getElementById('c-nome').value.trim(),documento:document.getElementById('c-doc').value.trim(),email:document.getElementById('c-email').value.trim(),telefone:document.getElementById('c-tel').value.trim(),honorario:parseFloat(document.getElementById('c-hon').value)||0,dia_vencimento:parseInt(document.getElementById('c-venc').value)||10,cidade:document.getElementById('c-cidade').value.trim(),estado:document.getElementById('c-uf').value.trim(),status:document.getElementById('c-status').value,regime:regime||null,inicio_cobranca:document.getElementById('c-inicio-cob').value||null,responsavel_fiscal:document.getElementById('c-resp-fiscal').value||null,responsavel_pessoal:document.getElementById('c-resp-pessoal').value||null,responsavel_contabil:document.getElementById('c-resp-contabil').value||null};
+  const p={nome:document.getElementById('c-nome').value.trim(),documento:document.getElementById('c-doc').value.trim(),email:document.getElementById('c-email').value.trim(),telefone:document.getElementById('c-tel').value.trim(),honorario:parseFloat(document.getElementById('c-hon').value)||0,dia_vencimento:parseInt(document.getElementById('c-venc').value)||10,cidade:document.getElementById('c-cidade').value.trim(),estado:document.getElementById('c-uf').value.trim(),status:document.getElementById('c-status').value,regime:regime||null,inicio_cobranca:document.getElementById('c-inicio-cob').value||null};
   const err=document.getElementById('c-err');
   if(!p.nome||!p.documento){err.textContent='Nome e documento obrigatórios';err.classList.remove('hidden');return;}
   const {data:ret,error}=id?await db.from('clientes').update(p).eq('id',id).select().single():await db.from('clientes').insert([p]).select().single();
@@ -1604,7 +1581,6 @@ async function salvarCliente(){
     }
   }
   await logEvento({tipo_evento:'cliente_cadastrado',canal:'portal_direto',status:'sucesso',cliente_id:cliId,cliente_nome:p.nome,mensagem:(id?'Cliente editado: ':'Cliente cadastrado: ')+p.nome,dados_json:{documento:p.documento,honorario:p.honorario,dia_vencimento:p.dia_vencimento,status:p.status,regime:regime}});
-  if(typeof invalidarRespMap==='function') invalidarRespMap(); // marcador/filtro de responsável reflete a mudança
   fecharModal('m-cli');carregarClis();
 }
 async function excluirCli(id,nome){
@@ -3198,6 +3174,7 @@ async function salvarPermissoes(){
     await db.from('usuario_clientes').insert(novas);
   }
   alerta('alerta-perm','✅ Permissões salvas! '+marcados.length+' clientes e '+depts.length+' departamento(s) liberados.','s');
+  if(typeof invalidarRespMap==='function') invalidarRespMap(); // o filtro/marcador de responsável reflete a nova divisão
 }
 
 let todasTarefas=[];
@@ -3241,25 +3218,40 @@ function trocarViewTar(view){
 }
 
 // ---- Filtros por RESPONSÁVEL (por cliente + departamento) e por DEMANDA ----
-let tarFiltroResp='todos';   // 'todos' | 'Gabriel' | 'Laura' | 'Luciana' | 'Ezequiel/Lucas'
+let tarFiltroResp='todos';   // 'todos' | nome do colaborador | 'Ezequiel/Lucas'
 let tarFiltroDemanda='';     // '' | nome da obrigação/demanda
-let tarRespMap=null;         // { cliente_id: {fiscal, pessoal, contabil} }
-const TAR_RESP_CHIPS=['Gabriel','Laura','Luciana','Ezequiel/Lucas'];
+let tarColabResp=null;       // [{nome, clientes:Set, depts:Set}] — colaboradores (exceto Ezequiel/Lucas)
+let tarRespChips=[];         // nomes dos chips: colaboradores + 'Ezequiel/Lucas'
 
+function primeiroNome(n){ return ((n||'').trim().split(' ')[0])||n||''; }
+function respEhInterno(nome){ nome=(nome||'').toLowerCase(); return nome.includes('ezequiel')||nome.includes('lucas'); }
+
+// Responsabilidade calculada a partir das PERMISSÕES:
+// carteira de clientes (usuario_clientes) + departamentos liberados (usuarios.departamentos_permitidos).
 async function carregarRespMap(){
-  if(tarRespMap) return; // carrega uma vez por sessão
-  tarRespMap={};
-  const {data,error}=await db.from('clientes').select('id,responsavel_fiscal,responsavel_pessoal,responsavel_contabil');
-  if(error){ tarRespMap={}; return; } // colunas ainda não criadas no banco -> tudo Ezequiel/Lucas
-  (data||[]).forEach(c=>{ tarRespMap[c.id]={fiscal:c.responsavel_fiscal||'',pessoal:c.responsavel_pessoal||'',contabil:c.responsavel_contabil||''}; });
+  if(tarColabResp) return; // carrega uma vez por sessão
+  const [{data:us},{data:uc}]=await Promise.all([
+    db.from('usuarios').select('nome,email,departamentos_permitidos').eq('role','colaborador').order('nome'),
+    db.from('usuario_clientes').select('usuario_email,cliente_id')
+  ]);
+  const carteira={};
+  (uc||[]).forEach(x=>{ (carteira[x.usuario_email]=carteira[x.usuario_email]||new Set()).add(x.cliente_id); });
+  // Colaboradores "responsáveis" (Gabriel/Laura/Luciana...) — Ezequiel e Lucas ficam no bucket interno.
+  tarColabResp=(us||[]).filter(u=>!respEhInterno(u.nome)).map(u=>{
+    // Sem departamento específico marcado -> responde por TODOS os departamentos dos clientes da carteira.
+    const dp=(Array.isArray(u.departamentos_permitidos)&&u.departamentos_permitidos.length)?u.departamentos_permitidos:['fiscal','pessoal','contabil'];
+    return { nome:primeiroNome(u.nome), clientes:carteira[u.email]||new Set(), depts:new Set(dp) };
+  });
+  tarRespChips=tarColabResp.map(c=>c.nome).concat(['Ezequiel/Lucas']);
 }
-function invalidarRespMap(){ tarRespMap=null; }
+function invalidarRespMap(){ tarColabResp=null; }
 
-// Responsável de uma tarefa = responsável do cliente naquele departamento (ou Ezequiel/Lucas).
+// Responsável de uma tarefa = colaborador que tem o cliente na carteira E o departamento liberado.
 function tarResponsavel(t){
-  if(t.cliente_id && t.departamento && tarRespMap && tarRespMap[t.cliente_id]){
-    const r=tarRespMap[t.cliente_id][t.departamento];
-    if(r) return r;
+  if(t.cliente_id && t.departamento && tarColabResp){
+    for(const c of tarColabResp){
+      if(c.clientes.has(t.cliente_id) && c.depts.has(t.departamento)) return c.nome;
+    }
   }
   return 'Ezequiel/Lucas';
 }
@@ -3292,7 +3284,7 @@ function renderFiltrosTar(baseList){
   let html='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:.5rem">'+
     '<span style="font-size:12px;font-weight:600;color:#475569;margin-right:4px">👥 Responsável:</span>';
   html+=chip('todos','Todos',listForCount.length);
-  TAR_RESP_CHIPS.forEach(nome=>{ html+=chip(nome,nome,cnt(nome)); });
+  tarRespChips.forEach(nome=>{ html+=chip(nome,nome,cnt(nome)); });
   html+='</div>';
   html+='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+
     '<span style="font-size:12px;font-weight:600;color:#475569;margin-right:4px">📋 Demanda:</span>'+
