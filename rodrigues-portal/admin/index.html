@@ -662,6 +662,9 @@ tr:hover td{background:#f8fafc}
         </div>
       </div>
 
+      <!-- FILTROS: RESPONSÁVEL + DEMANDA (só admin) -->
+      <div id="tar-filtros-extra" class="hidden" style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem"></div>
+
       <!-- DASHBOARD DE PROGRESSO -->
       <div id="tar-dashboard" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem">
         <div class="card" style="padding:1rem 1.25rem">
@@ -3150,6 +3153,7 @@ async function salvarPermissoes(){
     await db.from('usuario_clientes').insert(novas);
   }
   alerta('alerta-perm','✅ Permissões salvas! '+marcados.length+' clientes e '+depts.length+' departamento(s) liberados.','s');
+  if(typeof invalidarCarteirasTar==='function') invalidarCarteirasTar(); // filtros de Tarefas refletem a nova carteira
 }
 
 let todasTarefas=[];
@@ -3164,6 +3168,7 @@ function trocarAbaTar(aba){
   document.getElementById('btn-ia-demanda').classList.toggle('hidden',aba!=='demandas');
   // Toggle sections visibility
   const isCatalogo=aba==='catalogo';
+  if(isCatalogo)document.getElementById('tar-filtros-extra').classList.add('hidden');
   document.getElementById('tar-dashboard').style.display=isCatalogo?'none':'grid';
   document.getElementById('tar-count-label').style.display=isCatalogo?'none':'block';
   document.getElementById('alert-tar').style.display=isCatalogo?'none':'block';
@@ -3190,6 +3195,87 @@ function trocarViewTar(view){
   else{kb.classList.remove('hidden');kb.style.display='grid';}
   renderView();
 }
+
+// ---- Filtros por RESPONSÁVEL (carteira) e por DEMANDA ----
+let tarFiltroResp='todos';   // 'todos' | email do colaborador | 'internos'
+let tarFiltroDemanda='';     // '' | nome da obrigação/demanda
+let tarCarteiras=null;       // { email: Set(cliente_id) }
+let tarColabs=[];            // [{nome,email}]
+let tarUniaoCarteira=null;   // Set de todos os cliente_id que estão em alguma carteira
+
+async function carregarCarteirasTar(){
+  if(tarCarteiras) return; // carrega uma vez por sessão
+  tarCarteiras={}; tarUniaoCarteira=new Set(); tarColabs=[];
+  const [{data:uc},{data:us}]=await Promise.all([
+    db.from('usuario_clientes').select('usuario_email,cliente_id'),
+    db.from('usuarios').select('nome,email').eq('role','colaborador').order('nome')
+  ]);
+  (uc||[]).forEach(x=>{
+    if(!tarCarteiras[x.usuario_email]) tarCarteiras[x.usuario_email]=new Set();
+    tarCarteiras[x.usuario_email].add(x.cliente_id);
+    tarUniaoCarteira.add(x.cliente_id);
+  });
+  tarColabs=(us||[]).map(u=>({nome:u.nome||u.email,email:u.email}));
+}
+// Recarrega as carteiras (ex.: depois de mexer em Permissões)
+function invalidarCarteirasTar(){ tarCarteiras=null; }
+
+function demandaKey(t){ return (t.obrigacao_nome||t.titulo||'').trim(); }
+function primeiroNome(n){ return (n||'').split(' ')[0]||n||''; }
+
+function aplicarFiltrosRespDemanda(list){
+  let r=list;
+  if(tarFiltroResp!=='todos'){
+    if(tarFiltroResp==='internos'){
+      r=r.filter(t=>!t.cliente_id||!(tarUniaoCarteira&&tarUniaoCarteira.has(t.cliente_id)));
+    }else{
+      const set=tarCarteiras&&tarCarteiras[tarFiltroResp]?tarCarteiras[tarFiltroResp]:new Set();
+      r=r.filter(t=>t.cliente_id&&set.has(t.cliente_id));
+    }
+  }
+  if(tarFiltroDemanda){ r=r.filter(t=>demandaKey(t)===tarFiltroDemanda); }
+  return r;
+}
+
+function renderFiltrosTar(baseList){
+  const box=document.getElementById('tar-filtros-extra');
+  if(userRole!=='admin'){ box.classList.add('hidden'); return; }
+  box.classList.remove('hidden');
+  // Se a demanda selecionada não existe mais nesta competência, zera para não esconder tudo
+  const nomes=[...new Set((baseList||[]).map(demandaKey).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  if(tarFiltroDemanda && !nomes.includes(tarFiltroDemanda)) tarFiltroDemanda='';
+  // Contagem por responsável já considerando o filtro de demanda ativo
+  const listForCount=tarFiltroDemanda?baseList.filter(t=>demandaKey(t)===tarFiltroDemanda):baseList;
+  const cnt=fn=>listForCount.filter(fn).length;
+  const chip=(val,label,count)=>{
+    const active=tarFiltroResp===val;
+    return '<button onclick="setFiltroResp(\''+val.replace(/'/g,"\\'")+'\')" style="font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid '+(active?'#4A6BD4':'#e2e8f0')+';background:'+(active?'#4A6BD4':'#fff')+';color:'+(active?'#fff':'#475569')+';cursor:pointer;font-weight:'+(active?'600':'400')+'">'+label+' ('+count+')</button>';
+  };
+  let html='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:.5rem">'+
+    '<span style="font-size:12px;font-weight:600;color:#475569;margin-right:4px">👥 Responsável:</span>';
+  html+=chip('todos','Todos',listForCount.length);
+  tarColabs.forEach(u=>{
+    const set=tarCarteiras[u.email]||new Set();
+    html+=chip(u.email,primeiroNome(u.nome),cnt(t=>t.cliente_id&&set.has(t.cliente_id)));
+  });
+  html+=chip('internos','Ezequiel/Lucas',cnt(t=>!t.cliente_id||!tarUniaoCarteira.has(t.cliente_id)));
+  html+='</div>';
+  html+='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+
+    '<span style="font-size:12px;font-weight:600;color:#475569;margin-right:4px">📋 Demanda:</span>'+
+    '<select class="si" style="min-width:220px" onchange="setFiltroDemanda(this.value)">'+
+    '<option value="">Todas as demandas</option>'+
+    nomes.map(n=>'<option value="'+n.replace(/"/g,'&quot;')+'"'+(tarFiltroDemanda===n?' selected':'')+'>'+n+'</option>').join('')+
+    '</select>';
+  if(tarFiltroResp!=='todos'||tarFiltroDemanda){
+    html+='<button onclick="limparFiltrosTar()" style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer">✕ Limpar filtros</button>';
+  }
+  html+='</div>';
+  box.innerHTML=html;
+}
+
+function setFiltroResp(val){ tarFiltroResp=val; carregarTarefas(); }
+function setFiltroDemanda(val){ tarFiltroDemanda=val; carregarTarefas(); }
+function limparFiltrosTar(){ tarFiltroResp='todos'; tarFiltroDemanda=''; carregarTarefas(); }
 
 async function carregarTarefas(){
   const compInput=document.getElementById('fil-tar-comp');
@@ -3222,6 +3308,14 @@ async function carregarTarefas(){
   const {data}=await q;
   let lista=data||[];
   if(busca) lista=lista.filter(t=>(t.titulo||'').toLowerCase().includes(busca)||(t.cliente_nome||'').toLowerCase().includes(busca));
+
+  // Filtros de RESPONSÁVEL e DEMANDA (só admin) — aplicados antes de contar,
+  // para o Progresso e os números refletirem o funcionário selecionado.
+  if(userRole==='admin'){
+    await carregarCarteirasTar();
+    renderFiltrosTar(lista);
+    lista=aplicarFiltrosRespDemanda(lista);
+  }
   todasTarefas=lista;
 
   const pend=lista.filter(t=>t.status==='pendente').length;
