@@ -766,6 +766,12 @@ tr:hover td{background:#f8fafc}
       <div class="fg"><label>Último dia útil?</label><select id="ob-ult" class="si" style="width:100%"><option value="false">Não</option><option value="true">Sim</option></select></div>
       <div class="fg"><label>Mês fixo (anuais)</label><input type="number" id="ob-mes" min="1" max="12" placeholder="1-12"></div>
     </div>
+    <div class="fg"><label>Quando vence? <span style="font-size:11px;color:#94a3b8;font-weight:400">(obrigações mensais)</span></label>
+      <select id="ob-offset" class="si" style="width:100%">
+        <option value="0">Vence no mês atual (mesmo mês em que é gerada) — ex.: DAS MEI, DAS Simples</option>
+        <option value="1">Vence no mês seguinte</option>
+      </select>
+    </div>
     <div class="fg"><label>Regimes aplicáveis *</label>
       <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:4px">
         <label style="font-size:12px;cursor:pointer"><input type="checkbox" id="ob-r-mei" value="mei"> MEI</label>
@@ -937,6 +943,21 @@ tr:hover td{background:#f8fafc}
     </div>
     <div class="ma">
       <button class="btn btn-sm" onclick="fecharModal('m-coment');carregarTarefas()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AJUSTAR VENCIMENTO DA TAREFA -->
+<div id="m-prazo" class="overlay hidden">
+  <div class="modal" style="max-width:380px">
+    <h2 style="display:flex;align-items:center;gap:.5rem">📅 Ajustar vencimento</h2>
+    <p id="prazo-info" style="font-size:12px;color:#64748b;margin-bottom:1rem"></p>
+    <input type="hidden" id="prazo-tar-id">
+    <div class="fg"><label>Novo vencimento</label><input type="date" id="prazo-data" class="si" style="width:100%"></div>
+    <p style="font-size:11px;color:#94a3b8;margin-top:.25rem">Use quando o vencimento cair em fim de semana/feriado. Muda só esta tarefa.</p>
+    <div class="ma">
+      <button class="btn btn-sm" onclick="fecharModal('m-prazo')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarPrazoTarefa()">Salvar</button>
     </div>
   </div>
 </div>
@@ -3379,7 +3400,7 @@ function renderLista(lista,hoje){
     let acoes=buildAcoesCompact(t);
     const comentBtnL='<button class="btn btn-sm" style="font-size:11px;background:#fef9c3;color:#92400e;border:none" onclick="abrirComentarios(\''+t.id+'\')">💬'+(t.qtd_comentarios>0?' '+t.qtd_comentarios:'')+'</button>';
     const verAnexosBtnL=t.qtd_anexos>0?'<button class="btn btn-sm" style="font-size:11px;background:#f3e8ff;color:#7c3aed;border:none" onclick="verAnexos(\''+t.id+'\')" title="Ver anexos">📎 '+t.qtd_anexos+'</button>':'';
-    return '<tr><td style="font-weight:500;font-size:13px">'+t.titulo+'</td><td style="font-size:12px">'+(t.cliente_nome||'—')+'</td><td style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap">'+(t.cliente_documento||'—')+'</td><td style="font-size:12px;white-space:nowrap;'+pc+'">'+fmtDt(t.data_prazo)+'</td><td><span style="font-size:11px;padding:2px 8px;border-radius:4px;'+deptSt+'">'+t.departamento+'</span></td><td><span class="badge '+badge+'">'+label+'</span></td><td style="white-space:nowrap">'+acoes+verAnexosBtnL+comentBtnL+'</td></tr>';
+    return '<tr><td style="font-weight:500;font-size:13px">'+t.titulo+'</td><td style="font-size:12px">'+(t.cliente_nome||'—')+'</td><td style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap">'+(t.cliente_documento||'—')+'</td><td style="font-size:12px;white-space:nowrap;'+pc+'">'+fmtDt(t.data_prazo)+' <button onclick="editarPrazoTarefa(\''+t.id+'\')" title="Ajustar vencimento" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:12px;padding:0">✏</button></td><td><span style="font-size:11px;padding:2px 8px;border-radius:4px;'+deptSt+'">'+t.departamento+'</span></td><td><span class="badge '+badge+'">'+label+'</span></td><td style="white-space:nowrap">'+acoes+verAnexosBtnL+comentBtnL+'</td></tr>';
   }).join('');
 }
 
@@ -3421,6 +3442,25 @@ function buildAcoesCompact(t){
   if(t.status==='executado') return '<button class="btn btn-sm" style="font-size:11px" onclick="mudarStatusTarefa(\''+t.id+'\',\'pendente\')">↩ Desfazer</button>'+anexarBtn+'<button class="btn btn-sm" style="font-size:11px;background:#dcfce7;color:#166534;border:none" onclick="prepararEnvio(\''+t.id+'\')">📤 Enviar</button><button class="btn btn-sm" style="font-size:11px;background:#f0fdf4;color:#166534;border:none" onclick="concluirSemEnvio(\''+t.id+'\')" title="Concluir sem envio de email">✔ s/ envio</button>';
   const semEnvioC=Array.isArray(t.enviado_para)&&t.enviado_para[0]==='sem_envio';
   return '<button class="btn btn-sm" style="font-size:11px" onclick="mudarStatusTarefa(\''+t.id+'\',\'executado\')">↩</button><span style="font-size:11px;color:#16a34a" title="'+(semEnvioC?'Concluído sem envio':'Enviado')+'">✓'+(semEnvioC?' s/ envio':'')+'</span>';
+}
+
+function editarPrazoTarefa(id){
+  const t=todasTarefas.find(x=>x.id===id); if(!t)return;
+  document.getElementById('prazo-tar-id').value=id;
+  document.getElementById('prazo-info').textContent=(t.titulo||'')+(t.cliente_nome?(' — '+t.cliente_nome):'');
+  document.getElementById('prazo-data').value=t.data_prazo||'';
+  document.getElementById('m-prazo').classList.remove('hidden');
+}
+async function salvarPrazoTarefa(){
+  const id=document.getElementById('prazo-tar-id').value;
+  const nova=document.getElementById('prazo-data').value;
+  if(!nova){alerta('alert-tar','Informe uma data.','e');return;}
+  const {error}=await db.from('tarefas').update({data_prazo:nova}).eq('id',id);
+  if(error){alerta('alert-tar','Erro ao salvar: '+error.message,'e');return;}
+  fecharModal('m-prazo');
+  alerta('alert-tar','📅 Vencimento atualizado.','s');
+  const t=todasTarefas.find(x=>x.id===id); if(t)t.data_prazo=nova;
+  const _y=window.scrollY; renderView(); window.scrollTo(0,_y);
 }
 
 async function mudarStatusTarefa(id,novoStatus){
@@ -4082,6 +4122,7 @@ async function abrirModalObrig(){
   document.getElementById('ob-dia').value='';
   document.getElementById('ob-ult').value='false';
   document.getElementById('ob-mes').value='';
+  document.getElementById('ob-offset').value='0';
   ['ob-r-mei','ob-r-sn','ob-r-lp','ob-r-lr','ob-r-dom','ob-r-im','ob-f-func','ob-f-prolab','ob-f-nfs','ob-f-parc','ob-f-imob','ob-f-med'].forEach(id=>document.getElementById(id).checked=false);
   document.getElementById('ob-err').classList.add('hidden');
   document.getElementById('m-obrig').classList.remove('hidden');
@@ -4099,6 +4140,7 @@ async function editarObrig(id){
   document.getElementById('ob-dia').value=o.dia_prazo||'';
   document.getElementById('ob-ult').value=o.ultimo_dia_util?'true':'false';
   document.getElementById('ob-mes').value=o.mes_prazo||'';
+  document.getElementById('ob-offset').value=String(o.competencia_offset||0);
   const r=o.regimes_aplicaveis||[];
   document.getElementById('ob-r-mei').checked=r.includes('mei');
   document.getElementById('ob-r-sn').checked=r.includes('simples_nacional');
@@ -4137,7 +4179,7 @@ async function salvarObrig(){
     dia_prazo:parseInt(document.getElementById('ob-dia').value)||null,
     ultimo_dia_util:document.getElementById('ob-ult').value==='true',
     mes_prazo:parseInt(document.getElementById('ob-mes').value)||null,
-    competencia_offset:document.getElementById('ob-recorrencia').value==='mensal'?1:0,
+    competencia_offset:parseInt(document.getElementById('ob-offset').value)||0,
     requer_funcionarios:document.getElementById('ob-f-func').checked,
     requer_pro_labore:document.getElementById('ob-f-prolab').checked,
     requer_nfs:document.getElementById('ob-f-nfs').checked,
