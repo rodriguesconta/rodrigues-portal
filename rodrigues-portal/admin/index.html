@@ -772,6 +772,13 @@ tr:hover td{background:#f8fafc}
         <option value="1">Vence no mês seguinte</option>
       </select>
     </div>
+    <div class="fg"><label>Se cair em fim de semana/feriado <span style="font-size:11px;color:#94a3b8;font-weight:400">(regra do imposto)</span></label>
+      <select id="ob-ajuste" class="si" style="width:100%">
+        <option value="proximo">Prorroga — próximo dia útil (ex.: DAS)</option>
+        <option value="anterior">Antecipa — dia útil anterior (ex.: DARF, FGTS, GPS/INSS)</option>
+        <option value="nenhum">Não ajustar — mantém a data exata</option>
+      </select>
+    </div>
     <div class="fg"><label>Regimes aplicáveis *</label>
       <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:4px">
         <label style="font-size:12px;cursor:pointer"><input type="checkbox" id="ob-r-mei" value="mei"> MEI</label>
@@ -4141,6 +4148,7 @@ async function abrirModalObrig(){
   document.getElementById('ob-ult').value='false';
   document.getElementById('ob-mes').value='';
   document.getElementById('ob-offset').value='0';
+  document.getElementById('ob-ajuste').value='proximo';
   ['ob-r-mei','ob-r-sn','ob-r-lp','ob-r-lr','ob-r-dom','ob-r-im','ob-f-func','ob-f-prolab','ob-f-nfs','ob-f-parc','ob-f-imob','ob-f-med'].forEach(id=>document.getElementById(id).checked=false);
   document.getElementById('ob-err').classList.add('hidden');
   document.getElementById('m-obrig').classList.remove('hidden');
@@ -4159,6 +4167,7 @@ async function editarObrig(id){
   document.getElementById('ob-ult').value=o.ultimo_dia_util?'true':'false';
   document.getElementById('ob-mes').value=o.mes_prazo||'';
   document.getElementById('ob-offset').value=String(o.competencia_offset||0);
+  document.getElementById('ob-ajuste').value=o.ajuste_dia_util||'proximo';
   const r=o.regimes_aplicaveis||[];
   document.getElementById('ob-r-mei').checked=r.includes('mei');
   document.getElementById('ob-r-sn').checked=r.includes('simples_nacional');
@@ -4198,6 +4207,7 @@ async function salvarObrig(){
     ultimo_dia_util:document.getElementById('ob-ult').value==='true',
     mes_prazo:parseInt(document.getElementById('ob-mes').value)||null,
     competencia_offset:parseInt(document.getElementById('ob-offset').value)||0,
+    ajuste_dia_util:document.getElementById('ob-ajuste').value||'proximo',
     requer_funcionarios:document.getElementById('ob-f-func').checked,
     requer_pro_labore:document.getElementById('ob-f-prolab').checked,
     requer_nfs:document.getElementById('ob-f-nfs').checked,
