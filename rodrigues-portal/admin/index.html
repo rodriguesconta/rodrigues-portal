@@ -3365,6 +3365,15 @@ async function carregarTarefas(){
 
 function renderView(){
   const hoje=new Date().toISOString().split('T')[0];
+  // Garante a visibilidade do container da visão ativa — corrige o sumiço do
+  // conteúdo ao voltar de uma aba (ex.: Catálogo/aba vazia) sem precisar de F5.
+  const cards=document.getElementById('tar-cards-container');
+  const lista=document.getElementById('tar-lista-container');
+  const kb=document.getElementById('tar-kanban-container');
+  cards.classList.toggle('hidden',tarViewAtiva!=='cards');
+  lista.classList.toggle('hidden',tarViewAtiva!=='lista');
+  kb.classList.toggle('hidden',tarViewAtiva!=='kanban');
+  kb.style.display=tarViewAtiva==='kanban'?'grid':'none';
   if(tarViewAtiva==='cards') renderCards(todasTarefas,hoje);
   else if(tarViewAtiva==='lista') renderLista(todasTarefas,hoje);
   else renderKanban(todasTarefas,hoje);
