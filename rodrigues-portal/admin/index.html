@@ -944,7 +944,13 @@ tr:hover td{background:#f8fafc}
     <input type="hidden" id="c-id">
     <div class="fr">
       <div class="fg"><label>Nome / Razão social *</label><input id="c-nome"></div>
-      <div class="fg"><label>CNPJ / CPF *</label><input id="c-doc"></div>
+      <div class="fg"><label>CNPJ / CPF *</label>
+        <div style="display:flex;gap:.4rem">
+          <input id="c-doc" style="flex:1">
+          <button type="button" class="btn btn-sm" id="btn-consultar-cnpj" onclick="consultarCNPJ()" style="white-space:nowrap;background:#4A6BD4;color:#fff;border-color:#4A6BD4" title="Puxar dados da Receita pelo CNPJ">🔎 Receita</button>
+        </div>
+        <p id="cnpj-status" style="font-size:11px;margin-top:4px;min-height:14px"></p>
+      </div>
     </div>
     <div class="fr">
       <div class="fg"><label>E-mail</label><input type="email" id="c-email"></div>
@@ -1392,6 +1398,7 @@ async function abrirModalCliente(){
   document.getElementById('c-status').value='ativo';
   document.getElementById('c-regime').value='';
   document.getElementById('c-err').classList.add('hidden');
+  document.getElementById('cnpj-status').textContent='';
   await carregarObrigacoesGrid(null);
   document.getElementById('m-cli').classList.remove('hidden');
 }
@@ -1411,9 +1418,39 @@ async function editarCli(id){
   document.getElementById('c-regime').value=c.regime||'';
   document.getElementById('c-inicio-cob').value=c.inicio_cobranca||'';
   document.getElementById('c-err').classList.add('hidden');
+  document.getElementById('cnpj-status').textContent='';
   await carregarObrigacoesGrid(id);
   document.getElementById('m-cli').classList.remove('hidden');
 }
+
+// Consulta o CNPJ na Receita (via BrasilAPI) e preenche razão social, cidade e UF.
+// NÃO preenche e-mail e telefone — esses são sempre os dados do financeiro, digitados à mão.
+async function consultarCNPJ(){
+  const raw=(document.getElementById('c-doc').value||'').replace(/\D/g,'');
+  const status=document.getElementById('cnpj-status');
+  const btn=document.getElementById('btn-consultar-cnpj');
+  if(raw.length!==14){status.style.color='#dc2626';status.textContent='Digite um CNPJ com 14 dígitos para consultar (CPF não é consultável).';return;}
+  status.style.color='#64748b';status.textContent='Consultando na Receita...';
+  btn.disabled=true;
+  try{
+    const r=await fetch('https://brasilapi.com.br/api/cnpj/v1/'+raw);
+    if(!r.ok)throw new Error(r.status===404?'CNPJ não encontrado na base da Receita.':'Falha na consulta (HTTP '+r.status+').');
+    const d=await r.json();
+    const razao=d.razao_social||d.nome_fantasia||'';
+    if(razao)document.getElementById('c-nome').value=razao;
+    if(d.municipio)document.getElementById('c-cidade').value=String(d.municipio).toUpperCase();
+    if(d.uf)document.getElementById('c-uf').value=d.uf;
+    const situacao=d.descricao_situacao_cadastral||'';
+    status.style.color='#16a34a';
+    status.textContent='✅ Dados preenchidos'+(situacao?' (situação: '+situacao+')':'')+'. Complete e-mail e telefone do financeiro.';
+  }catch(e){
+    status.style.color='#dc2626';
+    status.textContent='⚠ '+e.message+' Preencha manualmente.';
+  }finally{
+    btn.disabled=false;
+  }
+}
+
 async function salvarCliente(){
   const id=document.getElementById('c-id').value;
   const regime=document.getElementById('c-regime').value;
