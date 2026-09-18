@@ -1453,9 +1453,20 @@ async function consultarCNPJ(){
     if(razao)document.getElementById('c-nome').value=razao;
     if(d.municipio)document.getElementById('c-cidade').value=String(d.municipio).toUpperCase();
     if(d.uf)document.getElementById('c-uf').value=d.uf;
+    // Regime: a Receita só expõe se é MEI ou Simples Nacional.
+    // Lucro Presumido/Real/Imune não vêm — nesses casos avisamos para você analisar.
+    const regSel=document.getElementById('c-regime');
+    let regimeMsg='';
+    if(d.opcao_pelo_mei===true){
+      regSel.value='mei'; regimeMsg=' Regime: MEI.';
+    }else if(d.opcao_pelo_simples===true){
+      regSel.value='simples_nacional'; regimeMsg=' Regime: Simples Nacional.';
+    }else{
+      regimeMsg=' ⚠ Regime não encontrado (não é MEI nem Simples) — verifique se é Lucro Presumido/Real/Imune.';
+    }
     const situacao=d.descricao_situacao_cadastral||'';
     status.style.color='#16a34a';
-    status.textContent='✅ Dados preenchidos'+(situacao?' (situação: '+situacao+')':'')+'. Complete e-mail e telefone do financeiro.';
+    status.textContent='✅ Dados preenchidos'+(situacao?' (situação: '+situacao+')':'')+'.'+regimeMsg+' Complete e-mail e telefone do financeiro.';
   }catch(e){
     status.style.color='#dc2626';
     status.textContent='⚠ '+e.message+' Preencha manualmente.';
