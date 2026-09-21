@@ -262,6 +262,10 @@ tr:hover td{background:#f8fafc}
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
         Permissões
       </div>
+      <div class="nav-item" data-page="integracoes" onclick="go('integracoes')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Integrações
+      </div>
     </nav>
     <div class="sb-foot">
       <p id="u-email"></p>
@@ -633,6 +637,40 @@ tr:hover td{background:#f8fafc}
             <div id="perm-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .75rem;max-height:500px;overflow-y:auto"></div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- INTEGRAÇÕES -->
+    <div id="pg-integracoes" class="hidden">
+      <div class="page-hdr"><h1>Integrações & Configurações</h1></div>
+      <div id="alerta-integ"></div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-hdr"><h2>📧 Envio de tarefas por e-mail</h2></div>
+        <div style="padding:1rem">
+          <p style="font-size:12px;color:#64748b;margin-bottom:.75rem">E-mail que assina/responde os envios de tarefas aos clientes. (Este valor é enviado ao Make no campo <code>remetente</code>.)</p>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+            <input class="si" id="cfg-email-envio" style="width:320px;max-width:100%" placeholder="contato@rodriguesconta.com.br">
+            <button class="btn btn-primary btn-sm" onclick="salvarConfigEmail()">💾 Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-hdr"><h2>💾 Uso do Supabase</h2><button class="btn btn-sm" onclick="carregarUsoBanco()">🔄 Atualizar</button></div>
+        <div style="padding:1rem" id="uso-banco-box">
+          <p style="font-size:12px;color:#94a3b8">Carregando...</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-hdr"><h2>📲 WhatsApp Cloud API</h2></div>
+        <div class="tbl-wrap"><table><tbody id="integ-whats"></tbody></table></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr"><h2>🔗 Webhooks (Make) & serviços</h2></div>
+        <div class="tbl-wrap"><table><tbody id="integ-webhooks"></tbody></table></div>
       </div>
     </div>
 
@@ -1346,6 +1384,7 @@ function go(pg){
   if(pg==='tarefas')carregarTarefas();
   if(pg==='prolabore')carregarProlabore();
   if(pg==='permissoes')carregarPermPage();
+  if(pg==='integracoes')carregarIntegracoes();
 }
 
 function fecharModal(id){document.getElementById(id).classList.add('hidden');}
@@ -3963,6 +4002,9 @@ async function confirmarEnvio(){
 
   try{
     const MAKE_WEBHOOK_EMAIL='https://hook.us2.make.com/mucqgpqk5ggq1wsmi9l42nu6ghvc3j32';
+    // E-mail configurável em Integrações (Make usa no campo remetente)
+    let remetente='contato@rodriguesconta.com.br';
+    try{const {data:cfg}=await db.from('configuracoes').select('valor').eq('chave','email_envio_tarefas').single();if(cfg&&cfg.valor)remetente=cfg.valor;}catch(e){}
     const resp=await fetch(MAKE_WEBHOOK_EMAIL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -3973,7 +4015,8 @@ async function confirmarEnvio(){
         html:htmlBody,
         attachments:attachments,
         tarefa_id:tarefaId,
-        cliente_nome:t.cliente_nome||''
+        cliente_nome:t.cliente_nome||'',
+        remetente:remetente
       })
     });
 
@@ -4374,6 +4417,82 @@ async function toggleObrig(id,novoAtivo){
   await db.from('obrigacoes_modelo').update({ativo:novoAtivo}).eq('id',id);
   carregarCatalogo();
 }
+
+// ============================================================
+// INTEGRAÇÕES & CONFIGURAÇÕES
+// ============================================================
+async function carregarIntegracoes(){
+  // E-mail de envio
+  try{
+    const {data}=await db.from('configuracoes').select('valor').eq('chave','email_envio_tarefas').single();
+    document.getElementById('cfg-email-envio').value=(data&&data.valor)||'contato@rodriguesconta.com.br';
+  }catch(e){document.getElementById('cfg-email-envio').value='contato@rodriguesconta.com.br';}
+  // WhatsApp Cloud API (somente leitura)
+  const linha=(rot,val)=>'<tr><td style="font-weight:600;width:230px;color:#475569">'+rot+'</td><td style="font-family:monospace;font-size:12px;color:#1e293b">'+val+'</td></tr>';
+  document.getElementById('integ-whats').innerHTML=
+    linha('Número',' +55 21 97410-7266')+
+    linha('Phone Number ID','1065501023315051')+
+    linha('WABA ID','2349296028882221')+
+    linha('App','Cobrancas Rodrigues (1596054708145186)')+
+    linha('Business ID','1335233494951920')+
+    linha('Status','<span class="badge badge-green">Conectado (Cloud API oficial)</span>');
+  document.getElementById('integ-webhooks').innerHTML=
+    linha('Cobranças (WhatsApp+Email)','Make — diário 08:00')+
+    linha('Webhook e-mail (tarefas)','hook.us2.make.com/…nu6ghvc3j32')+
+    linha('Baixa manual → sync','hook.us2.make.com/…d6fqx112mgu')+
+    linha('Mercado Pago','Token ativo (functions pagar/boleto)')+
+    linha('Supabase','xuzcczbdbgihkurcbepw.supabase.co');
+  carregarUsoBanco();
+}
+
+async function salvarConfigEmail(){
+  const val=document.getElementById('cfg-email-envio').value.trim();
+  if(!val||!val.includes('@')){alerta('alerta-integ','Informe um e-mail válido.','e');return;}
+  const {error}=await db.from('configuracoes').upsert({chave:'email_envio_tarefas',valor:val,atualizado_em:new Date().toISOString()},{onConflict:'chave'});
+  if(error){alerta('alerta-integ','Erro ao salvar: '+error.message,'e');return;}
+  alerta('alerta-integ','✅ E-mail de envio salvo.','s');
+}
+
+async function carregarUsoBanco(){
+  const box=document.getElementById('uso-banco-box');
+  box.innerHTML='<p style="font-size:12px;color:#94a3b8">Carregando...</p>';
+  const {data,error}=await db.rpc('uso_banco');
+  if(error||!data){box.innerHTML='<p style="font-size:12px;color:#dc2626">Não consegui ler o uso do banco. Rode o SQL de integrações (função uso_banco).</p>';return;}
+  const d=Array.isArray(data)?data[0]:data;
+  const mb=b=>(b/1048576);
+  const gb=b=>(b/1073741824);
+  const fmtTam=b=>b>=1073741824?(gb(b).toFixed(2)+' GB'):(mb(b).toFixed(1)+' MB');
+  const barra=(rot,usado,limite,sub)=>{
+    const pct=Math.min(100,Math.round(usado/limite*100));
+    const cor=pct>=90?'#dc2626':pct>=70?'#F57C1A':'#16a34a';
+    return '<div style="margin-bottom:1.1rem">'+
+      '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span style="font-weight:600">'+rot+'</span>'+
+      '<span style="font-weight:700;color:'+cor+'">'+fmtTam(usado)+' / '+fmtTam(limite)+' ('+pct+'%)</span></div>'+
+      '<div style="height:14px;background:#eef2f7;border-radius:8px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+cor+';border-radius:8px;transition:width .5s"></div></div>'+
+      (sub?'<div style="font-size:11px;color:#94a3b8;margin-top:4px">'+sub+'</div>':'')+'</div>';
+  };
+  box.innerHTML=
+    barra('Banco de dados',Number(d.db_bytes||0),Number(d.limite_db_bytes||524288000),'Plano free entra em somente-leitura ao passar de 500 MB.')+
+    barra('Storage (anexos/arquivos)',Number(d.storage_bytes||0),Number(d.limite_storage_bytes||1073741824),'Bucket de anexos das tarefas e assets.')+
+    '<div style="font-size:11px;color:#94a3b8;margin-top:.25rem">Dados lidos diretamente do Supabase agora.</div>';
+}
+
+// ============================================================
+// SEGURANÇA — logout automático por inatividade (20 minutos)
+// ============================================================
+let _idleTimer=null;
+function _resetIdle(){
+  clearTimeout(_idleTimer);
+  _idleTimer=setTimeout(function(){
+    const app=document.getElementById('app');
+    if(app && !app.classList.contains('hidden')){
+      try{alert('Sessão encerrada por inatividade. Faça login novamente.');}catch(e){}
+      logout();
+    }
+  }, 20*60*1000);
+}
+['click','keydown','mousemove','scroll','touchstart'].forEach(function(ev){document.addEventListener(ev,_resetIdle,{passive:true});});
+_resetIdle();
 
 db.auth.getSession().then(({data:{session}})=>{if(session)iniciar(session.user);});
 </script>
