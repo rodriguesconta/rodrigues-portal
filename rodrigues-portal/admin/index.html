@@ -4057,6 +4057,7 @@ async function excluirAnexo(id,path){
   carregarTarefas();
 }
 
+let _envArquivos=[];
 async function prepararEnvio(tarefaId){
   const t=todasTarefas.find(x=>x.id===tarefaId);
   if(!t){alert('Tarefa não encontrada');return;}
@@ -4075,14 +4076,23 @@ async function prepararEnvio(tarefaId){
   document.getElementById('env-movimento-wrap').classList.toggle('hidden',!isDAS);
   document.getElementById('env-movimento').value='com_movimento';
 
-  gerarEmailPreview(t,compFmt,isDAS?'com_movimento':null);
-
+  // Buscar anexos e gerar links longos (30 dias) para o botão "Visualizar Arquivo" no corpo do e-mail
+  _envArquivos=[];
   const {data:anexos}=await db.from('tarefa_anexos').select('*').eq('tarefa_id',tarefaId);
   if(anexos&&anexos.length){
+    for(const a of anexos){
+      try{
+        const {data:urlData}=await db.storage.from('tarefa-anexos').createSignedUrl(a.storage_path,2592000);
+        if(urlData&&urlData.signedUrl)_envArquivos.push({name:a.nome_arquivo,url:urlData.signedUrl});
+      }catch(e){console.warn('Falha ao gerar link do anexo',a.nome_arquivo,e);}
+    }
     document.getElementById('env-anexo').innerHTML=anexos.map(a=>'<span class="tar-card-file">📎 '+a.nome_arquivo+'</span>').join('');
   }else{
     document.getElementById('env-anexo').innerHTML='<span style="color:#d97706;font-size:12px">⚠ Nenhum PDF anexado. Anexe o documento antes de enviar.</span>';
   }
+
+  gerarEmailPreview(t,compFmt,isDAS?'com_movimento':null);
+
   document.getElementById('env-err').classList.add('hidden');
   document.getElementById('m-enviar').classList.remove('hidden');
 }
@@ -4129,6 +4139,13 @@ function gerarEmailPreview(t,compFmt,movimento){
     descricao='Segue em anexo o documento referente a <strong>'+(t.obrigacao_nome||t.titulo)+'</strong>'+(comp?' — competência '+comp:'')+'.';
   }
   const venc=t.data_prazo?fmtDt(t.data_prazo):'';
+  // Botão(ões) "Visualizar Arquivo" — link assinado (30 dias) de cada anexo
+  let btnArquivo='';
+  if(typeof _envArquivos!=='undefined'&&_envArquivos.length){
+    btnArquivo=_envArquivos.map(a=>
+      '<a href="'+a.url+'" target="_blank" rel="noopener" style="display:block;text-align:center;background:#4A6BD4;color:#ffffff;text-decoration:none;padding:13px 18px;border-radius:8px;font-size:14px;font-weight:bold;margin:0 0 10px">📄 Visualizar Arquivo'+(_envArquivos.length>1?' — '+a.name:'')+'</a>'
+    ).join('')+'<div style="font-size:11px;color:#94a3b8;text-align:center;margin:-2px 0 16px">O link do documento fica disponível por 30 dias.</div>';
+  }
   const LOGO='https://xuzcczbdbgihkurcbepw.supabase.co/storage/v1/object/public/assets/LOGO%20RODRIGUES%20CONT.png';
   document.getElementById('env-preview').innerHTML=
     '<div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;font-family:Arial,Helvetica,sans-serif">'+
@@ -4143,6 +4160,7 @@ function gerarEmailPreview(t,compFmt,movimento){
           '<div style="font-size:11px;color:'+cor.label+';text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Vencimento</div>'+
           '<div style="font-size:18px;color:'+cor.valor+';font-weight:bold">'+venc+'</div>'+
         '</div>':'')+
+        btnArquivo+
         '<p style="font-size:14px;color:#334155;line-height:1.6;margin:0">Em caso de dúvidas, estamos à disposição.</p>'+
       '</div>'+
       '<div style="border-top:1px solid #e2e8f0;padding:16px 24px;background:#f8fafc">'+
