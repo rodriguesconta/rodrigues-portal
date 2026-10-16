@@ -4088,11 +4088,15 @@ async function enviarComentario(){
   await carregarComentarios();
 }
 
+function _sanKey(name){
+  // Nome seguro para a "key" do Supabase Storage (sem acentos, espaços ou símbolos)
+  return String(name||'arquivo.pdf').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-zA-Z0-9._-]/g,'_').replace(/_+/g,'_');
+}
 async function uploadAnexo(tarefaId,input){
   const file=input.files[0];
   if(!file)return;
   if(file.type!=='application/pdf'){alert('Apenas arquivos PDF são aceitos.');return;}
-  const path='tarefas/'+tarefaId+'/'+Date.now()+'_'+file.name;
+  const path='tarefas/'+tarefaId+'/'+Date.now()+'_'+_sanKey(file.name);
   const {error:upErr}=await db.storage.from('tarefa-anexos').upload(path,file);
   if(upErr){alert('Erro no upload: '+upErr.message);return;}
   await db.from('tarefa_anexos').insert([{
@@ -4147,7 +4151,7 @@ async function uploadAnexoModal(input){
   const file=input.files[0];
   if(!file)return;
   if(file.type!=='application/pdf'){alert('Apenas arquivos PDF são aceitos.');return;}
-  const path='tarefas/'+anexosTarefaId+'/'+Date.now()+'_'+file.name;
+  const path='tarefas/'+anexosTarefaId+'/'+Date.now()+'_'+_sanKey(file.name);
   const {error:upErr}=await db.storage.from('tarefa-anexos').upload(path,file);
   if(upErr){alert('Erro no upload: '+upErr.message);return;}
   await db.from('tarefa_anexos').insert([{
