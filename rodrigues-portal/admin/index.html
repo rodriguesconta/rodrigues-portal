@@ -741,32 +741,62 @@ tr:hover td{background:#f8fafc}
       <div class="page-hdr"><h1>Integrações & Configurações</h1></div>
       <div id="alerta-integ"></div>
 
+      <p style="font-size:12px;color:#64748b;margin:-.4rem 0 1rem">Credenciais desta contabilidade. Os campos de token/senha ficam <strong>ocultos</strong> — deixe em branco para manter o valor atual, ou digite um novo para substituir.</p>
+
       <div class="card" style="margin-bottom:1rem">
-        <div class="card-hdr"><h2>📧 Envio de tarefas por e-mail</h2></div>
-        <div style="padding:1rem">
-          <p style="font-size:12px;color:#64748b;margin-bottom:.75rem">E-mail que assina/responde os envios de tarefas aos clientes. (Este valor é enviado ao Make no campo <code>remetente</code>.)</p>
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
-            <input class="si" id="cfg-email-envio" style="width:320px;max-width:100%" placeholder="contato@rodriguesconta.com.br">
-            <button class="btn btn-primary btn-sm" onclick="salvarConfigEmail()">💾 Salvar</button>
-          </div>
+        <div class="card-hdr"><h2>📲 WhatsApp Cloud API</h2></div>
+        <div style="padding:1rem;display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+          <div class="fg"><label>Número (exibição)</label><input class="si" id="ig-wa-num" placeholder="21 97410-7266"></div>
+          <div class="fg"><label>Phone Number ID</label><input class="si" id="ig-wa-pid" placeholder="1065501023315051"></div>
+          <div class="fg"><label>WABA ID</label><input class="si" id="ig-wa-waba" placeholder=""></div>
+          <div class="fg"><label>Token (Bearer) <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-wa-token" type="password" autocomplete="new-password"></div>
         </div>
       </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-hdr"><h2>📧 E-mail de envio</h2></div>
+        <div style="padding:1rem;display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+          <div class="fg"><label>Remetente (De)</label><input class="si" id="ig-mail-rem" placeholder="documentos@rodriguesconta.com.br"></div>
+          <div class="fg"><label>Responder para (Reply-To)</label><input class="si" id="ig-mail-reply" placeholder="contato@rodriguesconta.com.br"></div>
+          <div class="fg"><label>Provedor</label><select class="si" id="ig-mail-prov"><option value="make_gmail">Make + Gmail</option><option value="smtp">SMTP próprio</option><option value="transacional">E-mail transacional (API)</option></select></div>
+          <div class="fg"><label>Chave API do provedor <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-mail-key" type="password" autocomplete="new-password"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-hdr"><h2>💳 Mercado Pago</h2></div>
+        <div style="padding:1rem">
+          <div class="fg" style="max-width:560px"><label>Access Token <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-mp-token" type="password" autocomplete="new-password" style="width:100%"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-hdr"><h2>🔌 Outras plataformas</h2></div>
+        <div style="padding:1rem;display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+          <div class="fg"><label>SIEG — API Key <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-sieg" type="password" autocomplete="new-password"></div>
+          <div class="fg"><label>Umbler — número</label><input class="si" id="ig-umb-num" placeholder="21 99401-4601"></div>
+          <div class="fg"><label>Umbler — token <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-umb-token" type="password" autocomplete="new-password"></div>
+          <div class="fg"><label>Domínio — usuário</label><input class="si" id="ig-dom-user"></div>
+          <div class="fg"><label>Domínio — senha <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-dom-pass" type="password" autocomplete="new-password"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-hdr"><h2>🔗 Webhooks (Make)</h2></div>
+        <div style="padding:1rem;display:grid;grid-template-columns:1fr;gap:.8rem">
+          <div class="fg"><label>Webhook e-mail (tarefas)</label><input class="si" id="ig-wh-email" style="width:100%"></div>
+          <div class="fg"><label>Webhook documento WhatsApp</label><input class="si" id="ig-wh-wadoc" style="width:100%"></div>
+          <div class="fg"><label>Webhook cobranças</label><input class="si" id="ig-wh-cob" style="width:100%"></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.25rem"><button class="btn btn-primary" onclick="salvarIntegracoes()">💾 Salvar integrações</button></div>
 
       <div class="card" style="margin-bottom:1rem">
         <div class="card-hdr"><h2>💾 Uso do Supabase</h2><button class="btn btn-sm" onclick="carregarUsoBanco()">🔄 Atualizar</button></div>
         <div style="padding:1rem" id="uso-banco-box">
           <p style="font-size:12px;color:#94a3b8">Carregando...</p>
         </div>
-      </div>
-
-      <div class="card" style="margin-bottom:1rem">
-        <div class="card-hdr"><h2>📲 WhatsApp Cloud API</h2></div>
-        <div class="tbl-wrap"><table><tbody id="integ-whats"></tbody></table></div>
-      </div>
-
-      <div class="card">
-        <div class="card-hdr"><h2>🔗 Webhooks (Make) & serviços</h2></div>
-        <div class="tbl-wrap"><table><tbody id="integ-webhooks"></tbody></table></div>
       </div>
     </div>
 
@@ -4734,36 +4764,47 @@ async function toggleObrig(id,novoAtivo){
 // ============================================================
 // INTEGRAÇÕES & CONFIGURAÇÕES
 // ============================================================
+let _integEmpresaId=null;
 async function carregarIntegracoes(){
-  // E-mail de envio
+  let row=null;
   try{
-    const {data}=await db.from('configuracoes').select('valor').eq('chave','email_envio_tarefas').single();
-    document.getElementById('cfg-email-envio').value=(data&&data.valor)||'contato@rodriguesconta.com.br';
-  }catch(e){document.getElementById('cfg-email-envio').value='contato@rodriguesconta.com.br';}
-  // WhatsApp Cloud API (somente leitura)
-  const linha=(rot,val)=>'<tr><td style="font-weight:600;width:230px;color:#475569">'+rot+'</td><td style="font-family:monospace;font-size:12px;color:#1e293b">'+val+'</td></tr>';
-  document.getElementById('integ-whats').innerHTML=
-    linha('Número',' +55 21 97410-7266')+
-    linha('Phone Number ID','1065501023315051')+
-    linha('WABA ID','2349296028882221')+
-    linha('App','Cobrancas Rodrigues (1596054708145186)')+
-    linha('Business ID','1335233494951920')+
-    linha('Status','<span class="badge badge-green">Conectado (Cloud API oficial)</span>');
-  document.getElementById('integ-webhooks').innerHTML=
-    linha('Cobranças (WhatsApp+Email)','Make — diário 08:00')+
-    linha('Webhook e-mail (tarefas)','hook.us2.make.com/…nu6ghvc3j32')+
-    linha('Baixa manual → sync','hook.us2.make.com/…d6fqx112mgu')+
-    linha('Mercado Pago','Token ativo (functions pagar/boleto)')+
-    linha('Supabase','xuzcczbdbgihkurcbepw.supabase.co');
+    if(userEmpresa){ const {data}=await db.from('integracoes').select('*').eq('empresa_id',userEmpresa).maybeSingle(); row=data; }
+    if(!row){ const {data}=await db.from('integracoes').select('*').limit(1); row=(data&&data[0])||null; }
+  }catch(e){}
+  if(!row){ alerta('alerta-integ','Tabela de integrações não encontrada ou vazia. Rode o SQL da tabela integracoes.','e'); carregarUsoBanco(); return; }
+  _integEmpresaId=row.empresa_id||userEmpresa||null;
+  const set=(id,v)=>{const el=document.getElementById(id); if(el) el.value=(v==null?'':v);};
+  const setSec=(id,v)=>{const el=document.getElementById(id); if(el){ el.value=''; el.placeholder=(v?'•••••••• (preenchido)':'não preenchido'); }};
+  set('ig-wa-num',row.wa_numero_exibicao); set('ig-wa-pid',row.wa_phone_number_id); set('ig-wa-waba',row.wa_waba_id);
+  setSec('ig-wa-token',row.wa_token);
+  set('ig-mail-rem',row.email_remetente); set('ig-mail-reply',row.email_reply_to); set('ig-mail-prov',row.email_provider||'make_gmail');
+  setSec('ig-mail-key',row.email_api_key);
+  setSec('ig-mp-token',row.mp_access_token);
+  setSec('ig-sieg',row.sieg_api_key); set('ig-umb-num',row.umbler_numero); setSec('ig-umb-token',row.umbler_token);
+  set('ig-dom-user',row.dominio_usuario); setSec('ig-dom-pass',row.dominio_senha);
+  set('ig-wh-email',row.webhook_email); set('ig-wh-wadoc',row.webhook_whatsapp_doc); set('ig-wh-cob',row.webhook_cobrancas);
   carregarUsoBanco();
 }
 
-async function salvarConfigEmail(){
-  const val=document.getElementById('cfg-email-envio').value.trim();
-  if(!val||!val.includes('@')){alerta('alerta-integ','Informe um e-mail válido.','e');return;}
-  const {error}=await db.from('configuracoes').upsert({chave:'email_envio_tarefas',valor:val,atualizado_em:new Date().toISOString()},{onConflict:'chave'});
+async function salvarIntegracoes(){
+  if(!_integEmpresaId){alerta('alerta-integ','Empresa não identificada. Recarregue a página.','e');return;}
+  const val=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
+  const obj={empresa_id:_integEmpresaId, atualizado_em:new Date().toISOString(),
+    wa_numero_exibicao:val('ig-wa-num'), wa_phone_number_id:val('ig-wa-pid'), wa_waba_id:val('ig-wa-waba'),
+    email_remetente:val('ig-mail-rem'), email_reply_to:val('ig-mail-reply'), email_provider:val('ig-mail-prov'),
+    umbler_numero:val('ig-umb-num'), dominio_usuario:val('ig-dom-user'),
+    webhook_email:val('ig-wh-email'), webhook_whatsapp_doc:val('ig-wh-wadoc'), webhook_cobrancas:val('ig-wh-cob')
+  };
+  // Sensíveis: só grava se o usuário digitou um valor novo (em branco mantém o atual)
+  const sec=(id,col)=>{const v=val(id); if(v) obj[col]=v;};
+  sec('ig-wa-token','wa_token'); sec('ig-mail-key','email_api_key'); sec('ig-mp-token','mp_access_token');
+  sec('ig-sieg','sieg_api_key'); sec('ig-umb-token','umbler_token'); sec('ig-dom-pass','dominio_senha');
+  const {error}=await db.from('integracoes').upsert(obj,{onConflict:'empresa_id'});
   if(error){alerta('alerta-integ','Erro ao salvar: '+error.message,'e');return;}
-  alerta('alerta-integ','✅ E-mail de envio salvo.','s');
+  // Mantém o remetente do fluxo de e-mail atual (Make) em sincronia
+  try{ if(obj.email_remetente) await db.from('configuracoes').upsert({chave:'email_envio_tarefas',valor:obj.email_remetente,atualizado_em:new Date().toISOString()},{onConflict:'chave'}); }catch(e){}
+  alerta('alerta-integ','✅ Integrações salvas.','s');
+  carregarIntegracoes();
 }
 
 async function carregarUsoBanco(){
