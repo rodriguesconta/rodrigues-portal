@@ -1388,6 +1388,9 @@ let todosClis=[],cats=[];
 let chartRD=null,chartSt=null,chartDRE=null,chartCat=null;
 let userRole='admin';
 let userClienteIds=null; // null=sem filtro (admin), array=filtrado (colaborador)
+let userNome='';   // nome do usuário logado (p/ atribuição de autoria)
+let userEmail='';  // e-mail do usuário logado
+let userEmpresa=null; // empresa_id (contabilidade) do usuário logado — multi-tenant
 
 const fmt=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtDt=d=>{if(!d)return'--';const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];};
@@ -1423,7 +1426,7 @@ async function iniciar(u){
   // para o colaborador nunca ver (nem por um instante) as abas de admin.
 
   // Buscar role do usuário
-  const {data:usr}=await db.from('usuarios').select('role,nome,departamentos_permitidos,ativo').eq('email',u.email).single();
+  const {data:usr}=await db.from('usuarios').select('role,nome,departamentos_permitidos,ativo,empresa_id').eq('email',u.email).single();
   if(usr&&usr.ativo===false){
     await db.auth.signOut();
     document.getElementById('app').classList.add('hidden');
@@ -1434,6 +1437,9 @@ async function iniciar(u){
     return;
   }
   userRole=(usr&&usr.role)||'colaborador';
+  userEmail=u.email;
+  userNome=(usr&&usr.nome)||u.email;
+  userEmpresa=(usr&&usr.empresa_id)||null;
 
   // Área do usuário no topo profissional
   try{
@@ -3611,6 +3617,9 @@ function invalidarRespMap(){ tarColabResp=null; }
 
 // Responsável de uma tarefa = colaborador que tem o cliente na carteira E o departamento liberado.
 function tarResponsavel(t){
+  // Avulsas (e qualquer tarefa com responsável gravado) mostram o responsável REAL salvo.
+  if(t.responsavel && String(t.responsavel).trim() && t.responsavel!=='Administrador') return t.responsavel;
+  // Recorrentes: deriva pela carteira (cliente) + departamento liberado.
   if(t.cliente_id && t.departamento && tarColabResp){
     for(const c of tarColabResp){
       if(c.clientes.has(t.cliente_id) && c.depts.has(t.departamento)) return c.nome;
@@ -4374,6 +4383,7 @@ async function salvarTarefa(){
     titulo,descricao:document.getElementById('tar-desc').value.trim(),
     data_prazo:prazo,cliente_id:document.getElementById('tar-cliente').value||null,
     prioridade:document.getElementById('tar-prioridade').value,
+    responsavel:(userNome||userEmail||'Administrador'),
     tipo:'avulsa',status:'pendente',competencia:prazo.substring(0,7)
   }]);
   fecharModal('m-tar');
@@ -4580,6 +4590,7 @@ async function confirmarDemandaIA(){
     data_prazo:prazo,
     cliente_id:document.getElementById('ia-res-cliente').value||null,
     prioridade:document.getElementById('ia-res-prioridade').value,
+    responsavel:(userNome||userEmail||'Administrador'),
     tipo:'avulsa',
     status:'pendente',
     competencia:prazo.substring(0,7)
