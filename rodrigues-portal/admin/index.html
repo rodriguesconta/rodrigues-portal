@@ -4318,15 +4318,19 @@ async function confirmarEnvio(){
       const {data:cliWa}=await db.from('clientes').select('telefone,nome').eq('id',t.cliente_id).single();
       let telWa=(cliWa?.telefone||'').replace(/\D/g,'');
       if(telWa.startsWith('55')&&telWa.length>11)telWa=telWa.slice(2); // Make soma o 55
-      if(telWa){
-        const compWa=mesAnterior(t.competencia||'')||'';
-        const obrWa=t.obrigacao_nome||t.titulo||'';
+      const compWa=mesAnterior(t.competencia||'')||'';
+      const obrWa=t.obrigacao_nome||t.titulo||'';
+      // Link do PDF (mesmo anexo gerado para o e-mail) + nome amigável para o WhatsApp
+      const anexoUrl=(attachments[0]&&attachments[0].url)||'';
+      const anexoNome=((obrWa||'Documento')+' - '+(compWa||'')).replace(/[\\/:*?"<>|]/g,'-').replace(/\s+/g,' ').trim()+'.pdf';
+      // Só dispara se tiver telefone E documento (o template agora anexa o PDF)
+      if(telWa && anexoUrl){
         await fetch(MAKE_WEBHOOK_WHATSAPP_DOC,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({telefone:telWa,cliente_nome:cliWa?.nome||t.cliente_nome||'',obrigacao:obrWa,competencia:compWa,tarefa_id:tarefaId})
+          body:JSON.stringify({telefone:telWa,cliente_nome:cliWa?.nome||t.cliente_nome||'',obrigacao:obrWa,competencia:compWa,anexo_url:anexoUrl,anexo_nome:anexoNome,tarefa_id:tarefaId})
         });
-        try{await logEvento({tipo_evento:'whatsapp_enviado',canal:'make_cloud_api',status:'sucesso',cliente_id:t.cliente_id,cliente_nome:cliWa?.nome||t.cliente_nome,mensagem:'WhatsApp "documento_enviado" disparado para '+(cliWa?.nome||t.cliente_nome)+' ('+telWa+')',dados_json:{obrigacao:obrWa,competencia:compWa}});}catch(eLog){}
+        try{await logEvento({tipo_evento:'whatsapp_enviado',canal:'make_cloud_api',status:'sucesso',cliente_id:t.cliente_id,cliente_nome:cliWa?.nome||t.cliente_nome,mensagem:'WhatsApp "documento_enviado" (com PDF) disparado para '+(cliWa?.nome||t.cliente_nome)+' ('+telWa+')',dados_json:{obrigacao:obrWa,competencia:compWa,anexo:anexoNome}});}catch(eLog){}
       }
     }catch(eWa){console.warn('Falha ao disparar WhatsApp documento_enviado:',eWa);}
 
