@@ -10,7 +10,10 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers: cors, body: 'Method not allowed' };
   }
-  const MP_TOKEN = 'APP_USR-7113660792455299-041014-e8a1ffa4f17b993c28802a3cfb808b26-2326004458';
+  const MP_TOKEN = process.env.MP_ACCESS_TOKEN;
+  if (!MP_TOKEN) {
+    return { statusCode: 500, headers: cors, body: JSON.stringify({ erro: 'MP_ACCESS_TOKEN não configurado no Netlify (Environment variables).' }) };
+  }
   try {
     const b = JSON.parse(event.body);
     const valor = b.valor;
