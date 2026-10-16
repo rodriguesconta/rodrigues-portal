@@ -32,10 +32,27 @@ exports.handler = async (event) => {
     const ultimo = (nome || '').split(' ').slice(1).join(' ') || '.';
 
     // Data de expiração do boleto = vencimento do sistema (fim do dia, fuso -03:00).
+    // Se a cobrança já estiver VENCIDA (vencimento no passado), o MP recusa
+    // "Invalid date_of_expiration". Nesse caso o boleto vence em HOJE + 2 dias.
     // Se não vier vencimento, o MP usa o padrão dele.
     let expStr = null;
     if (vencimento && /^\d{4}-\d{2}-\d{2}$/.test(vencimento)) {
-      expStr = vencimento + 'T23:59:59.000-03:00';
+      // Data de hoje no fuso de São Paulo (UTC-03:00)
+      const hojeSP = new Date(Date.now() - 3 * 3600000);
+      const hojeStr = hojeSP.getUTCFullYear() + '-' +
+        String(hojeSP.getUTCMonth() + 1).padStart(2, '0') + '-' +
+        String(hojeSP.getUTCDate()).padStart(2, '0');
+      if (vencimento >= hojeStr) {
+        // Vence hoje ou no futuro: usa o próprio vencimento do sistema.
+        expStr = vencimento + 'T23:59:59.000-03:00';
+      } else {
+        // Cobrança vencida: boleto passa a vencer em HOJE + 2 dias.
+        const futuro = new Date(hojeSP.getTime() + 2 * 86400000);
+        const y = futuro.getUTCFullYear();
+        const m = String(futuro.getUTCMonth() + 1).padStart(2, '0');
+        const d = String(futuro.getUTCDate()).padStart(2, '0');
+        expStr = y + '-' + m + '-' + d + 'T23:59:59.000-03:00';
+      }
     }
 
     const payload = {
