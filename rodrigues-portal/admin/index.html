@@ -738,65 +738,79 @@ tr:hover td{background:#f8fafc}
 
     <!-- INTEGRAÇÕES -->
     <div id="pg-integracoes" class="hidden">
+      <style>
+        #pg-integracoes{max-width:980px}
+        #pg-integracoes .page-hdr h1{font-size:19px}
+        #pg-integracoes .ig-card{background:#fff;border:1px solid #e8edf3;border-radius:10px;margin-bottom:.6rem;overflow:hidden}
+        #pg-integracoes .ig-hd{display:flex;align-items:center;gap:.4rem;padding:.5rem .9rem;background:#f8fafc;border-bottom:1px solid #eef2f7;font-size:12.5px;font-weight:700;color:#334155}
+        #pg-integracoes .ig-bd{padding:.75rem .9rem;display:grid;grid-template-columns:1fr 1fr;gap:.6rem .9rem}
+        #pg-integracoes .ig-bd.one{grid-template-columns:1fr}
+        #pg-integracoes .ig-f{display:flex;flex-direction:column;gap:3px;min-width:0}
+        #pg-integracoes .ig-f>label{font-size:10.5px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.02em}
+        #pg-integracoes .ig-wrap{position:relative;display:flex;align-items:center}
+        #pg-integracoes .ig-wrap input,#pg-integracoes .ig-wrap select{width:100%;font-size:12.5px;padding:7px 30px 7px 10px;border:1px solid #e2e8f0;border-radius:7px;background:#fff;color:#1e293b;outline:none}
+        #pg-integracoes .ig-wrap input:focus{border-color:#4A6BD4}
+        #pg-integracoes .ig-wrap input[readonly]{background:#f1f5f9;color:#64748b}
+        #pg-integracoes .ig-edit{position:absolute;right:5px;background:none;border:none;cursor:pointer;font-size:12px;opacity:.5;padding:2px 4px;line-height:1}
+        #pg-integracoes .ig-edit:hover{opacity:1}
+        @media(max-width:760px){#pg-integracoes .ig-bd{grid-template-columns:1fr}}
+      </style>
       <div class="page-hdr"><h1>Integrações & Configurações</h1></div>
       <div id="alerta-integ"></div>
+      <p style="font-size:11.5px;color:#64748b;margin:-.2rem 0 .9rem">Credenciais desta contabilidade. Campos preenchidos ficam <strong>travados</strong> — clique no ✏️ para editar. Tokens ficam ocultos.</p>
 
-      <p style="font-size:12px;color:#64748b;margin:-.4rem 0 1rem">Credenciais desta contabilidade. Os campos de token/senha ficam <strong>ocultos</strong> — deixe em branco para manter o valor atual, ou digite um novo para substituir.</p>
-
-      <div class="card" style="margin-bottom:1rem">
-        <div class="card-hdr"><h2>📲 WhatsApp Cloud API</h2></div>
-        <div style="padding:1rem;display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
-          <div class="fg"><label>Número (exibição)</label><input class="si" id="ig-wa-num" placeholder="21 97410-7266"></div>
-          <div class="fg"><label>Phone Number ID</label><input class="si" id="ig-wa-pid" placeholder="1065501023315051"></div>
-          <div class="fg"><label>WABA ID</label><input class="si" id="ig-wa-waba" placeholder=""></div>
-          <div class="fg"><label>Token (Bearer) <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-wa-token" type="password" autocomplete="new-password"></div>
+      <div class="ig-card">
+        <div class="ig-hd">📲 WhatsApp Cloud API</div>
+        <div class="ig-bd">
+          <div class="ig-f"><label>Número (exibição)</label><div class="ig-wrap"><input id="ig-wa-num" placeholder="21 97410-7266"><button class="ig-edit" onclick="igEdit('ig-wa-num')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Phone Number ID</label><div class="ig-wrap"><input id="ig-wa-pid" placeholder="1065501023315051"><button class="ig-edit" onclick="igEdit('ig-wa-pid')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>WABA ID</label><div class="ig-wrap"><input id="ig-wa-waba"><button class="ig-edit" onclick="igEdit('ig-wa-waba')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Token (Bearer)</label><div class="ig-wrap"><input id="ig-wa-token" type="password" autocomplete="new-password"><button class="ig-edit" onclick="igEdit('ig-wa-token')" title="Editar">✏️</button></div></div>
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:1rem">
-        <div class="card-hdr"><h2>📧 E-mail de envio</h2></div>
-        <div style="padding:1rem;display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
-          <div class="fg"><label>Remetente (De)</label><input class="si" id="ig-mail-rem" placeholder="documentos@rodriguesconta.com.br"></div>
-          <div class="fg"><label>Responder para (Reply-To)</label><input class="si" id="ig-mail-reply" placeholder="contato@rodriguesconta.com.br"></div>
-          <div class="fg"><label>Provedor</label><select class="si" id="ig-mail-prov"><option value="make_gmail">Make + Gmail</option><option value="smtp">SMTP próprio</option><option value="transacional">E-mail transacional (API)</option></select></div>
-          <div class="fg"><label>Chave API do provedor <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-mail-key" type="password" autocomplete="new-password"></div>
+      <div class="ig-card">
+        <div class="ig-hd">📧 E-mail de envio</div>
+        <div class="ig-bd">
+          <div class="ig-f"><label>Remetente (De)</label><div class="ig-wrap"><input id="ig-mail-rem" placeholder="documentos@rodriguesconta.com.br"><button class="ig-edit" onclick="igEdit('ig-mail-rem')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Responder para (Reply-To)</label><div class="ig-wrap"><input id="ig-mail-reply" placeholder="contato@rodriguesconta.com.br"><button class="ig-edit" onclick="igEdit('ig-mail-reply')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Provedor</label><div class="ig-wrap"><select id="ig-mail-prov"><option value="make_gmail">Make + Gmail</option><option value="smtp">SMTP próprio</option><option value="transacional">E-mail transacional (API)</option></select></div></div>
+          <div class="ig-f"><label>Chave API do provedor</label><div class="ig-wrap"><input id="ig-mail-key" type="password" autocomplete="new-password"><button class="ig-edit" onclick="igEdit('ig-mail-key')" title="Editar">✏️</button></div></div>
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:1rem">
-        <div class="card-hdr"><h2>💳 Mercado Pago</h2></div>
-        <div style="padding:1rem">
-          <div class="fg" style="max-width:560px"><label>Access Token <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-mp-token" type="password" autocomplete="new-password" style="width:100%"></div>
+      <div class="ig-card">
+        <div class="ig-hd">💳 Mercado Pago</div>
+        <div class="ig-bd one">
+          <div class="ig-f" style="max-width:560px"><label>Access Token</label><div class="ig-wrap"><input id="ig-mp-token" type="password" autocomplete="new-password"><button class="ig-edit" onclick="igEdit('ig-mp-token')" title="Editar">✏️</button></div></div>
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:1rem">
-        <div class="card-hdr"><h2>🔌 Outras plataformas</h2></div>
-        <div style="padding:1rem;display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
-          <div class="fg"><label>SIEG — API Key <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-sieg" type="password" autocomplete="new-password"></div>
-          <div class="fg"><label>Umbler — número</label><input class="si" id="ig-umb-num" placeholder="21 99401-4601"></div>
-          <div class="fg"><label>Umbler — token <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-umb-token" type="password" autocomplete="new-password"></div>
-          <div class="fg"><label>Domínio — usuário</label><input class="si" id="ig-dom-user"></div>
-          <div class="fg"><label>Domínio — senha <span style="font-size:10px;color:#94a3b8;font-weight:400">• em branco mantém</span></label><input class="si" id="ig-dom-pass" type="password" autocomplete="new-password"></div>
+      <div class="ig-card">
+        <div class="ig-hd">🔌 Outras plataformas</div>
+        <div class="ig-bd">
+          <div class="ig-f"><label>SIEG — API Key</label><div class="ig-wrap"><input id="ig-sieg" type="password" autocomplete="new-password"><button class="ig-edit" onclick="igEdit('ig-sieg')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Umbler — número</label><div class="ig-wrap"><input id="ig-umb-num" placeholder="21 99401-4601"><button class="ig-edit" onclick="igEdit('ig-umb-num')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Umbler — token</label><div class="ig-wrap"><input id="ig-umb-token" type="password" autocomplete="new-password"><button class="ig-edit" onclick="igEdit('ig-umb-token')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Domínio — usuário</label><div class="ig-wrap"><input id="ig-dom-user"><button class="ig-edit" onclick="igEdit('ig-dom-user')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Domínio — senha</label><div class="ig-wrap"><input id="ig-dom-pass" type="password" autocomplete="new-password"><button class="ig-edit" onclick="igEdit('ig-dom-pass')" title="Editar">✏️</button></div></div>
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:1rem">
-        <div class="card-hdr"><h2>🔗 Webhooks (Make)</h2></div>
-        <div style="padding:1rem;display:grid;grid-template-columns:1fr;gap:.8rem">
-          <div class="fg"><label>Webhook e-mail (tarefas)</label><input class="si" id="ig-wh-email" style="width:100%"></div>
-          <div class="fg"><label>Webhook documento WhatsApp</label><input class="si" id="ig-wh-wadoc" style="width:100%"></div>
-          <div class="fg"><label>Webhook cobranças</label><input class="si" id="ig-wh-cob" style="width:100%"></div>
+      <div class="ig-card">
+        <div class="ig-hd">🔗 Webhooks (Make)</div>
+        <div class="ig-bd one">
+          <div class="ig-f"><label>Webhook e-mail (tarefas)</label><div class="ig-wrap"><input id="ig-wh-email"><button class="ig-edit" onclick="igEdit('ig-wh-email')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Webhook documento WhatsApp</label><div class="ig-wrap"><input id="ig-wh-wadoc"><button class="ig-edit" onclick="igEdit('ig-wh-wadoc')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Webhook cobranças</label><div class="ig-wrap"><input id="ig-wh-cob"><button class="ig-edit" onclick="igEdit('ig-wh-cob')" title="Editar">✏️</button></div></div>
         </div>
       </div>
 
-      <div style="margin-bottom:1.25rem"><button class="btn btn-primary" onclick="salvarIntegracoes()">💾 Salvar integrações</button></div>
+      <div style="margin:.2rem 0 1rem"><button class="btn btn-primary btn-sm" onclick="salvarIntegracoes()">💾 Salvar integrações</button></div>
 
-      <div class="card" style="margin-bottom:1rem">
-        <div class="card-hdr"><h2>💾 Uso do Supabase</h2><button class="btn btn-sm" onclick="carregarUsoBanco()">🔄 Atualizar</button></div>
-        <div style="padding:1rem" id="uso-banco-box">
-          <p style="font-size:12px;color:#94a3b8">Carregando...</p>
-        </div>
+      <div class="ig-card">
+        <div class="ig-hd" style="justify-content:space-between">💾 Uso do Supabase <button class="btn btn-sm" style="font-size:11px;padding:2px 8px" onclick="carregarUsoBanco()">🔄 Atualizar</button></div>
+        <div style="padding:.8rem .9rem" id="uso-banco-box"><p style="font-size:12px;color:#94a3b8">Carregando...</p></div>
       </div>
     </div>
 
@@ -4765,6 +4779,12 @@ async function toggleObrig(id,novoAtivo){
 // INTEGRAÇÕES & CONFIGURAÇÕES
 // ============================================================
 let _integEmpresaId=null;
+function igEdit(id){
+  const el=document.getElementById(id); if(!el)return;
+  el.readOnly=false;
+  if(el.dataset.sec){ el.value=''; el.placeholder='cole/digite o novo valor'; }
+  el.focus();
+}
 async function carregarIntegracoes(){
   let row=null;
   try{
@@ -4773,8 +4793,8 @@ async function carregarIntegracoes(){
   }catch(e){}
   if(!row){ alerta('alerta-integ','Tabela de integrações não encontrada ou vazia. Rode o SQL da tabela integracoes.','e'); carregarUsoBanco(); return; }
   _integEmpresaId=row.empresa_id||userEmpresa||null;
-  const set=(id,v)=>{const el=document.getElementById(id); if(el) el.value=(v==null?'':v);};
-  const setSec=(id,v)=>{const el=document.getElementById(id); if(el){ el.value=''; el.placeholder=(v?'•••••••• (preenchido)':'não preenchido'); }};
+  const set=(id,v)=>{const el=document.getElementById(id); if(!el)return; el.value=(v==null?'':v); if(el.tagName!=='SELECT') el.readOnly=!!(v&&String(v).length);};
+  const setSec=(id,v)=>{const el=document.getElementById(id); if(!el)return; el.value=''; el.placeholder=(v?'•••••••• (preenchido)':'não preenchido'); el.readOnly=!!v; el.dataset.sec='1'; el.dataset.has=(v?'1':'');};
   set('ig-wa-num',row.wa_numero_exibicao); set('ig-wa-pid',row.wa_phone_number_id); set('ig-wa-waba',row.wa_waba_id);
   setSec('ig-wa-token',row.wa_token);
   set('ig-mail-rem',row.email_remetente); set('ig-mail-reply',row.email_reply_to); set('ig-mail-prov',row.email_provider||'make_gmail');
