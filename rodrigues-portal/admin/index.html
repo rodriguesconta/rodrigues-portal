@@ -4323,8 +4323,9 @@ async function confirmarEnvio(){
       // Link do PDF (mesmo anexo gerado para o e-mail) + nome amigável para o WhatsApp
       const anexoUrl=(attachments[0]&&attachments[0].url)||'';
       const anexoNome=((obrWa||'Documento')+' - '+(compWa||'')).replace(/[\\/:*?"<>|]/g,'-').replace(/\s+/g,' ').trim()+'.pdf';
-      // Só dispara se tiver telefone E documento (o template agora anexa o PDF)
-      if(telWa && anexoUrl){
+      // Dispara o aviso de texto (a guia vai no e-mail). O anexo_url segue no payload
+      // para quando reativarmos o PDF no WhatsApp, mas não é obrigatório agora.
+      if(telWa){
         await fetch(MAKE_WEBHOOK_WHATSAPP_DOC,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
