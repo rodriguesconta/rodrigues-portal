@@ -4365,28 +4365,36 @@ async function confirmarEnvio(){
       enviado_para:emailsValidos
     }).eq('id',tarefaId);
 
-    // Dispara aviso no WhatsApp (template documento_enviado via Make → Cloud API oficial)
+    // Dispara aviso no WhatsApp (template documento_enviado) pelo BACKEND PRÓPRIO (wa-send),
+    // que lê o token+número da empresa na tabela integracoes (Caminho B — sem Make).
     try{
-      const MAKE_WEBHOOK_WHATSAPP_DOC='https://hook.us2.make.com/4e90m378iof1dscduwa9u9ch846x3gzt';
       const {data:cliWa}=await db.from('clientes').select('telefone,nome').eq('id',t.cliente_id).single();
       let telWa=(cliWa?.telefone||'').replace(/\D/g,'');
-      if(telWa.startsWith('55')&&telWa.length>11)telWa=telWa.slice(2); // Make soma o 55
+      if(telWa.startsWith('55')&&telWa.length>11)telWa=telWa.slice(2); // wa-send soma o 55
       const compWa=mesAnterior(t.competencia||'')||'';
       const obrWa=t.obrigacao_nome||t.titulo||'';
-      // Link do PDF (mesmo anexo gerado para o e-mail) + nome amigável para o WhatsApp
       const anexoUrl=(attachments[0]&&attachments[0].url)||'';
       const anexoNome=((obrWa||'Documento')+' - '+(compWa||'')).replace(/[\\/:*?"<>|]/g,'-').replace(/\s+/g,' ').trim()+'.pdf';
-      // Dispara o aviso de texto (a guia vai no e-mail). O anexo_url segue no payload
-      // para quando reativarmos o PDF no WhatsApp, mas não é obrigatório agora.
-      if(telWa){
-        await fetch(MAKE_WEBHOOK_WHATSAPP_DOC,{
+      if(telWa && anexoUrl && userEmpresa){
+        const {data:{session}}=await db.auth.getSession();
+        const r=await fetch('/.netlify/functions/wa-send',{
           method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({telefone:telWa,cliente_nome:cliWa?.nome||t.cliente_nome||'',obrigacao:obrWa,competencia:compWa,anexo_url:anexoUrl,anexo_nome:anexoNome,tarefa_id:tarefaId})
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+((session&&session.access_token)||'')},
+          body:JSON.stringify({
+            empresa_id:userEmpresa, to:telWa, template:'documento_enviado', lang:'pt_BR',
+            body_params:[cliWa?.nome||t.cliente_nome||'', obrWa, compWa],
+            header_document:{link:anexoUrl, filename:anexoNome}
+          })
         });
-        try{await logEvento({tipo_evento:'whatsapp_enviado',canal:'make_cloud_api',status:'sucesso',cliente_id:t.cliente_id,cliente_nome:cliWa?.nome||t.cliente_nome,mensagem:'WhatsApp "documento_enviado" (com PDF) disparado para '+(cliWa?.nome||t.cliente_nome)+' ('+telWa+')',dados_json:{obrigacao:obrWa,competencia:compWa,anexo:anexoNome}});}catch(eLog){}
+        const rj=await r.json().catch(()=>({}));
+        if(r.ok&&rj.ok){
+          try{await logEvento({tipo_evento:'whatsapp_enviado',canal:'backend_wa_send',status:'sucesso',cliente_id:t.cliente_id,cliente_nome:cliWa?.nome||t.cliente_nome,mensagem:'WhatsApp documento_enviado (PDF) via backend para '+(cliWa?.nome||t.cliente_nome),dados_json:{id:rj.id,anexo:anexoNome}});}catch(eLog){}
+        }else{
+          console.warn('wa-send falhou:',rj);
+          try{await logEvento({tipo_evento:'erro',canal:'backend_wa_send',status:'erro',cliente_id:t.cliente_id,cliente_nome:cliWa?.nome||t.cliente_nome,mensagem:'Falha wa-send documento_enviado',erro_detalhe:(rj&&rj.erro)||'erro',dados_json:rj});}catch(eLog){}
+        }
       }
-    }catch(eWa){console.warn('Falha ao disparar WhatsApp documento_enviado:',eWa);}
+    }catch(eWa){console.warn('Falha ao disparar WhatsApp (wa-send):',eWa);}
 
     fecharModal('m-enviar');
     alerta('alert-tar','📧 Email enviado com sucesso e tarefa marcada como concluída!','s');
