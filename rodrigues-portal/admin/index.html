@@ -1191,52 +1191,84 @@ tr:hover td{background:#f8fafc}
 </div>
 
 <div id="m-cli" class="overlay hidden">
-  <div class="modal">
+  <div class="modal" style="max-width:720px">
+    <style>
+      #m-cli .cli-sec{margin-top:.9rem}
+      #m-cli .cli-sec-t{font-size:10.5px;font-weight:700;color:#4A6BD4;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.45rem;border-bottom:1px solid #eef2f7;padding-bottom:.25rem}
+      #m-cli .fr{gap:.6rem}
+      #m-cli .fg>label{font-size:11px;color:#64748b}
+    </style>
     <h2 id="m-cli-title">Novo cliente</h2>
     <input type="hidden" id="c-id">
-    <div class="fr">
-      <div class="fg"><label>Nome / Razão social *</label><input id="c-nome"></div>
-      <div class="fg"><label>CNPJ / CPF *</label>
-        <div style="display:flex;gap:.4rem">
-          <input id="c-doc" style="flex:1">
-          <button type="button" class="btn btn-sm" id="btn-consultar-cnpj" onclick="consultarCNPJ()" style="white-space:nowrap;background:#4A6BD4;color:#fff;border-color:#4A6BD4" title="Puxar dados da Receita pelo CNPJ">🔎 Receita</button>
+
+    <div class="cli-sec">
+      <div class="cli-sec-t">Identificação</div>
+      <div class="fr"><div class="fg" style="flex:1"><label>Nome / Razão social *</label><input id="c-nome"></div></div>
+      <div class="fr">
+        <div class="fg" style="flex:1.4"><label>CNPJ / CPF *</label>
+          <div style="display:flex;gap:.4rem">
+            <input id="c-doc" style="flex:1">
+            <button type="button" class="btn btn-sm" id="btn-consultar-cnpj" onclick="consultarCNPJ()" style="white-space:nowrap;background:#4A6BD4;color:#fff;border-color:#4A6BD4" title="Puxar dados da Receita pelo CNPJ">🔎 Receita</button>
+          </div>
+          <p id="cnpj-status" style="font-size:11px;margin-top:4px;min-height:14px"></p>
         </div>
-        <p id="cnpj-status" style="font-size:11px;margin-top:4px;min-height:14px"></p>
+        <div class="fg"><label>Status</label><select id="c-status" class="si" style="width:100%"><option value="ativo">Ativo</option><option value="paralisado">Paralisado</option><option value="inativo">Inativo</option></select></div>
       </div>
     </div>
-    <div class="fr">
-      <div class="fg"><label>E-mail</label><input type="email" id="c-email"></div>
-      <div class="fg"><label>Telefone</label><input id="c-tel"></div>
+
+    <div class="cli-sec">
+      <div class="cli-sec-t">Contato</div>
+      <div class="fr">
+        <div class="fg"><label>E-mail</label><input type="email" id="c-email"></div>
+        <div class="fg"><label>Telefone</label><input id="c-tel"></div>
+      </div>
     </div>
-    <div class="fr">
-      <div class="fg"><label>Honorário (R$) *</label><input type="number" id="c-hon" step="0.01"></div>
-      <div class="fg"><label>Dia de vencimento *</label><input type="number" id="c-venc" min="1" max="31"></div>
+
+    <div class="cli-sec">
+      <div class="cli-sec-t">Endereço</div>
+      <div class="fr">
+        <div class="fg" style="max-width:140px"><label>CEP</label><input id="c-cep"></div>
+        <div class="fg" style="flex:2"><label>Rua</label><input id="c-rua"></div>
+        <div class="fg" style="max-width:100px"><label>Número</label><input id="c-numero"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Bairro</label><input id="c-bairro"></div>
+        <div class="fg"><label>Cidade</label><input id="c-cidade"></div>
+        <div class="fg" style="max-width:80px"><label>UF</label><input id="c-uf" maxlength="2" placeholder="RJ"></div>
+      </div>
+      <div class="fr"><div class="fg" style="flex:1"><label>Complemento</label><input id="c-complemento"></div></div>
     </div>
-    <div class="fr">
-      <div class="fg"><label>Início da cobrança</label><input type="month" id="c-inicio-cob" style="width:100%"></div>
-      <div class="fg"><label>Cidade</label><input id="c-cidade"></div>
+
+    <div class="cli-sec">
+      <div class="cli-sec-t">Honorário & Cobrança</div>
+      <div class="fr">
+        <div class="fg"><label>Honorário (R$) *</label><input type="number" id="c-hon" step="0.01"></div>
+        <div class="fg"><label>Dia de vencimento *</label><input type="number" id="c-venc" min="1" max="31"></div>
+        <div class="fg"><label>Início da cobrança</label><input type="month" id="c-inicio-cob"></div>
+      </div>
     </div>
-    <div class="fr">
-      <div class="fg"><label>Estado</label><input id="c-uf" maxlength="2" placeholder="RJ"></div>
-      <div class="fg"><label>Status</label><select id="c-status" class="si" style="width:100%"><option value="ativo">Ativo</option><option value="paralisado">Paralisado</option><option value="inativo">Inativo</option></select></div>
+
+    <div class="cli-sec">
+      <div class="cli-sec-t">Obrigações (geradas mensalmente)</div>
+      <div class="fg" style="margin-bottom:.5rem"><label>Regime tributário</label>
+        <select id="c-regime" class="si" style="width:100%">
+          <option value="">Selecione o regime...</option>
+          <option value="mei">MEI</option>
+          <option value="simples_nacional">Simples Nacional</option>
+          <option value="lucro_presumido">Lucro Presumido</option>
+          <option value="lucro_real">Lucro Real</option>
+          <option value="domestica">Doméstica</option>
+          <option value="imune">Imune (Igreja/ONG)</option>
+        </select>
+      </div>
+      <div id="cli-obrigacoes-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .75rem;background:#f8fafc;border-radius:8px;padding:.7rem"></div>
     </div>
-    <div style="border-top:1px solid #e2e8f0;margin:1rem 0 .75rem;padding-top:.75rem">
-      <label style="font-size:13px;font-weight:600;color:#1e293b">Obrigações do cliente</label>
-      <p style="font-size:11px;color:#94a3b8;margin-bottom:.75rem">Marque as obrigações que serão geradas mensalmente</p>
+
+    <div class="cli-sec" id="cli-caminho-sec">
+      <div class="cli-sec-t">🎯 Caminho do Sucesso</div>
+      <div id="cli-caminho-box"><p style="font-size:11.5px;color:#94a3b8">Salve o cliente para acompanhar o Caminho do Sucesso.</p></div>
     </div>
-    <div class="fg" style="margin-bottom:.75rem"><label>Regime tributário</label>
-      <select id="c-regime" class="si" style="width:100%">
-        <option value="">Selecione o regime...</option>
-        <option value="mei">MEI</option>
-        <option value="simples_nacional">Simples Nacional</option>
-        <option value="lucro_presumido">Lucro Presumido</option>
-        <option value="lucro_real">Lucro Real</option>
-        <option value="domestica">Doméstica</option>
-        <option value="imune">Imune (Igreja/ONG)</option>
-      </select>
-    </div>
-    <div id="cli-obrigacoes-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem .75rem;margin-bottom:.75rem;background:#f8fafc;border-radius:8px;padding:.75rem">
-    </div>
+
     <p class="err hidden" id="c-err"></p>
     <div class="ma">
       <button class="btn btn-sm" onclick="fecharModal('m-cli')">Cancelar</button>
@@ -1792,11 +1824,12 @@ async function carregarObrigacoesGrid(clienteId){
 async function abrirModalCliente(){
   document.getElementById('m-cli-title').textContent='Novo cliente';
   document.getElementById('c-id').value='';
-  ['c-nome','c-doc','c-email','c-tel','c-hon','c-venc','c-cidade','c-uf','c-inicio-cob'].forEach(id=>document.getElementById(id).value='');
+  ['c-nome','c-doc','c-email','c-tel','c-hon','c-venc','c-cidade','c-uf','c-inicio-cob','c-cep','c-rua','c-numero','c-bairro','c-complemento'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('c-status').value='ativo';
   document.getElementById('c-regime').value='';
   document.getElementById('c-err').classList.add('hidden');
   document.getElementById('cnpj-status').textContent='';
+  document.getElementById('cli-caminho-box').innerHTML='<p style="font-size:11.5px;color:#94a3b8">Salve o cliente para começar a acompanhar o Caminho do Sucesso.</p>';
   await carregarObrigacoesGrid(null);
   document.getElementById('m-cli').classList.remove('hidden');
 }
@@ -1812,12 +1845,18 @@ async function editarCli(id){
   document.getElementById('c-venc').value=c.dia_vencimento;
   document.getElementById('c-cidade').value=c.cidade||'';
   document.getElementById('c-uf').value=c.estado||'';
+  document.getElementById('c-cep').value=c.cep||'';
+  document.getElementById('c-rua').value=c.rua||'';
+  document.getElementById('c-numero').value=c.numero||'';
+  document.getElementById('c-bairro').value=c.bairro||'';
+  document.getElementById('c-complemento').value=c.complemento||'';
   document.getElementById('c-status').value=c.status||'ativo';
   document.getElementById('c-regime').value=c.regime||'';
   document.getElementById('c-inicio-cob').value=c.inicio_cobranca||'';
   document.getElementById('c-err').classList.add('hidden');
   document.getElementById('cnpj-status').textContent='';
   await carregarObrigacoesGrid(id);
+  await carregarCaminho(id);
   document.getElementById('m-cli').classList.remove('hidden');
 }
 
@@ -1924,7 +1963,7 @@ async function abrirPerfilCliente(id){
 async function salvarCliente(){
   const id=document.getElementById('c-id').value;
   const regime=document.getElementById('c-regime').value;
-  const p={nome:document.getElementById('c-nome').value.trim(),documento:document.getElementById('c-doc').value.trim(),email:document.getElementById('c-email').value.trim(),telefone:document.getElementById('c-tel').value.trim(),honorario:parseFloat(document.getElementById('c-hon').value)||0,dia_vencimento:parseInt(document.getElementById('c-venc').value)||10,cidade:document.getElementById('c-cidade').value.trim(),estado:document.getElementById('c-uf').value.trim(),status:document.getElementById('c-status').value,regime:regime||null,inicio_cobranca:document.getElementById('c-inicio-cob').value||null};
+  const p={nome:document.getElementById('c-nome').value.trim(),documento:document.getElementById('c-doc').value.trim(),email:document.getElementById('c-email').value.trim(),telefone:document.getElementById('c-tel').value.trim(),honorario:parseFloat(document.getElementById('c-hon').value)||0,dia_vencimento:parseInt(document.getElementById('c-venc').value)||10,cidade:document.getElementById('c-cidade').value.trim(),estado:document.getElementById('c-uf').value.trim(),cep:document.getElementById('c-cep').value.trim()||null,rua:document.getElementById('c-rua').value.trim()||null,numero:document.getElementById('c-numero').value.trim()||null,bairro:document.getElementById('c-bairro').value.trim()||null,complemento:document.getElementById('c-complemento').value.trim()||null,status:document.getElementById('c-status').value,regime:regime||null,inicio_cobranca:document.getElementById('c-inicio-cob').value||null};
   const err=document.getElementById('c-err');
   if(!p.nome||!p.documento){err.textContent='Nome e documento obrigatórios';err.classList.remove('hidden');return;}
   const {data:ret,error}=id?await db.from('clientes').update(p).eq('id',id).select().single():await db.from('clientes').insert([p]).select().single();
@@ -1942,7 +1981,53 @@ async function salvarCliente(){
     }
   }
   await logEvento({tipo_evento:'cliente_cadastrado',canal:'portal_direto',status:'sucesso',cliente_id:cliId,cliente_nome:p.nome,mensagem:(id?'Cliente editado: ':'Cliente cadastrado: ')+p.nome,dados_json:{documento:p.documento,honorario:p.honorario,dia_vencimento:p.dia_vencimento,status:p.status,regime:regime}});
-  fecharModal('m-cli');carregarClis();
+  carregarClis();
+  if(!id && cliId){
+    // Cliente NOVO: não fecha o modal — já abre o Caminho do Sucesso para começar o passo a passo
+    document.getElementById('c-id').value=cliId;
+    document.getElementById('m-cli-title').textContent='Editar cliente';
+    const err2=document.getElementById('c-err');
+    err2.style.color='#16a34a';err2.textContent='✅ Cliente cadastrado! Agora acompanhe o Caminho do Sucesso abaixo.';err2.classList.remove('hidden');
+    await carregarCaminho(cliId);
+    document.getElementById('cli-caminho-sec').scrollIntoView({behavior:'smooth',block:'center'});
+  }else{
+    fecharModal('m-cli');
+  }
+}
+// ===== Caminho do Sucesso (onboarding passo a passo por cliente) =====
+function _fmtDtHora(iso){
+  if(!iso)return'';
+  try{const d=new Date(iso);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}catch(e){return'';}
+}
+async function carregarCaminho(clienteId){
+  const box=document.getElementById('cli-caminho-box');
+  if(!clienteId){box.innerHTML='<p style="font-size:11.5px;color:#94a3b8">Salve o cliente para começar a acompanhar o Caminho do Sucesso.</p>';return;}
+  box.innerHTML='<p style="font-size:11.5px;color:#94a3b8">Carregando...</p>';
+  const [{data:passos},{data:prog}]=await Promise.all([
+    db.from('caminho_passos').select('*').eq('ativo',true).order('ordem'),
+    db.from('cliente_caminho').select('*').eq('cliente_id',clienteId)
+  ]);
+  const ps=passos||[],pr=prog||[];
+  if(!ps.length){box.innerHTML='<p style="font-size:11.5px;color:#94a3b8">Nenhum passo cadastrado no catálogo (caminho_passos).</p>';return;}
+  const map={};pr.forEach(x=>map[x.passo_id]=x);
+  const total=ps.length,feitos=pr.filter(x=>x.concluido).length,pct=Math.round(feitos/total*100);
+  let h='<div style="margin-bottom:.6rem"><div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;margin-bottom:3px"><span>'+feitos+' de '+total+' concluídos</span><span style="font-weight:700;color:'+(pct===100?'#16a34a':'#4A6BD4')+'">'+pct+'%</span></div><div style="height:7px;background:#e2e8f0;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#4A6BD4,#16a34a);transition:width .3s"></div></div></div>';
+  h+='<div style="display:flex;flex-direction:column;gap:4px">';
+  ps.forEach(p=>{
+    const x=map[p.id],ok=!!(x&&x.concluido);
+    const quando=ok?('<span style="font-size:10px;color:#94a3b8;margin-left:auto;white-space:nowrap">'+(x.concluido_por?x.concluido_por+' · ':'')+_fmtDtHora(x.concluido_em)+'</span>'):'';
+    h+='<label style="display:flex;align-items:center;gap:.55rem;font-size:12.5px;padding:6px 9px;border:1px solid '+(ok?'#bbf7d0':'#eef2f7')+';border-radius:8px;background:'+(ok?'#f0fdf4':'#fff')+';cursor:pointer">'+
+      '<input type="checkbox" '+(ok?'checked':'')+' onchange="toggleCaminho(\''+clienteId+'\',\''+p.id+'\',this.checked)" style="width:16px;height:16px;flex-shrink:0">'+
+      '<span style="'+(ok?'color:#15803d;font-weight:600':'color:#334155')+'">'+p.ordem+'. '+p.titulo+'</span>'+quando+'</label>';
+  });
+  h+='</div>';
+  box.innerHTML=h;
+}
+async function toggleCaminho(clienteId,passoId,checked){
+  const payload={cliente_id:clienteId,passo_id:passoId,concluido:checked,concluido_em:checked?new Date().toISOString():null,concluido_por:checked?(userNome||userEmail||'Administrador'):null};
+  const {error}=await db.from('cliente_caminho').upsert(payload,{onConflict:'cliente_id,passo_id'});
+  if(error){alert('Não foi possível salvar o passo: '+error.message);}
+  await carregarCaminho(clienteId);
 }
 async function excluirCli(id,nome){
   if(!confirm('Excluir "'+nome+'"? Todos os dados serão apagados permanentemente.'))return;
