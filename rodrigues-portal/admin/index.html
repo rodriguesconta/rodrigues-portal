@@ -274,6 +274,10 @@ tr:hover td{background:#f8fafc}
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         Clientes
       </div>
+      <div class="nav-item" data-page="caminho" onclick="go('caminho')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+        Caminho do Sucesso
+      </div>
       <div class="nav-item" data-page="cobrancas" onclick="go('cobrancas')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         Cobranças
@@ -929,6 +933,24 @@ tr:hover td{background:#f8fafc}
       </div>
     </div>
 
+    <!-- CAMINHO DO SUCESSO (onboarding — visão geral) -->
+    <div id="pg-caminho" class="hidden">
+      <div class="page-hdr"><h1>Caminho do Sucesso</h1></div>
+      <div id="alerta-caminho"></div>
+      <p style="font-size:11.5px;color:#64748b;margin:-.2rem 0 .9rem">Onboarding de cada cliente, passo a passo. Clique em um cliente para ver e marcar os passos.</p>
+      <div class="cm-tiles" id="cam-tiles" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-bottom:1rem"></div>
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem;background:#fff;padding:.7rem .85rem;border-radius:10px;border:1px solid #e2e8f0">
+        <select id="fil-cam-status" class="si" style="width:190px" onchange="renderCaminhoBoard()">
+          <option value="">Todos</option>
+          <option value="andamento">Em andamento</option>
+          <option value="naoiniciado">Não iniciado</option>
+          <option value="concluido">Concluído (100%)</option>
+        </select>
+        <input class="si" id="busca-cam" placeholder="🔍 Buscar cliente..." oninput="renderCaminhoBoard()" style="flex:1;min-width:180px;font-size:13px;padding:8px 12px">
+      </div>
+      <div id="cam-lista" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.7rem"></div>
+    </div>
+
     <!-- TAREFAS -->
     <div id="pg-tarefas" class="hidden">
       <div class="page-hdr">
@@ -1487,6 +1509,18 @@ tr:hover td{background:#f8fafc}
   </div>
 </div>
 
+<!-- MODAL CAMINHO DO SUCESSO (por cliente) -->
+<div id="m-caminho" class="overlay hidden">
+  <div class="modal" style="max-width:560px">
+    <h2 id="cam-nome" style="margin-bottom:.25rem">🎯 Caminho do Sucesso</h2>
+    <p id="cam-doc" style="font-family:monospace;font-size:12px;color:#94a3b8;margin-bottom:1rem"></p>
+    <div id="cm-caminho-box"><p style="font-size:11.5px;color:#94a3b8">Carregando...</p></div>
+    <div class="ma">
+      <button class="btn btn-sm" onclick="fecharModal('m-caminho')">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL COBRANÇA -->
 <div id="m-cob" class="overlay hidden">
   <div class="modal" style="max-width:420px">
@@ -1789,6 +1823,7 @@ function go(pg){
   if(pg==='permissoes')carregarPermPage();
   if(pg==='integracoes')carregarIntegracoes();
   if(pg==='comercial')carregarComercial();
+  if(pg==='caminho')carregarCaminhoBoard();
 }
 
 function fecharModal(id){document.getElementById(id).classList.add('hidden');}
@@ -2235,8 +2270,10 @@ function _fmtDtHora(iso){
   if(!iso)return'';
   try{const d=new Date(iso);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}catch(e){return'';}
 }
-async function carregarCaminho(clienteId){
-  const box=document.getElementById('cli-caminho-box');
+async function carregarCaminho(clienteId,boxId){
+  boxId=boxId||'cli-caminho-box';
+  const box=document.getElementById(boxId);
+  if(!box)return;
   if(!clienteId){box.innerHTML='<p style="font-size:11.5px;color:#94a3b8">Salve o cliente para começar a acompanhar o Caminho do Sucesso.</p>';return;}
   box.innerHTML='<p style="font-size:11.5px;color:#94a3b8">Carregando...</p>';
   const [{data:passos},{data:prog}]=await Promise.all([
@@ -2253,17 +2290,20 @@ async function carregarCaminho(clienteId){
     const x=map[p.id],ok=!!(x&&x.concluido);
     const quando=ok?('<span style="font-size:10px;color:#94a3b8;margin-left:auto;white-space:nowrap">'+(x.concluido_por?x.concluido_por+' · ':'')+_fmtDtHora(x.concluido_em)+'</span>'):'';
     h+='<label style="display:flex;align-items:center;gap:.55rem;font-size:12.5px;padding:6px 9px;border:1px solid '+(ok?'#bbf7d0':'#eef2f7')+';border-radius:8px;background:'+(ok?'#f0fdf4':'#fff')+';cursor:pointer">'+
-      '<input type="checkbox" '+(ok?'checked':'')+' onchange="toggleCaminho(\''+clienteId+'\',\''+p.id+'\',this.checked)" style="width:16px;height:16px;flex-shrink:0">'+
+      '<input type="checkbox" '+(ok?'checked':'')+' onchange="toggleCaminho(\''+clienteId+'\',\''+p.id+'\',this.checked,\''+boxId+'\')" style="width:16px;height:16px;flex-shrink:0">'+
       '<span style="'+(ok?'color:#15803d;font-weight:600':'color:#334155')+'">'+p.ordem+'. '+p.titulo+'</span>'+quando+'</label>';
   });
   h+='</div>';
   box.innerHTML=h;
 }
-async function toggleCaminho(clienteId,passoId,checked){
+async function toggleCaminho(clienteId,passoId,checked,boxId){
   const payload={cliente_id:clienteId,passo_id:passoId,concluido:checked,concluido_em:checked?new Date().toISOString():null,concluido_por:checked?(userNome||userEmail||'Administrador'):null};
   const {error}=await db.from('cliente_caminho').upsert(payload,{onConflict:'cliente_id,passo_id'});
   if(error){alert('Não foi possível salvar o passo: '+error.message);}
-  await carregarCaminho(clienteId);
+  await carregarCaminho(clienteId,boxId);
+  // Se a aba Caminho estiver aberta, atualiza o quadro geral
+  const pgCam=document.getElementById('pg-caminho');
+  if(pgCam&&!pgCam.classList.contains('hidden'))carregarCaminhoBoard();
 }
 
 // ================= COMERCIAL =================
@@ -2517,6 +2557,66 @@ async function salvarContato(){
   fecharModal('m-contato');carregarContatos();
 }
 async function excluirContato(id){if(!confirm('Excluir este contato?'))return;await db.from('contatos').delete().eq('id',id);carregarContatos();}
+
+// ================= CAMINHO DO SUCESSO — quadro geral =================
+let _camRows=[],_camTotalPassos=0;
+async function carregarCaminhoBoard(){
+  const lista=document.getElementById('cam-lista');
+  if(lista)lista.innerHTML='<p style="color:#94a3b8;padding:1rem">Carregando...</p>';
+  const [{data:passos},{data:clis},{data:prog}]=await Promise.all([
+    db.from('caminho_passos').select('id').eq('ativo',true),
+    db.from('clientes').select('id,nome,documento,status').order('nome').limit(500),
+    db.from('cliente_caminho').select('cliente_id,concluido')
+  ]);
+  _camTotalPassos=(passos||[]).length;
+  const doneByCli={};
+  (prog||[]).forEach(p=>{if(p.concluido)doneByCli[p.cliente_id]=(doneByCli[p.cliente_id]||0)+1;});
+  _camRows=(clis||[]).filter(c=>c.status!=='inativo').map(c=>{
+    const feitos=doneByCli[c.id]||0,total=_camTotalPassos||0,pct=total?Math.round(feitos/total*100):0;
+    return {cli:c,feitos,total,pct};
+  });
+  renderCaminhoBoard();
+}
+function renderCaminhoBoard(){
+  const total=_camRows.length;
+  const concl=_camRows.filter(r=>r.pct===100).length;
+  const nao=_camRows.filter(r=>r.feitos===0).length;
+  const andamento=total-concl-nao;
+  const tiles=document.getElementById('cam-tiles');
+  if(tiles)tiles.innerHTML=
+    '<div class="cm-tile" style="border-top-color:#4A6BD4"><div class="l">Clientes</div><div class="v">'+total+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#F57C1A"><div class="l">Em andamento</div><div class="v" style="color:#F57C1A">'+andamento+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#94a3b8"><div class="l">Não iniciado</div><div class="v" style="color:#64748b">'+nao+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#16a34a"><div class="l">Concluído 100%</div><div class="v" style="color:#16a34a">'+concl+'</div></div>';
+  const fS=document.getElementById('fil-cam-status').value;
+  const q=(document.getElementById('busca-cam').value||'').toLowerCase();
+  let list=_camRows.slice();
+  if(fS==='andamento')list=list.filter(r=>r.feitos>0&&r.pct<100);
+  else if(fS==='naoiniciado')list=list.filter(r=>r.feitos===0);
+  else if(fS==='concluido')list=list.filter(r=>r.pct===100);
+  if(q)list=list.filter(r=>((r.cli.nome||'')+' '+(r.cli.documento||'')).toLowerCase().includes(q));
+  list.sort((a,b)=>a.pct-b.pct);
+  const cont=document.getElementById('cam-lista');
+  if(!cont)return;
+  if(!list.length){cont.innerHTML='<p style="color:#94a3b8;padding:1rem">Nenhum cliente.</p>';return;}
+  cont.innerHTML=list.map(r=>{
+    const cor=r.pct===100?'#16a34a':r.feitos===0?'#94a3b8':'#4A6BD4';
+    const tag=r.pct===100?'<span class="badge badge-green">concluído</span>':r.feitos===0?'<span style="font-size:10.5px;color:#94a3b8">não iniciado</span>':'<span class="badge badge-blue">'+r.feitos+'/'+r.total+'</span>';
+    return '<div onclick="abrirCaminhoCliente(\''+r.cli.id+'\')" style="cursor:pointer;background:#fff;border:1px solid #e8edf3;border-radius:12px;padding:.85rem 1rem" onmouseover="this.style.boxShadow=\'0 2px 10px rgba(0,0,0,.07)\'" onmouseout="this.style.boxShadow=\'none\'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.5rem"><strong style="font-size:13px;color:#1e293b">'+(r.cli.nome||'—')+'</strong>'+tag+'</div>'+
+      '<div style="display:flex;justify-content:space-between;font-size:10.5px;color:#64748b;margin-bottom:3px"><span>'+r.feitos+' de '+r.total+' passos</span><span style="font-weight:700;color:'+cor+'">'+r.pct+'%</span></div>'+
+      '<div style="height:6px;background:#e2e8f0;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+r.pct+'%;background:linear-gradient(90deg,#4A6BD4,#16a34a)"></div></div>'+
+      '</div>';
+  }).join('');
+}
+function abrirCaminhoCliente(id){
+  const r=_camRows.find(x=>x.cli.id===id),c=r?r.cli:null;
+  document.getElementById('cam-nome').textContent='🎯 '+(c?c.nome:'Caminho do Sucesso');
+  document.getElementById('cam-doc').textContent=c?(c.documento||''):'';
+  document.getElementById('cm-caminho-box').innerHTML='<p style="font-size:11.5px;color:#94a3b8">Carregando...</p>';
+  document.getElementById('m-caminho').classList.remove('hidden');
+  carregarCaminho(id,'cm-caminho-box');
+}
 async function excluirCli(id,nome){
   if(!confirm('Excluir "'+nome+'"? Todos os dados serão apagados permanentemente.'))return;
   await db.from('cobrancas').delete().eq('cliente_id',id);
