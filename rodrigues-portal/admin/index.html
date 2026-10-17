@@ -278,6 +278,10 @@ tr:hover td{background:#f8fafc}
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         Cobranças
       </div>
+      <div class="nav-item" data-page="comercial" onclick="go('comercial')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        Comercial
+      </div>
       <div class="nav-item" data-page="irpf" onclick="go('irpf')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         IRPF 2026
@@ -814,6 +818,117 @@ tr:hover td{background:#f8fafc}
       </div>
     </div>
 
+    <!-- COMERCIAL -->
+    <div id="pg-comercial" class="hidden">
+      <style>
+        #pg-comercial .com-subnav{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1rem;border-bottom:1px solid #e2e8f0;padding-bottom:0}
+        #pg-comercial .com-tab{background:none;border:none;border-bottom:3px solid transparent;padding:.55rem .85rem;font-size:12.5px;font-weight:600;color:#64748b;cursor:pointer;white-space:nowrap}
+        #pg-comercial .com-tab:hover{color:#334155}
+        #pg-comercial .com-tab.active{color:#4A6BD4;border-bottom-color:#4A6BD4}
+        #pg-comercial .com-pane{animation:fadeIn .2s}
+        #pg-comercial .cm-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem;margin-bottom:1rem}
+        #pg-comercial .cm-tile{background:#fff;border:1px solid #e8edf3;border-top:3px solid #4A6BD4;border-radius:10px;padding:.7rem .85rem}
+        #pg-comercial .cm-tile .l{font-size:10.5px;color:#64748b;text-transform:uppercase;letter-spacing:.03em}
+        #pg-comercial .cm-tile .v{font-size:19px;font-weight:700;color:#1e293b;margin-top:2px}
+        #pg-comercial .cm-bar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem;background:#fff;padding:.7rem .85rem;border-radius:10px;border:1px solid #e2e8f0}
+        #pg-comercial .link-box{display:flex;gap:.5rem;align-items:center;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:.7rem .85rem;margin-bottom:1rem;flex-wrap:wrap}
+        #pg-comercial .link-box input{flex:1;min-width:220px;font-size:12px;padding:7px 10px;border:1px solid #cbd5e1;border-radius:7px;background:#fff}
+      </style>
+      <div class="page-hdr"><h1>Comercial</h1></div>
+      <div id="alerta-com"></div>
+
+      <div class="com-subnav">
+        <button class="com-tab active" data-ct="crm" onclick="comTab('crm')">🎯 CRM / Funil</button>
+        <button class="com-tab" data-ct="indicacoes" onclick="comTab('indicacoes')">🤝 Indicações</button>
+        <button class="com-tab" data-ct="comissoes" onclick="comTab('comissoes')">💸 Comissões</button>
+        <button class="com-tab" data-ct="contatos" onclick="comTab('contatos')">📇 Banco de Contatos</button>
+        <button class="com-tab" data-ct="emailmkt" onclick="comTab('emailmkt')">✉️ E-mail Marketing</button>
+        <button class="com-tab" data-ct="ads" onclick="comTab('ads')">📣 Meta ADS</button>
+      </div>
+
+      <!-- CRM / FUNIL -->
+      <div id="ct-crm" class="com-pane">
+        <div class="cm-bar">
+          <button class="btn btn-sm" style="background:#4A6BD4;color:#fff;border:none;font-weight:600" onclick="abrirModalLead()">+ Novo lead</button>
+          <select id="fil-lead-etapa" class="si" style="width:160px" onchange="renderLeads()">
+            <option value="">Todas as etapas</option>
+            <option value="novo">Novo</option><option value="contato">Em contato</option>
+            <option value="proposta">Proposta</option><option value="fechado">Fechado ✓</option>
+            <option value="perdido">Perdido</option>
+          </select>
+          <input class="si" id="busca-lead" placeholder="🔍 Buscar lead..." oninput="renderLeads()" style="flex:1;min-width:180px;font-size:13px;padding:8px 12px">
+        </div>
+        <div class="cm-tiles" id="lead-tiles"></div>
+        <div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:10px"><table><thead><tr><th>Lead</th><th>Contato</th><th>Origem</th><th>Etapa</th><th>Valor est.</th><th>Resp.</th><th></th></tr></thead><tbody id="lead-tbody"></tbody></table></div>
+      </div>
+
+      <!-- INDICAÇÕES -->
+      <div id="ct-indicacoes" class="com-pane hidden">
+        <div class="link-box">
+          <span style="font-size:12px;color:#1e40af;font-weight:600">🔗 Link público de indicação:</span>
+          <input id="link-indicacao" readonly value="https://rodriguesconta.com.br/indicar.html">
+          <button class="btn btn-sm" onclick="copiarLinkIndicacao()" style="background:#2563eb;color:#fff;border:none">Copiar</button>
+          <span style="font-size:10.5px;color:#64748b;width:100%">Envie para clientes e parceiros captarem indicações. (página pública a publicar — ver passo a passo)</span>
+        </div>
+        <div class="cm-bar">
+          <button class="btn btn-sm" style="background:#4A6BD4;color:#fff;border:none;font-weight:600" onclick="abrirModalIndicacao()">+ Nova indicação</button>
+          <select id="fil-ind-status" class="si" style="width:170px" onchange="renderIndicacoes()">
+            <option value="">Todos os status</option>
+            <option value="recebida">Recebida</option><option value="em_negociacao">Em negociação</option>
+            <option value="convertida">Convertida ✓</option><option value="perdida">Perdida</option>
+          </select>
+        </div>
+        <div class="cm-tiles" id="ind-tiles"></div>
+        <div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:10px"><table><thead><tr><th>Indicador</th><th>Indicado</th><th>Contato</th><th>Status</th><th>Comissão</th><th>Origem</th><th></th></tr></thead><tbody id="ind-tbody"></tbody></table></div>
+      </div>
+
+      <!-- COMISSÕES -->
+      <div id="ct-comissoes" class="com-pane hidden">
+        <div class="cm-bar">
+          <label style="font-size:12px;color:#475569;font-weight:600">Competência</label>
+          <input type="month" id="fil-com-comp" class="si" style="width:160px" onchange="renderComissoes()">
+          <button class="btn btn-sm" style="background:#16a34a;color:#fff;border:none;font-weight:600" onclick="gerarComissoesMes()">⚙️ Gerar comissões do mês</button>
+          <button class="btn btn-sm" onclick="renderComissoes()">🔄 Atualizar</button>
+        </div>
+        <div class="cm-tiles" id="com-tiles"></div>
+        <div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:10px"><table><thead><tr><th>Indicador</th><th>Cliente</th><th>Comp.</th><th>Base</th><th>%</th><th>Comissão</th><th>Status</th><th></th></tr></thead><tbody id="com-tbody"></tbody></table></div>
+      </div>
+
+      <!-- BANCO DE CONTATOS -->
+      <div id="ct-contatos" class="com-pane hidden">
+        <div class="cm-bar">
+          <button class="btn btn-sm" style="background:#4A6BD4;color:#fff;border:none;font-weight:600" onclick="abrirModalContato()">+ Novo contato</button>
+          <select id="fil-cont-tipo" class="si" style="width:150px" onchange="renderContatos()">
+            <option value="">Todos os tipos</option>
+            <option value="cliente">Cliente</option><option value="parceiro">Parceiro</option>
+            <option value="lead">Lead</option><option value="fornecedor">Fornecedor</option><option value="contato">Contato</option>
+          </select>
+          <input class="si" id="busca-cont" placeholder="🔍 Buscar contato..." oninput="renderContatos()" style="flex:1;min-width:180px;font-size:13px;padding:8px 12px">
+        </div>
+        <div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:10px"><table><thead><tr><th>Nome</th><th>Tipo</th><th>Empresa</th><th>E-mail</th><th>Telefone</th><th></th></tr></thead><tbody id="cont-tbody"></tbody></table></div>
+      </div>
+
+      <!-- E-MAIL MARKETING -->
+      <div id="ct-emailmkt" class="com-pane hidden">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem;text-align:center">
+          <div style="font-size:34px">✉️</div>
+          <h3 style="margin:.4rem 0;color:#1e293b">E-mail Marketing</h3>
+          <p style="font-size:13px;color:#64748b;max-width:460px;margin:0 auto .9rem">Dispare campanhas para o Banco de Contatos (clientes, leads e parceiros). Vamos ligar ao provedor de e-mail já configurado em <strong>Integrações</strong>.</p>
+          <span class="badge badge-amber">Em breve — próxima entrega</span>
+        </div>
+      </div>
+
+      <!-- META ADS -->
+      <div id="ct-ads" class="com-pane hidden">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem;text-align:center">
+          <div style="font-size:34px">📣</div>
+          <h3 style="margin:.4rem 0;color:#1e293b">Meta ADS</h3>
+          <p style="font-size:13px;color:#64748b;max-width:460px;margin:0 auto .9rem">Acompanhe os leads vindos de campanhas no Facebook/Instagram. Cada lead cairá direto no CRM com origem <strong>meta_ads</strong>.</p>
+          <span class="badge badge-amber">Em breve — próxima entrega</span>
+        </div>
+      </div>
+    </div>
+
     <!-- TAREFAS -->
     <div id="pg-tarefas" class="hidden">
       <div class="page-hdr">
@@ -1290,6 +1405,88 @@ tr:hover td{background:#f8fafc}
   </div>
 </div>
 
+<!-- MODAL LEAD (CRM) -->
+<div id="m-lead" class="overlay hidden">
+  <div class="modal" style="max-width:560px">
+    <h2 id="m-lead-title">Novo lead</h2>
+    <input type="hidden" id="ld-id">
+    <div class="fr">
+      <div class="fg" style="flex:2"><label>Nome / Empresa *</label><input id="ld-nome"></div>
+      <div class="fg"><label>CNPJ / CPF</label><input id="ld-doc"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>E-mail</label><input type="email" id="ld-email"></div>
+      <div class="fg"><label>Telefone</label><input id="ld-tel"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Origem</label><select id="ld-origem" class="si" style="width:100%"><option value="indicacao">Indicação</option><option value="meta_ads">Meta ADS</option><option value="site">Site</option><option value="organico">Orgânico</option><option value="outro">Outro</option></select></div>
+      <div class="fg"><label>Etapa</label><select id="ld-etapa" class="si" style="width:100%"><option value="novo">Novo</option><option value="contato">Em contato</option><option value="proposta">Proposta</option><option value="fechado">Fechado ✓</option><option value="perdido">Perdido</option></select></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Valor estimado (R$/mês)</label><input type="number" id="ld-valor" step="0.01"></div>
+      <div class="fg"><label>Responsável</label><input id="ld-resp"></div>
+    </div>
+    <div class="fr"><div class="fg" style="flex:1"><label>Observação</label><textarea id="ld-obs" rows="2" style="width:100%;resize:vertical"></textarea></div></div>
+    <p class="err hidden" id="ld-err"></p>
+    <div class="ma">
+      <button class="btn btn-sm" onclick="fecharModal('m-lead')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarLead()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL INDICAÇÃO -->
+<div id="m-indicacao" class="overlay hidden">
+  <div class="modal" style="max-width:560px">
+    <h2 id="m-ind-title">Nova indicação</h2>
+    <input type="hidden" id="in-id">
+    <div style="font-size:10.5px;font-weight:700;color:#4A6BD4;text-transform:uppercase;letter-spacing:.04em;margin:.4rem 0;border-bottom:1px solid #eef2f7;padding-bottom:.25rem">Quem indicou</div>
+    <div class="fr">
+      <div class="fg" style="flex:2"><label>Nome do indicador *</label><input id="i-indicador"></div>
+      <div class="fg"><label>Tipo</label><select id="i-tipo" class="si" style="width:100%"><option value="cliente">Cliente</option><option value="parceiro">Parceiro</option></select></div>
+    </div>
+    <div class="fr"><div class="fg" style="flex:1"><label>Contato do indicador</label><input id="i-indicador-contato" placeholder="telefone ou e-mail"></div></div>
+    <div style="font-size:10.5px;font-weight:700;color:#4A6BD4;text-transform:uppercase;letter-spacing:.04em;margin:.6rem 0 .4rem;border-bottom:1px solid #eef2f7;padding-bottom:.25rem">Quem foi indicado</div>
+    <div class="fr">
+      <div class="fg" style="flex:2"><label>Nome do indicado *</label><input id="i-indicado"></div>
+      <div class="fg"><label>Comissão (%)</label><input type="number" id="i-comissao" step="0.5" value="10"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Contato do indicado</label><input id="i-indicado-contato"></div>
+      <div class="fg"><label>Status</label><select id="i-status" class="si" style="width:100%"><option value="recebida">Recebida</option><option value="em_negociacao">Em negociação</option><option value="convertida">Convertida ✓</option><option value="perdida">Perdida</option></select></div>
+    </div>
+    <div class="fr"><div class="fg" style="flex:1"><label>Observação</label><textarea id="in-obs" rows="2" style="width:100%;resize:vertical"></textarea></div></div>
+    <p class="err hidden" id="in-err"></p>
+    <div class="ma">
+      <button class="btn btn-sm" onclick="fecharModal('m-indicacao')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarIndicacao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONTATO -->
+<div id="m-contato" class="overlay hidden">
+  <div class="modal" style="max-width:520px">
+    <h2 id="m-cont-title">Novo contato</h2>
+    <input type="hidden" id="ct-id">
+    <div class="fr">
+      <div class="fg" style="flex:2"><label>Nome *</label><input id="ct-nome"></div>
+      <div class="fg"><label>Tipo</label><select id="ct-tipo" class="si" style="width:100%"><option value="contato">Contato</option><option value="cliente">Cliente</option><option value="parceiro">Parceiro</option><option value="lead">Lead</option><option value="fornecedor">Fornecedor</option></select></div>
+    </div>
+    <div class="fr"><div class="fg" style="flex:1"><label>Empresa</label><input id="ct-empresa"></div></div>
+    <div class="fr">
+      <div class="fg"><label>E-mail</label><input type="email" id="ct-email"></div>
+      <div class="fg"><label>Telefone</label><input id="ct-tel"></div>
+    </div>
+    <div class="fr"><div class="fg" style="flex:1"><label>Observação</label><textarea id="ct-obs" rows="2" style="width:100%;resize:vertical"></textarea></div></div>
+    <p class="err hidden" id="ct-err"></p>
+    <div class="ma">
+      <button class="btn btn-sm" onclick="fecharModal('m-contato')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarContato()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL COBRANÇA -->
 <div id="m-cob" class="overlay hidden">
   <div class="modal" style="max-width:420px">
@@ -1591,6 +1788,7 @@ function go(pg){
   if(pg==='prolabore')carregarProlabore();
   if(pg==='permissoes')carregarPermPage();
   if(pg==='integracoes')carregarIntegracoes();
+  if(pg==='comercial')carregarComercial();
 }
 
 function fecharModal(id){document.getElementById(id).classList.add('hidden');}
@@ -1900,6 +2098,7 @@ async function consultarCNPJ(){
 }
 
 let perfilClienteId=null;
+let _perfil360=null;
 async function abrirPerfilCliente(id){
   perfilClienteId=id;
   const c=todosClis.find(x=>x.id===id);
@@ -1957,7 +2156,44 @@ async function abrirPerfilCliente(id){
     '</div>'+
     '<div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:8px"><table><thead><tr><th>Últimos enviados</th><th>Competência</th><th>Data</th></tr></thead><tbody>'+ultEnv+'</tbody></table></div>';
 
-  document.getElementById('perfil-corpo').innerHTML=cad+cobBox+tarBox;
+  // ===== Visão 360 — mês a mês =====
+  _perfil360={cobsL,tarsL};
+  const compsSet=new Set();
+  tarsL.forEach(t=>{if(t.competencia)compsSet.add(t.competencia);});
+  const hoje=new Date();
+  for(let i=0;i<6;i++){const d=new Date(hoje.getFullYear(),hoje.getMonth()-i,1);compsSet.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));}
+  const comps=[...compsSet].sort().reverse();
+  const opts=comps.map(cp=>'<option value="'+cp+'">'+mesAnterior(cp)+'  (competência '+cp+')</option>').join('');
+  const visaoBox='<h3 style="font-size:13px;font-weight:600;color:#475569;margin:1.5rem 0 .5rem">🗓️ Visão 360 — mês a mês</h3>'+
+    '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.7rem;flex-wrap:wrap"><label style="font-size:12px;color:#64748b">Competência:</label><select id="perfil-mes" class="si" onchange="renderVisao360(this.value)" style="min-width:230px">'+opts+'</select></div>'+
+    '<div id="visao360-corpo"></div>';
+
+  document.getElementById('perfil-corpo').innerHTML=cad+cobBox+tarBox+visaoBox;
+  renderVisao360(comps[0]);
+}
+function renderVisao360(mes){
+  const box=document.getElementById('visao360-corpo');
+  if(!box||!_perfil360)return;
+  const {cobsL,tarsL}=_perfil360;
+  const doMes=tarsL.filter(t=>t.competencia===mes);
+  const env=doMes.filter(t=>t.status==='enviado');
+  const pend=doMes.filter(t=>t.status!=='enviado'&&!t.arquivada);
+  const cob=cobsL.find(c=>c.competencia===mes||String(c.data_vencimento||'').slice(0,7)===mes);
+  const li=(t,cor,ic)=>'<div style="display:flex;align-items:center;gap:.4rem;font-size:12px;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>'+ic+'</span><span style="color:#334155;flex:1">'+(t.titulo||t.obrigacao_nome||'Documento')+'</span>'+(t.enviado_em?'<span style="font-size:10px;color:#94a3b8">'+new Date(t.enviado_em).toLocaleDateString('pt-BR')+'</span>':'')+'</div>';
+  const colEnv=env.length?env.map(t=>li(t,'#16a34a','✅')).join(''):'<p style="font-size:11.5px;color:#94a3b8;padding:.4rem 0">Nada enviado nesta competência.</p>';
+  const colPend=pend.length?pend.map(t=>li(t,'#c2410c','⏳')).join(''):'<p style="font-size:11.5px;color:#94a3b8;padding:.4rem 0">Sem pendências. 🎉</p>';
+  let cobLinha='';
+  if(cob){
+    const stMap={pago:['#16a34a','Paga ✔'],a_receber:['#F57C1A','A vencer'],atrasado:['#dc2626','Em atraso']};
+    const st=stMap[cob.status]||['#64748b',cob.status||'—'];
+    cobLinha='<div style="margin-top:.75rem;padding:.6rem .8rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;display:flex;align-items:center;gap:.6rem;font-size:12.5px"><span style="color:#64748b">💰 Cobrança do mês:</span><strong style="color:'+st[0]+'">'+fmt(cob.valor)+' · '+st[1]+'</strong>'+(cob.data_vencimento?'<span style="color:#94a3b8;font-size:11px;margin-left:auto">venc. '+fmtDt(cob.data_vencimento)+'</span>':'')+'</div>';
+  }else{
+    cobLinha='<div style="margin-top:.75rem;padding:.6rem .8rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;color:#94a3b8">💰 Nenhuma cobrança registrada neste mês.</div>';
+  }
+  box.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">'+
+    '<div style="border:1px solid #bbf7d0;border-radius:10px;padding:.7rem .85rem;background:#f0fdf4"><div style="font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.03em;margin-bottom:.4rem">✅ Enviados ('+env.length+')</div>'+colEnv+'</div>'+
+    '<div style="border:1px solid #fed7aa;border-radius:10px;padding:.7rem .85rem;background:#fff7ed"><div style="font-size:11px;font-weight:700;color:#9a3412;text-transform:uppercase;letter-spacing:.03em;margin-bottom:.4rem">⏳ Pendentes ('+pend.length+')</div>'+colPend+'</div>'+
+    '</div>'+cobLinha;
 }
 
 async function salvarCliente(){
@@ -2029,6 +2265,258 @@ async function toggleCaminho(clienteId,passoId,checked){
   if(error){alert('Não foi possível salvar o passo: '+error.message);}
   await carregarCaminho(clienteId);
 }
+
+// ================= COMERCIAL =================
+let _leads=[],_indics=[],_comissoes=[],_contatos=[];
+function comTab(t){
+  document.querySelectorAll('#pg-comercial .com-tab').forEach(b=>b.classList.toggle('active',b.dataset.ct===t));
+  document.querySelectorAll('#pg-comercial .com-pane').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('ct-'+t).classList.remove('hidden');
+  if(t==='crm')carregarLeads();
+  else if(t==='indicacoes')carregarIndicacoes();
+  else if(t==='comissoes'){const f=document.getElementById('fil-com-comp');if(!f.value){const d=new Date();f.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}carregarComissoes();}
+  else if(t==='contatos')carregarContatos();
+}
+function carregarComercial(){comTab('crm');}
+
+/* ----- CRM / Leads ----- */
+async function carregarLeads(){const {data}=await db.from('leads').select('*').order('created_at',{ascending:false}).limit(500);_leads=data||[];renderLeads();}
+function renderLeads(){
+  const fE=document.getElementById('fil-lead-etapa').value;
+  const q=(document.getElementById('busca-lead').value||'').toLowerCase();
+  const etapas=[['novo','Novo','#4A6BD4'],['contato','Em contato','#F57C1A'],['proposta','Proposta','#a855f7'],['fechado','Fechado','#16a34a'],['perdido','Perdido','#dc2626']];
+  document.getElementById('lead-tiles').innerHTML=etapas.map(e=>{const n=_leads.filter(l=>l.etapa===e[0]).length;return '<div class="cm-tile" style="border-top-color:'+e[2]+'"><div class="l">'+e[1]+'</div><div class="v" style="color:'+e[2]+'">'+n+'</div></div>';}).join('');
+  const list=_leads.filter(l=>(!fE||l.etapa===fE)&&(!q||((l.nome||'')+' '+(l.email||'')+' '+(l.telefone||'')).toLowerCase().includes(q)));
+  const tb=document.getElementById('lead-tbody');
+  if(!list.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:1.2rem">Nenhum lead.</td></tr>';return;}
+  const opt=v=>etapas.map(e=>'<option value="'+e[0]+'"'+(e[0]===v?' selected':'')+'>'+e[1]+'</option>').join('');
+  tb.innerHTML=list.map(l=>'<tr>'+
+    '<td style="font-weight:600">'+(l.nome||'—')+(l.documento?'<div style="font-size:10px;color:#94a3b8;font-family:monospace">'+l.documento+'</div>':'')+'</td>'+
+    '<td style="font-size:12px;color:#64748b">'+([l.telefone,l.email].filter(Boolean).join('<br>')||'—')+'</td>'+
+    '<td style="font-size:12px">'+(l.origem||'—')+'</td>'+
+    '<td><select class="si" style="font-size:11.5px;padding:4px 6px" onchange="mudarEtapaLead(\''+l.id+'\',this.value)">'+opt(l.etapa)+'</select></td>'+
+    '<td style="font-size:12px;white-space:nowrap">'+(l.valor_estimado?fmt(l.valor_estimado):'—')+'</td>'+
+    '<td style="font-size:12px;color:#64748b">'+(l.responsavel||'—')+'</td>'+
+    '<td style="white-space:nowrap"><button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:none" onclick="editarLead(\''+l.id+'\')">✏</button> '+(l.etapa==='fechado'&&!l.cliente_id?'<button class="btn btn-sm" style="background:#dcfce7;color:#15803d;border:none" onclick="converterLeadCliente(\''+l.id+'\')">→ Cliente</button>':'')+'</td>'+
+    '</tr>').join('');
+}
+function abrirModalLead(){
+  document.getElementById('m-lead-title').textContent='Novo lead';
+  ['ld-id','ld-nome','ld-doc','ld-email','ld-tel','ld-valor','ld-obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ld-origem').value='indicacao';
+  document.getElementById('ld-etapa').value='novo';
+  document.getElementById('ld-resp').value=userNome||userEmail||'';
+  document.getElementById('ld-err').classList.add('hidden');
+  document.getElementById('m-lead').classList.remove('hidden');
+}
+function editarLead(id){
+  const l=_leads.find(x=>x.id===id);if(!l)return;
+  document.getElementById('m-lead-title').textContent='Editar lead';
+  document.getElementById('ld-id').value=l.id;
+  document.getElementById('ld-nome').value=l.nome||'';
+  document.getElementById('ld-doc').value=l.documento||'';
+  document.getElementById('ld-email').value=l.email||'';
+  document.getElementById('ld-tel').value=l.telefone||'';
+  document.getElementById('ld-origem').value=l.origem||'outro';
+  document.getElementById('ld-etapa').value=l.etapa||'novo';
+  document.getElementById('ld-valor').value=l.valor_estimado||'';
+  document.getElementById('ld-resp').value=l.responsavel||'';
+  document.getElementById('ld-obs').value=l.observacao||'';
+  document.getElementById('ld-err').classList.add('hidden');
+  document.getElementById('m-lead').classList.remove('hidden');
+}
+async function salvarLead(){
+  const id=document.getElementById('ld-id').value;
+  const p={nome:document.getElementById('ld-nome').value.trim(),documento:document.getElementById('ld-doc').value.trim()||null,email:document.getElementById('ld-email').value.trim()||null,telefone:document.getElementById('ld-tel').value.trim()||null,origem:document.getElementById('ld-origem').value,etapa:document.getElementById('ld-etapa').value,valor_estimado:parseFloat(document.getElementById('ld-valor').value)||null,responsavel:document.getElementById('ld-resp').value.trim()||null,observacao:document.getElementById('ld-obs').value.trim()||null};
+  const err=document.getElementById('ld-err');
+  if(!p.nome){err.textContent='Nome obrigatório';err.classList.remove('hidden');return;}
+  const {error}=id?await db.from('leads').update(p).eq('id',id):await db.from('leads').insert([p]);
+  if(error){err.textContent=error.message;err.classList.remove('hidden');return;}
+  fecharModal('m-lead');carregarLeads();
+}
+async function mudarEtapaLead(id,etapa){await db.from('leads').update({etapa}).eq('id',id);const l=_leads.find(x=>x.id===id);if(l)l.etapa=etapa;renderLeads();}
+async function converterLeadCliente(id){
+  const l=_leads.find(x=>x.id===id);if(!l)return;
+  if(!confirm('Converter "'+l.nome+'" em cliente? Será criado um cadastro em Clientes.'))return;
+  const novo={nome:l.nome,documento:l.documento||'',email:l.email||'',telefone:l.telefone||'',honorario:l.valor_estimado||0,dia_vencimento:10,status:'ativo'};
+  const {data:cli,error}=await db.from('clientes').insert([novo]).select().single();
+  if(error){alert('Erro ao criar cliente: '+error.message);return;}
+  await db.from('leads').update({cliente_id:cli.id}).eq('id',id);
+  if(l.indicacao_id){await db.from('indicacoes').update({status:'convertida',cliente_id:cli.id}).eq('id',l.indicacao_id);}
+  alerta('alerta-com','✅ Lead convertido em cliente: '+l.nome+'. Complete o cadastro em Clientes.','s');
+  carregarLeads();
+}
+
+/* ----- Indicações ----- */
+const _indStMap={recebida:['#4A6BD4','Recebida'],em_negociacao:['#F57C1A','Em negociação'],convertida:['#16a34a','Convertida ✓'],perdida:['#dc2626','Perdida']};
+async function carregarIndicacoes(){const {data}=await db.from('indicacoes').select('*').order('created_at',{ascending:false}).limit(500);_indics=data||[];renderIndicacoes();}
+function renderIndicacoes(){
+  const fS=document.getElementById('fil-ind-status').value;
+  document.getElementById('ind-tiles').innerHTML=Object.keys(_indStMap).map(k=>{const n=_indics.filter(i=>i.status===k).length;return '<div class="cm-tile" style="border-top-color:'+_indStMap[k][0]+'"><div class="l">'+_indStMap[k][1]+'</div><div class="v" style="color:'+_indStMap[k][0]+'">'+n+'</div></div>';}).join('');
+  const list=_indics.filter(i=>!fS||i.status===fS);
+  const tb=document.getElementById('ind-tbody');
+  if(!list.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:1.2rem">Nenhuma indicação.</td></tr>';return;}
+  const opt=v=>Object.keys(_indStMap).map(k=>'<option value="'+k+'"'+(k===v?' selected':'')+'>'+_indStMap[k][1]+'</option>').join('');
+  tb.innerHTML=list.map(i=>'<tr>'+
+    '<td style="font-weight:600">'+(i.indicador_nome||'—')+'<div style="font-size:10px;color:#94a3b8">'+(i.indicador_tipo==='parceiro'?'Parceiro':'Cliente')+'</div></td>'+
+    '<td>'+(i.indicado_nome||'—')+'</td>'+
+    '<td style="font-size:12px;color:#64748b">'+(i.indicado_contato||i.indicador_contato||'—')+'</td>'+
+    '<td><select class="si" style="font-size:11.5px;padding:4px 6px" onchange="mudarStatusIndicacao(\''+i.id+'\',this.value)">'+opt(i.status)+'</select></td>'+
+    '<td style="font-size:12px;white-space:nowrap">'+(i.comissao_percent||0)+'%</td>'+
+    '<td style="font-size:11px;color:#64748b">'+(i.origem==='link_externo'?'🔗 link':'manual')+'</td>'+
+    '<td style="white-space:nowrap"><button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:none" onclick="editarIndicacao(\''+i.id+'\')">✏</button> '+(i.status!=='convertida'?'<button class="btn btn-sm" style="background:#dcfce7;color:#15803d;border:none" onclick="converterIndicacaoCliente(\''+i.id+'\')">→ Cliente</button>':'<span class="badge badge-green">cliente ✓</span>')+'</td>'+
+    '</tr>').join('');
+}
+function abrirModalIndicacao(){
+  document.getElementById('m-ind-title').textContent='Nova indicação';
+  ['in-id','i-indicador','i-indicador-contato','i-indicado','i-indicado-contato','in-obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('i-tipo').value='cliente';
+  document.getElementById('i-status').value='recebida';
+  document.getElementById('i-comissao').value='10';
+  document.getElementById('in-err').classList.add('hidden');
+  document.getElementById('m-indicacao').classList.remove('hidden');
+}
+function editarIndicacao(id){
+  const i=_indics.find(x=>x.id===id);if(!i)return;
+  document.getElementById('m-ind-title').textContent='Editar indicação';
+  document.getElementById('in-id').value=i.id;
+  document.getElementById('i-indicador').value=i.indicador_nome||'';
+  document.getElementById('i-indicador-contato').value=i.indicador_contato||'';
+  document.getElementById('i-tipo').value=i.indicador_tipo||'cliente';
+  document.getElementById('i-indicado').value=i.indicado_nome||'';
+  document.getElementById('i-indicado-contato').value=i.indicado_contato||'';
+  document.getElementById('i-comissao').value=i.comissao_percent!=null?i.comissao_percent:10;
+  document.getElementById('i-status').value=i.status||'recebida';
+  document.getElementById('in-obs').value=i.observacao||'';
+  document.getElementById('in-err').classList.add('hidden');
+  document.getElementById('m-indicacao').classList.remove('hidden');
+}
+async function salvarIndicacao(){
+  const id=document.getElementById('in-id').value;
+  const p={indicador_nome:document.getElementById('i-indicador').value.trim(),indicador_contato:document.getElementById('i-indicador-contato').value.trim()||null,indicador_tipo:document.getElementById('i-tipo').value,indicado_nome:document.getElementById('i-indicado').value.trim(),indicado_contato:document.getElementById('i-indicado-contato').value.trim()||null,comissao_percent:parseFloat(document.getElementById('i-comissao').value)||0,status:document.getElementById('i-status').value,observacao:document.getElementById('in-obs').value.trim()||null};
+  const err=document.getElementById('in-err');
+  if(!p.indicador_nome||!p.indicado_nome){err.textContent='Indicador e indicado são obrigatórios';err.classList.remove('hidden');return;}
+  const {error}=id?await db.from('indicacoes').update(p).eq('id',id):await db.from('indicacoes').insert([p]);
+  if(error){err.textContent=error.message;err.classList.remove('hidden');return;}
+  fecharModal('m-indicacao');carregarIndicacoes();
+}
+async function mudarStatusIndicacao(id,status){await db.from('indicacoes').update({status}).eq('id',id);const i=_indics.find(x=>x.id===id);if(i)i.status=status;renderIndicacoes();}
+async function converterIndicacaoCliente(id){
+  const i=_indics.find(x=>x.id===id);if(!i)return;
+  if(!confirm('Converter o indicado "'+i.indicado_nome+'" em cliente?'))return;
+  const novo={nome:i.indicado_nome,documento:'',email:'',telefone:i.indicado_contato||'',honorario:0,dia_vencimento:10,status:'ativo'};
+  const {data:cli,error}=await db.from('clientes').insert([novo]).select().single();
+  if(error){alert('Erro ao criar cliente: '+error.message);return;}
+  await db.from('indicacoes').update({status:'convertida',cliente_id:cli.id}).eq('id',id);
+  alerta('alerta-com','✅ Indicação convertida. Cliente "'+i.indicado_nome+'" criado — complete honorário/CNPJ em Clientes para gerar comissão.','s');
+  carregarIndicacoes();
+}
+function copiarLinkIndicacao(){
+  const inp=document.getElementById('link-indicacao');
+  const ok=()=>alerta('alerta-com','🔗 Link copiado!','s');
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(inp.value).then(ok).catch(()=>{inp.select();document.execCommand('copy');ok();});}
+  else{inp.select();document.execCommand('copy');ok();}
+}
+
+/* ----- Comissões ----- */
+async function carregarComissoes(){const {data}=await db.from('comissoes').select('*').order('competencia',{ascending:false}).limit(1000);_comissoes=data||[];renderComissoes();}
+function renderComissoes(){
+  const comp=document.getElementById('fil-com-comp').value;
+  const list=_comissoes.filter(c=>!comp||c.competencia===comp);
+  const prev=list.filter(c=>c.status==='prevista').reduce((s,c)=>s+parseFloat(c.valor_comissao||0),0);
+  const pagas=list.filter(c=>c.status==='paga').reduce((s,c)=>s+parseFloat(c.valor_comissao||0),0);
+  document.getElementById('com-tiles').innerHTML=
+    '<div class="cm-tile" style="border-top-color:#F57C1A"><div class="l">Previstas</div><div class="v" style="color:#F57C1A">'+fmt(prev)+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#16a34a"><div class="l">Pagas</div><div class="v" style="color:#16a34a">'+fmt(pagas)+'</div></div>'+
+    '<div class="cm-tile"><div class="l">Total</div><div class="v">'+fmt(prev+pagas)+'</div></div>';
+  const tb=document.getElementById('com-tbody');
+  if(!list.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:1.2rem">Nenhuma comissão nesta competência. Use "⚙️ Gerar comissões do mês".</td></tr>';return;}
+  tb.innerHTML=list.map(c=>'<tr>'+
+    '<td style="font-weight:600">'+(c.indicador_nome||'—')+'</td>'+
+    '<td style="font-size:12px">'+(c.cliente_nome||'—')+'</td>'+
+    '<td style="font-size:12px;white-space:nowrap">'+(c.competencia||'—')+'</td>'+
+    '<td style="font-size:12px;white-space:nowrap">'+fmt(c.valor_base)+'</td>'+
+    '<td style="font-size:12px">'+(c.percent||0)+'%</td>'+
+    '<td style="font-weight:600;white-space:nowrap">'+fmt(c.valor_comissao)+'</td>'+
+    '<td>'+(c.status==='paga'?'<span class="badge badge-green">paga</span>':'<span class="badge badge-amber">prevista</span>')+'</td>'+
+    '<td style="white-space:nowrap">'+(c.status!=='paga'?'<button class="btn btn-sm" style="background:#dcfce7;color:#15803d;border:none" onclick="marcarComissaoPaga(\''+c.id+'\')">✓ Pagar</button>':(c.pago_em?'<span style="font-size:10px;color:#94a3b8">'+fmtDt(c.pago_em)+'</span>':''))+'</td>'+
+    '</tr>').join('');
+}
+async function marcarComissaoPaga(id){await db.from('comissoes').update({status:'paga',pago_em:new Date().toISOString().slice(0,10)}).eq('id',id);carregarComissoes();}
+async function gerarComissoesMes(){
+  const comp=document.getElementById('fil-com-comp').value;
+  if(!comp){alert('Selecione a competência.');return;}
+  const {data:convs}=await db.from('indicacoes').select('*').eq('status','convertida');
+  const convertidas=(convs||[]).filter(i=>i.cliente_id);
+  if(!convertidas.length){alerta('alerta-com','Nenhuma indicação convertida com cliente vinculado ainda.','t');return;}
+  const {data:jaEx}=await db.from('comissoes').select('indicacao_id').eq('competencia',comp);
+  const exist=new Set((jaEx||[]).map(x=>x.indicacao_id));
+  const cliIds=[...new Set(convertidas.map(i=>i.cliente_id))];
+  const {data:clis}=await db.from('clientes').select('id,nome,honorario').in('id',cliIds);
+  const cliMap={};(clis||[]).forEach(c=>cliMap[c.id]=c);
+  const novas=[];
+  convertidas.forEach(i=>{
+    if(exist.has(i.id))return;
+    const cli=cliMap[i.cliente_id];if(!cli)return;
+    const base=parseFloat(cli.honorario||0),pct=parseFloat(i.comissao_percent||0);
+    if(base<=0||pct<=0)return;
+    novas.push({indicacao_id:i.id,indicador_nome:i.indicador_nome,cliente_id:i.cliente_id,cliente_nome:cli.nome,competencia:comp,valor_base:base,percent:pct,valor_comissao:+(base*pct/100).toFixed(2),status:'prevista'});
+  });
+  if(!novas.length){alerta('alerta-com','Nada novo a gerar (já existem, ou faltam honorário/percentual nos clientes).','t');carregarComissoes();return;}
+  const {error}=await db.from('comissoes').insert(novas);
+  if(error){alerta('alerta-com','Erro: '+error.message,'e');return;}
+  alerta('alerta-com','✅ '+novas.length+' comissão(ões) gerada(s) para '+comp+'.','s');
+  carregarComissoes();
+}
+
+/* ----- Banco de Contatos ----- */
+async function carregarContatos(){const {data}=await db.from('contatos').select('*').order('nome').limit(1000);_contatos=data||[];renderContatos();}
+function renderContatos(){
+  const fT=document.getElementById('fil-cont-tipo').value;
+  const q=(document.getElementById('busca-cont').value||'').toLowerCase();
+  const tipoCor={cliente:'#16a34a',parceiro:'#2563eb',lead:'#F57C1A',fornecedor:'#64748b',contato:'#64748b'};
+  const list=_contatos.filter(c=>(!fT||c.tipo===fT)&&(!q||((c.nome||'')+' '+(c.empresa_nome||'')+' '+(c.email||'')).toLowerCase().includes(q)));
+  const tb=document.getElementById('cont-tbody');
+  if(!list.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:1.2rem">Nenhum contato.</td></tr>';return;}
+  tb.innerHTML=list.map(c=>{const cor=tipoCor[c.tipo]||'#64748b';return '<tr>'+
+    '<td style="font-weight:600">'+(c.nome||'—')+'</td>'+
+    '<td><span style="font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:'+cor+'22;color:'+cor+'">'+(c.tipo||'contato')+'</span></td>'+
+    '<td style="font-size:12px">'+(c.empresa_nome||'—')+'</td>'+
+    '<td style="font-size:12px;color:#64748b">'+(c.email||'—')+'</td>'+
+    '<td style="font-size:12px;color:#64748b">'+(c.telefone||'—')+'</td>'+
+    '<td style="white-space:nowrap"><button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:none" onclick="editarContato(\''+c.id+'\')">✏</button> <button class="btn btn-sm btn-danger" onclick="excluirContato(\''+c.id+'\')">🗑</button></td>'+
+    '</tr>';}).join('');
+}
+function abrirModalContato(){
+  document.getElementById('m-cont-title').textContent='Novo contato';
+  ['ct-id','ct-nome','ct-empresa','ct-email','ct-tel','ct-obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ct-tipo').value='contato';
+  document.getElementById('ct-err').classList.add('hidden');
+  document.getElementById('m-contato').classList.remove('hidden');
+}
+function editarContato(id){
+  const c=_contatos.find(x=>x.id===id);if(!c)return;
+  document.getElementById('m-cont-title').textContent='Editar contato';
+  document.getElementById('ct-id').value=c.id;
+  document.getElementById('ct-nome').value=c.nome||'';
+  document.getElementById('ct-tipo').value=c.tipo||'contato';
+  document.getElementById('ct-empresa').value=c.empresa_nome||'';
+  document.getElementById('ct-email').value=c.email||'';
+  document.getElementById('ct-tel').value=c.telefone||'';
+  document.getElementById('ct-obs').value=c.observacao||'';
+  document.getElementById('ct-err').classList.add('hidden');
+  document.getElementById('m-contato').classList.remove('hidden');
+}
+async function salvarContato(){
+  const id=document.getElementById('ct-id').value;
+  const p={nome:document.getElementById('ct-nome').value.trim(),tipo:document.getElementById('ct-tipo').value,empresa_nome:document.getElementById('ct-empresa').value.trim()||null,email:document.getElementById('ct-email').value.trim()||null,telefone:document.getElementById('ct-tel').value.trim()||null,observacao:document.getElementById('ct-obs').value.trim()||null};
+  const err=document.getElementById('ct-err');
+  if(!p.nome){err.textContent='Nome obrigatório';err.classList.remove('hidden');return;}
+  const {error}=id?await db.from('contatos').update(p).eq('id',id):await db.from('contatos').insert([p]);
+  if(error){err.textContent=error.message;err.classList.remove('hidden');return;}
+  fecharModal('m-contato');carregarContatos();
+}
+async function excluirContato(id){if(!confirm('Excluir este contato?'))return;await db.from('contatos').delete().eq('id',id);carregarContatos();}
 async function excluirCli(id,nome){
   if(!confirm('Excluir "'+nome+'"? Todos os dados serão apagados permanentemente.'))return;
   await db.from('cobrancas').delete().eq('cliente_id',id);
