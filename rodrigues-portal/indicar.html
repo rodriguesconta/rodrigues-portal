@@ -5,48 +5,79 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>Indique e ganhe — Rodrigues Assessoria Contábil</title>
+<meta property="og:title" content="Programa de Indicação — Rodrigues Assessoria Contábil">
+<meta property="og:description" content="Indique uma empresa e ganhe comissão recorrente, todo mês, enquanto ela for cliente.">
+<meta property="og:type" content="website">
 <style>
+  :root{--azul:#1e3a6e;--azul2:#4A6BD4;--laranja:#F57C1A;}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px}
-  .wrap{width:100%;max-width:520px}
-  .hero{background:linear-gradient(135deg,#1e3a6e,#4A6BD4);color:#fff;border-radius:16px 16px 0 0;padding:1.8rem 1.5rem 1.5rem;text-align:center}
-  .hero .ico{font-size:40px;line-height:1}
-  .hero h1{font-size:21px;margin:.5rem 0 .3rem;font-weight:700}
-  .hero p{font-size:13px;opacity:.9;line-height:1.5}
-  .hero .tag{display:inline-block;margin-top:.7rem;background:#F57C1A;color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:999px}
-  .card{background:#fff;border-radius:0 0 16px 16px;padding:1.5rem;box-shadow:0 8px 30px rgba(30,58,110,.1)}
-  .sec-t{font-size:11px;font-weight:700;color:#4A6BD4;text-transform:uppercase;letter-spacing:.04em;margin:1.1rem 0 .6rem;padding-bottom:.25rem;border-bottom:1px solid #eef2f7}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#eef2f8;color:#1e293b;min-height:100vh}
+  .wrap{width:100%;max-width:560px;margin:0 auto;padding:18px}
+  /* HERO */
+  .hero{background:linear-gradient(135deg,var(--azul),var(--azul2));color:#fff;border-radius:18px;padding:1.8rem 1.5rem;text-align:center;box-shadow:0 10px 34px rgba(30,58,110,.18)}
+  .hero img{height:48px;object-fit:contain;margin-bottom:1rem}
+  .hero h1{font-size:23px;font-weight:800;line-height:1.2;margin-bottom:.5rem}
+  .hero p{font-size:13.5px;opacity:.94;line-height:1.55;max-width:420px;margin:0 auto}
+  .hero .tag{display:inline-block;margin-top:.9rem;background:var(--laranja);color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:999px;letter-spacing:.02em}
+  .trust{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
+  .trust span{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);font-size:11px;padding:4px 10px;border-radius:999px}
+  /* COMO FUNCIONA */
+  .como{background:#fff;border-radius:16px;padding:1.3rem 1.3rem .4rem;margin-top:14px;box-shadow:0 4px 18px rgba(30,58,110,.07)}
+  .como h2{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--azul2);font-weight:800;text-align:center;margin-bottom:1rem}
+  .step{display:flex;gap:.8rem;align-items:flex-start;margin-bottom:1rem}
+  .step .n{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--azul2);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .step .t{font-size:13.5px;line-height:1.45}.step .t b{color:#1e293b}
+  /* FORM */
+  .card{background:#fff;border-radius:16px;padding:1.5rem;margin-top:14px;box-shadow:0 4px 18px rgba(30,58,110,.07)}
+  .sec-t{font-size:11px;font-weight:700;color:var(--azul2);text-transform:uppercase;letter-spacing:.04em;margin:1.1rem 0 .6rem;padding-bottom:.25rem;border-bottom:1px solid #eef2f7}
   .sec-t:first-of-type{margin-top:0}
   label{display:block;font-size:12px;color:#64748b;font-weight:600;margin-bottom:4px}
   .fg{margin-bottom:.8rem}
   input,select,textarea{width:100%;font-size:14px;padding:11px 13px;border:1px solid #cbd5e1;border-radius:9px;outline:none;font-family:inherit;background:#fff}
-  input:focus,select:focus,textarea:focus{border-color:#4A6BD4;box-shadow:0 0 0 3px rgba(74,107,212,.12)}
-  textarea{resize:vertical;min-height:70px}
-  .row{display:flex;gap:.7rem}
-  .row .fg{flex:1}
+  input:focus,select:focus,textarea:focus{border-color:var(--azul2);box-shadow:0 0 0 3px rgba(74,107,212,.12)}
+  textarea{resize:vertical;min-height:66px}
+  .row{display:flex;gap:.7rem}.row .fg{flex:1}
   .hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
-  .btn{width:100%;background:#F57C1A;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:.5rem;transition:filter .15s}
-  .btn:hover{filter:brightness(1.05)}
-  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .btn{width:100%;background:var(--laranja);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:.5rem;transition:filter .15s}
+  .btn:hover{filter:brightness(1.05)}.btn:disabled{opacity:.6;cursor:not-allowed}
   .msg{margin-top:1rem;padding:.9rem 1rem;border-radius:10px;font-size:13.5px;display:none}
   .msg.ok{display:block;background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
   .msg.err{display:block;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c}
-  .foot{text-align:center;font-size:11.5px;color:#94a3b8;margin-top:1.2rem;line-height:1.6}
   .ok-screen{text-align:center;padding:1rem 0}
-  .ok-screen .big{font-size:52px}
-  .ok-screen h2{color:#15803d;margin:.5rem 0}
+  .ok-screen .big{font-size:52px}.ok-screen h2{color:#15803d;margin:.5rem 0}
   .ok-screen p{font-size:14px;color:#475569;line-height:1.6}
-  .ok-screen button{margin-top:1.2rem;background:#4A6BD4;color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer}
+  .ok-screen button{margin-top:1.2rem;background:var(--azul2);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer}
+  /* FOOTER */
+  .foot{background:var(--azul);color:#cdd8ec;border-radius:16px;padding:1.4rem;margin-top:14px;text-align:center}
+  .foot img{height:40px;margin-bottom:.7rem;object-fit:contain}
+  .foot .links{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin:.6rem 0}
+  .foot a{display:inline-flex;align-items:center;gap:6px;color:#fff;text-decoration:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:8px 14px;border-radius:999px;font-size:12.5px;font-weight:600}
+  .foot a:hover{background:rgba(255,255,255,.2)}
+  .foot small{display:block;font-size:11px;opacity:.8;margin-top:.6rem;line-height:1.6}
 </style>
 </head>
 <body>
 <div class="wrap">
+
   <div class="hero">
-    <div class="ico">🤝</div>
-    <h1>Indique e seja recompensado</h1>
-    <p>Conhece alguém que precisa de uma contabilidade de confiança? Indique para a <strong>Rodrigues Assessoria Contábil</strong> e ganhe comissão por cada indicação que vira cliente.</p>
+    <img src="https://xuzcczbdbgihkurcbepw.supabase.co/storage/v1/object/public/assets/LOGO%20RODRIGUES%20CONT.png" alt="Rodrigues Assessoria Contábil">
+    <h1>Indique e ganhe todo mês</h1>
+    <p>Conhece uma empresa que precisa de uma contabilidade de verdade? Indique para a <strong>Rodrigues Assessoria Contábil</strong> e receba <strong>comissão recorrente</strong> por cada indicação que vira cliente.</p>
     <div class="tag">Programa de Indicação</div>
+    <div class="trust">
+      <span>💬 Atendimento humano</span>
+      <span>⚙️ Tecnologia de ponta</span>
+      <span>🤝 Parceria de verdade</span>
+    </div>
   </div>
+
+  <div class="como">
+    <h2>Como funciona</h2>
+    <div class="step"><div class="n">1</div><div class="t"><b>Você indica</b> uma empresa (sendo você cliente ou parceiro). É rápido, aqui mesmo nesta página.</div></div>
+    <div class="step"><div class="n">2</div><div class="t"><b>A gente cuida de tudo</b> — entramos em contato, apresentamos a proposta e fechamos o contrato.</div></div>
+    <div class="step"><div class="n">3</div><div class="t"><b>Você recebe comissão todo mês</b>, enquanto a empresa indicada for cliente. E ela ainda ganha uma condição especial no primeiro mês.</div></div>
+  </div>
+
   <div class="card">
     <div id="form-area">
       <div class="sec-t">Seus dados (quem está indicando)</div>
@@ -59,7 +90,16 @@
       <div class="sec-t">Quem você está indicando</div>
       <div class="fg"><label>Nome da pessoa / empresa *</label><input id="indicado_nome" placeholder="Nome de quem você indica"></div>
       <div class="fg"><label>Contato da indicação (WhatsApp / e-mail)</label><input id="indicado_contato" placeholder="Como falamos com ela"></div>
-      <div class="fg"><label>Observação (opcional)</label><textarea id="observacao" placeholder="Ex.: abriu MEI agora, precisa de apoio fiscal..."></textarea></div>
+      <div class="fg"><label>O que ela precisa? (opcional)</label>
+        <select id="indicado_necessidade">
+          <option value="">Selecione (opcional)</option>
+          <option value="trocar_contador">Trocar de contador</option>
+          <option value="abrir_cnpj">Abrir CNPJ / empresa</option>
+          <option value="mei_para_me">Sair do MEI (virar ME/Ltda)</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <div class="fg"><label>Observação (opcional)</label><textarea id="observacao" placeholder="Algo que ajude a gente no atendimento..."></textarea></div>
 
       <input class="hp" id="hp" tabindex="-1" autocomplete="off" placeholder="Não preencha">
 
@@ -74,20 +114,26 @@
       <button onclick="novaIndicacao()">Fazer outra indicação</button>
     </div>
   </div>
+
   <div class="foot">
-    Rodrigues Assessoria Contábil · Atendimento (21) 99401-4601<br>
-    Seus dados são usados apenas para contato sobre esta indicação.
+    <img src="https://xuzcczbdbgihkurcbepw.supabase.co/storage/v1/object/public/assets/LOGO%20RODRIGUES%20CONT.png" alt="Rodrigues Assessoria Contábil">
+    <div class="links">
+      <a href="https://instagram.com/rodriguescontabil.pro" target="_blank" rel="noopener">📷 @rodriguescontabil.pro</a>
+      <a href="https://rodriguesconta.com.br" target="_blank" rel="noopener">🌐 rodriguesconta.com.br</a>
+      <a href="https://wa.me/5521994014601" target="_blank" rel="noopener">💬 (21) 99401-4601</a>
+    </div>
+    <small>Rodrigues Assessoria Contábil · Atendimento humano no WhatsApp<br>Seus dados são usados apenas para contato sobre esta indicação.</small>
   </div>
+
 </div>
 
 <script>
-  // empresa_id da contabilidade. Padrão = Rodrigues. Outras contabilidades usam ?e=<id>.
   const DEFAULT_EMPRESA='b01804f2-30ad-4108-80ea-74044f95cca6';
   const params=new URLSearchParams(location.search);
   const EMPRESA_ID=params.get('e')||DEFAULT_EMPRESA;
 
   function showMsg(t,cls){const m=document.getElementById('msg');m.textContent=t;m.className='msg '+cls;}
-  function val(id){return (document.getElementById(id).value||'').trim();}
+  function val(id){const el=document.getElementById(id);return el?(el.value||'').trim():'';}
 
   async function enviar(){
     const btn=document.getElementById('btn-enviar');
@@ -99,6 +145,9 @@
     }
     btn.disabled=true;btn.textContent='Enviando...';
     try{
+      const nec=val('indicado_necessidade');
+      let obs=val('observacao');
+      if(nec){const map={trocar_contador:'Trocar de contador',abrir_cnpj:'Abrir CNPJ',mei_para_me:'Sair do MEI',outro:'Outro'};obs=('Necessidade: '+(map[nec]||nec))+(obs?(' — '+obs):'');}
       const r=await fetch('/.netlify/functions/indicacao-capturar',{
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
@@ -108,7 +157,7 @@
           indicador_tipo:val('indicador_tipo')||'cliente',
           indicado_nome,
           indicado_contato:val('indicado_contato'),
-          observacao:val('observacao'),
+          observacao:obs,
           hp:val('hp')
         })
       });
@@ -116,6 +165,7 @@
       if(r.ok&&d.ok){
         document.getElementById('form-area').style.display='none';
         document.getElementById('ok-area').style.display='block';
+        window.scrollTo({top:0,behavior:'smooth'});
       }else{
         showMsg(d.erro||'Não foi possível enviar agora. Tente novamente.','err');
         btn.disabled=false;btn.textContent='Enviar indicação';
@@ -127,6 +177,7 @@
   }
   function novaIndicacao(){
     ['indicador_nome','indicador_contato','indicado_nome','indicado_contato','observacao'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('indicado_necessidade').value='';
     document.getElementById('msg').className='msg';
     document.getElementById('ok-area').style.display='none';
     document.getElementById('form-area').style.display='block';
