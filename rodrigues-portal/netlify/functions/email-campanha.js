@@ -51,9 +51,9 @@ exports.handler = async (event) => {
     if (!empresa_id || !campanha_id) return { statusCode: 400, headers: cors, body: JSON.stringify({ erro: 'empresa_id e campanha_id obrigatórios' }) };
 
     // 3) Credenciais do e-mail (Resend) da empresa
-    const ri = await fetch(sb('integracoes?empresa_id=eq.' + encodeURIComponent(empresa_id) + '&select=email_provider_key,email_remetente,email_reply'), { headers: sbHeaders });
+    const ri = await fetch(sb('integracoes?empresa_id=eq.' + encodeURIComponent(empresa_id) + '&select=email_api_key,email_remetente,email_reply_to'), { headers: sbHeaders });
     const cfg = (await ri.json())[0] || {};
-    const RESEND_KEY = (cfg.email_provider_key || '').trim();
+    const RESEND_KEY = (cfg.email_api_key || '').trim();
     const FROM_EMAIL = (cfg.email_remetente || '').trim();
     if (!RESEND_KEY) return { statusCode: 400, headers: cors, body: JSON.stringify({ erro: 'Motor de e-mail (Resend) não configurado. Adicione a chave em Integrações.' }) };
     if (!FROM_EMAIL) return { statusCode: 400, headers: cors, body: JSON.stringify({ erro: 'E-mail remetente não configurado em Integrações.' }) };
@@ -75,7 +75,7 @@ exports.handler = async (event) => {
 
     const fromName = (camp.remetente_nome || 'Rodrigues Assessoria').replace(/[<>"]/g, '');
     const fromHeader = fromName + ' <' + FROM_EMAIL + '>';
-    const replyTo = (cfg.email_reply || '').trim() || undefined;
+    const replyTo = (cfg.email_reply_to || '').trim() || undefined;
     const subject = camp.assunto || '(sem assunto)';
     const bodyTpl = camp.corpo_html || '';
 
