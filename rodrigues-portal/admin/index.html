@@ -900,22 +900,50 @@ tr:hover td{background:#f8fafc}
 
       <!-- INDICAÇÕES -->
       <div id="ct-indicacoes" class="com-pane hidden">
-        <div class="link-box">
-          <span style="font-size:12px;color:#1e40af;font-weight:600">🔗 Link público de indicação:</span>
-          <input id="link-indicacao" readonly value="https://rodriguesconta.com.br/indicar.html">
-          <button class="btn btn-sm" onclick="copiarLinkIndicacao()" style="background:#2563eb;color:#fff;border:none">Copiar</button>
-          <span style="font-size:10.5px;color:#64748b;width:100%">Envie para clientes e parceiros captarem indicações. (página pública a publicar — ver passo a passo)</span>
+        <div style="display:flex;gap:6px;margin-bottom:.9rem;flex-wrap:wrap">
+          <button class="btn btn-sm ind-sub" data-ind="recebidas" onclick="indSub('recebidas')" style="font-weight:600">🤝 Indicações recebidas</button>
+          <button class="btn btn-sm ind-sub" data-ind="base" onclick="indSub('base')" style="font-weight:600">📋 Base de clientes (abordar)</button>
         </div>
-        <div class="cm-bar">
-          <button class="btn btn-sm" style="background:#4A6BD4;color:#fff;border:none;font-weight:600" onclick="abrirModalIndicacao()">+ Nova indicação</button>
-          <select id="fil-ind-status" class="si" style="width:170px" onchange="renderIndicacoes()">
-            <option value="">Todos os status</option>
-            <option value="recebida">Recebida</option><option value="em_negociacao">Em negociação</option>
-            <option value="convertida">Convertida ✓</option><option value="perdida">Perdida</option>
-          </select>
+
+        <!-- RECEBIDAS -->
+        <div id="ind-recebidas">
+          <div class="link-box">
+            <span style="font-size:12px;color:#1e40af;font-weight:600">🔗 Link público de indicação:</span>
+            <input id="link-indicacao" readonly value="https://rodriguesconta.com.br/indicar.html">
+            <button class="btn btn-sm" onclick="copiarLinkIndicacao()" style="background:#2563eb;color:#fff;border:none">Copiar</button>
+            <span style="font-size:10.5px;color:#64748b;width:100%">Envie para clientes e parceiros captarem indicações.</span>
+          </div>
+          <div class="cm-bar">
+            <button class="btn btn-sm" style="background:#4A6BD4;color:#fff;border:none;font-weight:600" onclick="abrirModalIndicacao()">+ Nova indicação</button>
+            <select id="fil-ind-status" class="si" style="width:170px" onchange="renderIndicacoes()">
+              <option value="">Todos os status</option>
+              <option value="recebida">Recebida</option><option value="em_negociacao">Em negociação</option>
+              <option value="convertida">Convertida ✓</option><option value="perdida">Perdida</option>
+            </select>
+          </div>
+          <div class="cm-tiles" id="ind-tiles"></div>
+          <div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:10px"><table><thead><tr><th>Indicador</th><th>Indicado</th><th>Contato</th><th>Status</th><th>Comissão</th><th>Origem</th><th></th></tr></thead><tbody id="ind-tbody"></tbody></table></div>
         </div>
-        <div class="cm-tiles" id="ind-tiles"></div>
-        <div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:10px"><table><thead><tr><th>Indicador</th><th>Indicado</th><th>Contato</th><th>Status</th><th>Comissão</th><th>Origem</th><th></th></tr></thead><tbody id="ind-tbody"></tbody></table></div>
+
+        <!-- BASE DE CLIENTES (prospecção) -->
+        <div id="ind-base" class="hidden">
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:.65rem .85rem;margin-bottom:1rem;font-size:11.5px;color:#1e40af">
+            📋 Toda a carteira de clientes para o Comercial abordar sobre o Programa de Indicação, um a um. Clique em <strong>📞 Registrar</strong> para anotar a data do contato e o andamento. Clientes <strong>não contatados</strong> aparecem primeiro.
+          </div>
+          <div class="cm-bar">
+            <select id="fil-abord-status" class="si" style="width:180px" onchange="renderBaseClientes()">
+              <option value="">Todos</option>
+              <option value="nao_contatado">Não contatados</option>
+              <option value="em_conversa">Em conversa</option>
+              <option value="aderiu">Vão indicar</option>
+              <option value="sem_interesse">Sem interesse</option>
+            </select>
+            <input class="si" id="busca-abord" placeholder="🔍 Buscar empresa/responsável..." oninput="renderBaseClientes()" style="flex:1;min-width:180px;font-size:13px;padding:8px 12px">
+            <button class="btn btn-sm" onclick="carregarBaseClientes()">🔄 Atualizar</button>
+          </div>
+          <div class="cm-tiles" id="abord-tiles"></div>
+          <div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:10px"><table><thead><tr><th>Empresa</th><th>Responsável</th><th>Telefone</th><th>E-mail</th><th>Status</th><th>Último contato</th><th></th></tr></thead><tbody id="abord-tbody"></tbody></table></div>
+        </div>
       </div>
 
       <!-- COMISSÕES -->
@@ -1638,6 +1666,31 @@ tr:hover td{background:#f8fafc}
     <div class="ma">
       <button class="btn btn-sm" onclick="fecharModal('m-econtato')">Cancelar</button>
       <button class="btn btn-primary btn-sm" onclick="salvarEmailContato()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REGISTRAR CONTATO (prospecção de indicação na base) -->
+<div id="m-abordagem" class="overlay hidden">
+  <div class="modal" style="max-width:520px">
+    <h2 id="ab-title">Registrar contato</h2>
+    <div id="ab-empresa" style="font-size:13px;color:#1e293b;font-weight:600;margin-bottom:.8rem"></div>
+    <input type="hidden" id="ab-cliente-id">
+    <div class="fr"><div class="fg" style="flex:1"><label>Responsável (contato na empresa)</label><input id="ab-resp" placeholder="Nome de quem fala pela empresa"></div></div>
+    <div class="fr">
+      <div class="fg"><label>Telefone</label><input id="ab-tel"></div>
+      <div class="fg"><label>E-mail</label><input type="email" id="ab-email"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Status do contato</label><select id="ab-status" class="si" style="width:100%"><option value="nao_contatado">Não contatado</option><option value="em_conversa">Em conversa</option><option value="aderiu">Vai indicar ✓</option><option value="sem_interesse">Sem interesse</option></select></div>
+      <div class="fg"><label>Data do contato</label><input type="date" id="ab-data"></div>
+    </div>
+    <div class="fr"><div class="fg" style="flex:1"><label>Observação (o que foi conversado)</label><textarea id="ab-obs" rows="2" style="width:100%;resize:vertical"></textarea></div></div>
+    <p class="err hidden" id="ab-err"></p>
+    <div class="ma">
+      <button class="btn btn-sm" onclick="fecharModal('m-abordagem')">Cancelar</button>
+      <button class="btn btn-sm" style="background:#dcfce7;color:#15803d;border:none" onclick="criarIndicacaoDoCliente()">➡️ Criar indicação deste cliente</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarAbordagem()">💾 Salvar contato</button>
     </div>
   </div>
 </div>
@@ -2488,7 +2541,7 @@ function comTab(t){
   document.querySelectorAll('#pg-comercial .com-pane').forEach(p=>p.classList.add('hidden'));
   document.getElementById('ct-'+t).classList.remove('hidden');
   if(t==='crm')carregarLeads();
-  else if(t==='indicacoes')carregarIndicacoes();
+  else if(t==='indicacoes')indSub('recebidas');
   else if(t==='comissoes'){const f=document.getElementById('fil-com-comp');if(!f.value){const d=new Date();f.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}carregarComissoes();}
   else if(t==='contatos')carregarContatos();
   else if(t==='emailmkt')carregarEmailMkt();
@@ -2562,6 +2615,95 @@ async function converterLeadCliente(id){
   if(l.indicacao_id){await db.from('indicacoes').update({status:'convertida',cliente_id:cli.id}).eq('id',l.indicacao_id);}
   alerta('alerta-com','✅ Lead convertido em cliente: '+l.nome+'. Complete o cadastro em Clientes.','s');
   carregarLeads();
+}
+
+/* ----- Indicações: sub-navegação (recebidas / base de clientes) ----- */
+function indSub(which){
+  document.querySelectorAll('#ct-indicacoes .ind-sub').forEach(b=>{const on=b.dataset.ind===which;b.style.background=on?'#1e293b':'';b.style.color=on?'#fff':'';});
+  document.getElementById('ind-recebidas').classList.toggle('hidden',which!=='recebidas');
+  document.getElementById('ind-base').classList.toggle('hidden',which!=='base');
+  if(which==='recebidas')carregarIndicacoes(); else carregarBaseClientes();
+}
+
+/* ----- Base de clientes para abordar (prospecção de indicação) ----- */
+let _abordRows=[];
+const _abStMap={nao_contatado:['#94a3b8','Não contatado'],em_conversa:['#F57C1A','Em conversa'],aderiu:['#16a34a','Vai indicar ✓'],sem_interesse:['#dc2626','Sem interesse']};
+async function carregarBaseClientes(){
+  const tb=document.getElementById('abord-tbody'); if(tb)tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:1.2rem">Carregando...</td></tr>';
+  const [{data:clis},{data:abs}]=await Promise.all([
+    db.from('clientes').select('id,nome,responsavel_contato,telefone,email,status').eq('status','ativo').order('nome').limit(1000),
+    db.from('indicacao_abordagens').select('*')
+  ]);
+  const map={}; (abs||[]).forEach(a=>map[a.cliente_id]=a);
+  _abordRows=(clis||[]).map(c=>({cli:c,ab:map[c.id]||null}));
+  renderBaseClientes();
+}
+function _abSt(r){return (r.ab&&r.ab.status)||'nao_contatado';}
+function renderBaseClientes(){
+  const fS=document.getElementById('fil-abord-status').value;
+  const q=(document.getElementById('busca-abord').value||'').toLowerCase();
+  const cont=k=>_abordRows.filter(r=>_abSt(r)===k).length;
+  const tiles=document.getElementById('abord-tiles');
+  if(tiles)tiles.innerHTML=
+    '<div class="cm-tile" style="border-top-color:#4A6BD4"><div class="l">Clientes</div><div class="v">'+_abordRows.length+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#94a3b8"><div class="l">Não contatados</div><div class="v" style="color:#64748b">'+cont('nao_contatado')+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#F57C1A"><div class="l">Em conversa</div><div class="v" style="color:#F57C1A">'+cont('em_conversa')+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#16a34a"><div class="l">Vão indicar</div><div class="v" style="color:#16a34a">'+cont('aderiu')+'</div></div>';
+  let list=_abordRows.filter(r=>{
+    if(fS&&_abSt(r)!==fS)return false;
+    if(q){const t=((r.cli.nome||'')+' '+(r.cli.responsavel_contato||'')+' '+(r.cli.email||'')+' '+(r.cli.telefone||'')).toLowerCase();if(!t.includes(q))return false;}
+    return true;
+  });
+  const ord={nao_contatado:0,em_conversa:1,aderiu:2,sem_interesse:3};
+  list.sort((a,b)=>(ord[_abSt(a)]-ord[_abSt(b)])||((a.cli.nome||'').localeCompare(b.cli.nome||'')));
+  const tb=document.getElementById('abord-tbody');
+  if(!list.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:1.2rem">Nenhum cliente.</td></tr>';return;}
+  tb.innerHTML=list.map(r=>{
+    const st=_abStMap[_abSt(r)]||['#64748b',_abSt(r)];
+    const dt=(r.ab&&r.ab.data_contato)?fmtDt(r.ab.data_contato):'—';
+    return '<tr>'+
+      '<td style="font-weight:600">'+(r.cli.nome||'—')+'</td>'+
+      '<td style="font-size:12px">'+(r.cli.responsavel_contato||'<span style="color:#cbd5e1">—</span>')+'</td>'+
+      '<td style="font-size:12px;color:#64748b;white-space:nowrap">'+(r.cli.telefone||'—')+'</td>'+
+      '<td style="font-size:12px;color:#64748b">'+(r.cli.email||'—')+'</td>'+
+      '<td><span style="font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:'+st[0]+'22;color:'+st[0]+'">'+st[1]+'</span></td>'+
+      '<td style="font-size:11px;color:#94a3b8;white-space:nowrap">'+dt+'</td>'+
+      '<td><button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:none" onclick="abrirAbordagem(\''+r.cli.id+'\')">📞 Registrar</button></td>'+
+      '</tr>';
+  }).join('');
+}
+function abrirAbordagem(cliId){
+  const r=_abordRows.find(x=>x.cli.id===cliId); if(!r)return;
+  document.getElementById('ab-cliente-id').value=cliId;
+  document.getElementById('ab-empresa').textContent='🏢 '+(r.cli.nome||'');
+  document.getElementById('ab-resp').value=r.cli.responsavel_contato||'';
+  document.getElementById('ab-tel').value=r.cli.telefone||'';
+  document.getElementById('ab-email').value=r.cli.email||'';
+  document.getElementById('ab-status').value=(r.ab&&r.ab.status)||'em_conversa';
+  document.getElementById('ab-data').value=(r.ab&&r.ab.data_contato)||new Date().toISOString().slice(0,10);
+  document.getElementById('ab-obs').value=(r.ab&&r.ab.observacao)||'';
+  document.getElementById('ab-err').classList.add('hidden');
+  document.getElementById('m-abordagem').classList.remove('hidden');
+}
+async function salvarAbordagem(){
+  const cliId=document.getElementById('ab-cliente-id').value; if(!cliId)return;
+  const err=document.getElementById('ab-err');
+  // Atualiza dados de contato no próprio cliente
+  await db.from('clientes').update({responsavel_contato:document.getElementById('ab-resp').value.trim()||null,telefone:document.getElementById('ab-tel').value.trim()||null,email:document.getElementById('ab-email').value.trim()||null}).eq('id',cliId);
+  // Upsert da abordagem
+  const ab={cliente_id:cliId,status:document.getElementById('ab-status').value,data_contato:document.getElementById('ab-data').value||null,observacao:document.getElementById('ab-obs').value.trim()||null,abordado_por:(userNome||userEmail||''),updated_at:new Date().toISOString()};
+  const {error}=await db.from('indicacao_abordagens').upsert(ab,{onConflict:'cliente_id'});
+  if(error){err.textContent=error.message;err.classList.remove('hidden');return;}
+  fecharModal('m-abordagem');carregarBaseClientes();
+}
+function criarIndicacaoDoCliente(){
+  const cliId=document.getElementById('ab-cliente-id').value;
+  const r=_abordRows.find(x=>x.cli.id===cliId); if(!r)return;
+  fecharModal('m-abordagem');
+  abrirModalIndicacao();
+  document.getElementById('i-indicador').value=r.cli.responsavel_contato||r.cli.nome||'';
+  document.getElementById('i-indicador-contato').value=r.cli.telefone||r.cli.email||'';
+  document.getElementById('i-tipo').value='cliente';
 }
 
 /* ----- Indicações ----- */
