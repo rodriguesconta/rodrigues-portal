@@ -292,7 +292,7 @@ tr:hover td{background:#f8fafc}
       </div>
       <div class="nav-item" data-page="irpf" onclick="go('irpf')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        IRPF 2026
+        IRPF
       </div>
       <div class="nav-item" data-page="despesas" onclick="go('despesas')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
@@ -476,17 +476,21 @@ tr:hover td{background:#f8fafc}
 
     <div id="pg-irpf" class="hidden">
       <div class="page-hdr">
-        <h1>IRPF 2026</h1>
+        <div style="display:flex;align-items:center;gap:.6rem">
+          <h1>IRPF</h1>
+          <select id="irpf-ano" class="si" style="width:108px;font-weight:700" onchange="carregarIrpf()"></select>
+        </div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap">
           <button class="btn btn-success btn-sm" onclick="abrirModalIrpf()">+ Novo cliente IRPF</button>
           <button class="btn btn-sm" onclick="sincronizarMpIrpf()" style="background:#0f766e;color:#fff;border-color:#0f766e">🔄 Sincronizar MP</button>
+          <button class="btn btn-sm" onclick="limparAnoIrpf()" style="background:#fee2e2;color:#b91c1c;border:none" title="Apagar os registros deste ano">🗑 Limpar ano</button>
         </div>
       </div>
       <div id="alerta-irpf"></div>
       <div class="metrics" id="irpf-metrics"></div>
       <div class="card">
         <div class="card-hdr">
-          <h2>Clientes IRPF 2026 <span id="irpf-count" style="font-size:12px;color:#94a3b8;font-weight:400"></span></h2>
+          <h2>Clientes IRPF <span id="irpf-ano-lbl"></span> <span id="irpf-count" style="font-size:12px;color:#94a3b8;font-weight:400"></span></h2>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap">
             <select id="fil-status-irpf" class="si" style="width:130px" onchange="carregarIrpf()">
               <option value="">Todos</option>
@@ -3722,10 +3726,29 @@ async function gerarRecorrentesMes(){
 }
 
 // ========== IRPF 2026 ==========
+function _preencherAnosIrpf(){
+  const sel=document.getElementById('irpf-ano'); if(!sel||sel.options.length)return;
+  const atual=new Date().getFullYear(); let html='';
+  for(let y=atual+1;y>=2024;y--){html+='<option value="'+y+'"'+(y===atual?' selected':'')+'>'+y+'</option>';}
+  sel.innerHTML=html;
+}
+async function limparAnoIrpf(){
+  const ano=(document.getElementById('irpf-ano')||{}).value;
+  if(!ano)return;
+  if(!confirm('Apagar TODOS os registros de IRPF do ano '+ano+'?\nEsta ação não pode ser desfeita.'))return;
+  if(!confirm('Confirmar de novo: remover definitivamente os clientes/cobranças de IRPF '+ano+'?'))return;
+  const {error}=await db.from('irpf_cobrancas').delete().eq('ano',ano);
+  if(error){alerta('alerta-irpf','Erro ao limpar: '+error.message,'e');return;}
+  alerta('alerta-irpf','🗑 Registros de IRPF '+ano+' removidos.','s');
+  carregarIrpf();
+}
 async function carregarIrpf(){
+  _preencherAnosIrpf();
+  const ano=parseInt(document.getElementById('irpf-ano').value)||new Date().getFullYear();
+  document.getElementById('irpf-ano-lbl').textContent=ano;
   const st=document.getElementById('fil-status-irpf').value;
   const busca=(document.getElementById('busca-irpf').value||'').toLowerCase().trim();
-  let q=db.from('irpf_cobrancas').select('*').order('nome').limit(500);
+  let q=db.from('irpf_cobrancas').select('*').eq('ano',ano).order('nome').limit(500);
   if(st)q=q.eq('status',st);
   const {data,error}=await q;
   if(error){alerta('alerta-irpf','Erro: '+error.message,'e');return;}
@@ -3781,7 +3804,8 @@ async function salvarIrpf(){
     observacao:document.getElementById('i-obs').value.trim()||null
   };
   if(!p.nome||!p.telefone||!p.valor){const e=document.getElementById('i-err');e.textContent='Nome, telefone e valor são obrigatórios';e.classList.remove('hidden');return;}
-  const {data:ret,error}=id?await db.from('irpf_cobrancas').update(p).eq('id',id).select().single():await db.from('irpf_cobrancas').insert([{...p,status:'a_receber'}]).select().single();
+  const anoNovo=parseInt((document.getElementById('irpf-ano')||{}).value)||new Date().getFullYear();
+  const {data:ret,error}=id?await db.from('irpf_cobrancas').update(p).eq('id',id).select().single():await db.from('irpf_cobrancas').insert([{...p,status:'a_receber',ano:anoNovo}]).select().single();
   if(error){const e=document.getElementById('i-err');e.textContent=error.message;e.classList.remove('hidden');return;}
   await logEvento({tipo_evento:'cliente_cadastrado',canal:'portal_direto',status:'sucesso',irpf_cobranca_id:ret?.id||id||null,cliente_nome:p.nome,valor:p.valor,mensagem:(id?'Cliente IRPF editado: ':'Cliente IRPF cadastrado: ')+p.nome,dados_json:{telefone:p.telefone,tipo:'IRPF 2026'}});
   fecharModal('m-irpf');carregarIrpf();
@@ -3794,7 +3818,8 @@ async function excluirIrpf(id,nome){
 }
 
 async function gerarPixIrpf(id,valor,nome,telefone){
-  if(!confirm('Gerar Pix IRPF 2026 para '+nome+' no valor de '+fmt(valor)+'?'))return;
+  const anoSel=(document.getElementById('irpf-ano')||{}).value||new Date().getFullYear();
+  if(!confirm('Gerar Pix IRPF '+anoSel+' para '+nome+' no valor de '+fmt(valor)+'?'))return;
   alerta('alerta-irpf','Gerando Pix, aguarde...','s');
   try{
     const r=await fetch('https://api.mercadopago.com/v1/payments',{
@@ -3802,7 +3827,7 @@ async function gerarPixIrpf(id,valor,nome,telefone){
       headers:{'Authorization':'Bearer '+MP_TOKEN,'Content-Type':'application/json','X-Idempotency-Key':id+'-irpf-'+Date.now()},
       body:JSON.stringify({
         transaction_amount:parseFloat(valor),
-        description:'IRPF 2026 - Rodrigues Assessoria',
+        description:'IRPF '+anoSel+' - Rodrigues Assessoria',
         payment_method_id:'pix',
         date_of_expiration:formatDate(addDays(new Date(),30))+'T23:59:59.000-03:00',
         payer:{
@@ -3850,7 +3875,7 @@ async function enviarIrpfWhatsApp(id){
   if(!codigoPix){alerta('alerta-irpf','Gere o Pix primeiro.','e');return;}
   const tel=(c.telefone||'').replace(/\D/g,'');
   if(!tel){alerta('alerta-irpf','Cliente sem telefone cadastrado.','e');return;}
-  const msg=`Olá, ${c.nome}! 👋\n\nSua cobrança do *IRPF 2026* está disponível.\n\n💰 *Valor:* R$ ${parseFloat(c.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}\n\n🔵 *Pix Copia e Cola:*\n${codigoPix}\n\nEm caso de dúvidas, entre em contato conosco.\n\n*Rodrigues Assessoria Contábil*`;
+  const msg=`Olá, ${c.nome}! 👋\n\nSua cobrança do *IRPF ${c.ano||new Date().getFullYear()}* está disponível.\n\n💰 *Valor:* R$ ${parseFloat(c.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}\n\n🔵 *Pix Copia e Cola:*\n${codigoPix}\n\nEm caso de dúvidas, entre em contato conosco.\n\n*Rodrigues Assessoria Contábil*`;
   try{
     const r=await fetch(EVOL_URL+'/message/sendText/'+EVOL_INSTANCE,{
       method:'POST',
