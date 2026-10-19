@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Playbook Comercial — Rodrigues Assessoria Contábil</title>
+<meta name="description" content="Playbook comercial interno da Rodrigues Assessoria Contábil. Menos impostos. Mais lucro.">
+<style>
+  :root{
+    --navy:#1e3a6e; --blue:#4A6BD4; --orange:#F57C1A; --green:#16a34a; --red:#dc2626;
+    --ink:#1f2937; --mute:#64748b; --line:#e3e9f3; --card:#f6f8fc; --iceblue:#eef2fd;
+    --wrap:860px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);line-height:1.6;background:#fafbfd;-webkit-font-smoothing:antialiased}
+  a{color:var(--blue);text-decoration:none}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,#1e3a6e,#4A6BD4);color:#fff;padding:64px 0 54px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-120px;top:-120px;width:360px;height:360px;background:rgba(255,255,255,.06);border-radius:50%}
+  .hero .wrap{position:relative;z-index:1}
+  .brand{font-weight:800;font-size:1.8rem;letter-spacing:.5px}
+  .brand small{display:block;font-size:.72rem;letter-spacing:4px;font-weight:700;color:var(--orange);margin-top:2px}
+  .hero h1{font-size:2.5rem;margin:28px 0 6px;line-height:1.1;font-weight:800}
+  .hero .sub{font-size:1.05rem;color:#cadcfc;margin:0 0 26px}
+  .lema{display:inline-block;font-size:1.3rem;font-weight:800;border-top:3px solid var(--orange);padding-top:14px}
+  .lema b{color:var(--orange)}
+  .tag{margin-top:26px;font-size:.78rem;letter-spacing:2px;color:#9fb3da;text-transform:uppercase}
+
+  /* TOC */
+  .toc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin:-32px auto 10px;position:relative;z-index:2;box-shadow:0 10px 30px rgba(30,58,110,.08)}
+  .toc h2{font-size:.78rem;letter-spacing:2px;text-transform:uppercase;color:var(--mute);margin:0 0 10px}
+  .toc ol{margin:0;padding-left:20px;columns:2;column-gap:32px}
+  .toc li{margin:4px 0;break-inside:avoid}
+  @media(max-width:620px){.toc ol{columns:1}}
+
+  section{padding:34px 0 8px;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:none}
+  h2.sec{font-size:1.55rem;color:var(--navy);font-weight:800;margin:0 0 4px;display:flex;align-items:baseline;gap:10px}
+  h2.sec .n{color:var(--orange);font-size:1.1rem;font-weight:800}
+  h3{color:var(--blue);font-size:1.1rem;margin:22px 0 6px}
+  p{margin:10px 0}
+  .lead{font-size:1.08rem}
+  ul.clean{list-style:none;padding:0;margin:12px 0}
+  ul.clean li{position:relative;padding:4px 0 4px 26px;margin:2px 0}
+  ul.clean li::before{content:"";position:absolute;left:4px;top:13px;width:8px;height:8px;border-radius:50%;background:var(--blue)}
+  ol.steps{margin:12px 0;padding-left:22px}
+  ol.steps li{margin:6px 0}
+
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.95rem;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th{background:var(--navy);color:#fff;text-align:left;padding:10px 14px;font-size:.9rem}
+  td{padding:10px 14px;border-top:1px solid var(--line);vertical-align:top}
+  tr:nth-child(even) td{background:#f9fbfe}
+
+  .callout{border-radius:12px;padding:16px 20px;margin:18px 0;border-left:5px solid var(--blue);background:var(--iceblue)}
+  .callout.orange{border-color:var(--orange);background:#fff4e6}
+  .callout.green{border-color:var(--green);background:#e9f7ef}
+  .callout h4{margin:0 0 6px;color:var(--navy);font-size:1rem}
+  .callout p{margin:4px 0}
+  .quote{font-size:1.12rem;font-style:italic;color:var(--navy)}
+
+  .scenarios{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}
+  @media(max-width:620px){.scenarios{grid-template-columns:1fr}}
+  .sc{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+  .sc .head{padding:16px 18px;color:#fff}
+  .sc.b1 .head{background:var(--blue)}
+  .sc.b2 .head{background:var(--navy)}
+  .sc .head b{font-size:1.1rem}
+  .sc .head small{display:block;opacity:.9;margin-top:3px}
+  .sc .body{padding:14px 18px}
+  .sc ul{list-style:none;padding:0;margin:0}
+  .sc li{padding:6px 0 6px 24px;position:relative}
+  .sc li::before{content:"✓";position:absolute;left:0;color:var(--blue);font-weight:800}
+  .sc.b2 li::before{color:var(--navy)}
+
+  .funnel{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+  @media(max-width:620px){.funnel{grid-template-columns:1fr}}
+  .step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+  .step.mid{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .step .circ{width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;font-size:1.4rem;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .step.mid .circ{background:var(--orange)}
+  .step b{display:block;color:var(--navy);font-size:1.05rem;margin-bottom:4px}
+  .step.mid b{color:#fff}
+  .step small{color:var(--mute);font-size:.86rem}
+  .step.mid small{color:#cadcfc}
+  .who{font-size:.8rem;font-weight:700;color:var(--blue);margin-top:8px}
+  .step.mid .who{color:var(--orange)}
+
+  .check li{position:relative;padding:7px 0 7px 32px;list-style:none}
+  .check{padding:0;margin:12px 0}
+  .check li::before{content:"☐";position:absolute;left:4px;top:5px;color:var(--blue);font-size:1.1rem}
+
+  footer{background:var(--navy);color:#cadcfc;text-align:center;padding:30px 20px;font-size:.9rem}
+  footer .lema2{color:#fff;font-weight:800;font-size:1.1rem;margin-bottom:8px}
+  footer .lema2 b{color:var(--orange)}
+  .badge{display:inline-block;background:rgba(245,124,26,.15);color:#fff;border:1px solid var(--orange);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:14px}
+  @media print{body{background:#fff}.toc{box-shadow:none}.hero::after{display:none}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">RODRIGUES<small>ASSESSORIA CONTÁBIL</small></div>
+    <h1>Playbook Comercial</h1>
+    <p class="sub">Como vendemos — e o que estamos vendendo</p>
+    <div class="lema">“Menos impostos. <b>Mais lucro.</b>”</div>
+    <div class="tag">Documento de uso interno · Equipe Comercial · v1.0</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc">
+    <h2>Conteúdo</h2>
+    <ol>
+      <li><a href="#usar">Como usar este playbook</a></li>
+      <li><a href="#quem">Quem somos e o que vendemos</a></li>
+      <li><a href="#promessa">A grande promessa</a></li>
+      <li><a href="#reforma">O momento: Reforma Tributária</a></li>
+      <li><a href="#cenarios">Os dois cenários</a></li>
+      <li><a href="#preco">Precificação</a></li>
+      <li><a href="#funil">O funil de vendas</a></li>
+      <li><a href="#objecoes">Objeções e respostas</a></li>
+      <li><a href="#indicacoes">Programa de indicações</a></li>
+      <li><a href="#checklist">Checklist do vendedor</a></li>
+    </ol>
+  </nav>
+</div>
+
+<main class="wrap">
+
+  <section id="usar">
+    <h2 class="sec">Como usar este playbook</h2>
+    <p class="lead">Este é o manual do nosso time comercial. Ele existe para que qualquer pessoa do time saiba com clareza o que vendemos, por que o cliente compra e como conduzir cada conversa até o fechamento — com segurança e no mesmo padrão.</p>
+    <ul class="clean">
+      <li>Leia inteiro uma vez. Depois use como consulta rápida (scripts, argumentos e objeções).</li>
+      <li>Nosso produto <b>não se vende sozinho</b> e quase nunca no primeiro encontro. Venda é confiança: siga o processo, não atropele etapas.</li>
+      <li>Nosso maior canal de aquisição é a <b>indicação</b>. Todo atendimento bem feito é uma semente de novas indicações.</li>
+    </ul>
+    <div class="callout orange">
+      <h4>O nosso lema — repita em toda conversa</h4>
+      <p><b>“Menos impostos. Mais lucro.”</b></p>
+      <p>Tudo o que fazemos serve a uma única promessa: sobrar mais dinheiro no bolso do cliente, de forma legal e organizada.</p>
+    </div>
+  </section>
+
+  <section id="quem">
+    <h2 class="sec"><span class="n">1</span> Quem somos e o que realmente vendemos</h2>
+    <p>A Rodrigues Assessoria Contábil cuida da contabilidade de pequenos e médios negócios com uma diferença: atendimento humano, linguagem simples (sem “contabilês”) e foco em resultado — pagar menos imposto e lucrar mais.</p>
+    <h3>A virada de chave</h3>
+    <p>O contador comum entrega guia e cumpre obrigação. Nós entregamos <b>lucro e tranquilidade</b>. O cliente não compra “contabilidade”; ele compra o resultado que a contabilidade inteligente gera:</p>
+    <table>
+      <tr><th>O cliente acha que compra…</th><th>O que ele realmente quer</th></tr>
+      <tr><td>Guia de imposto / obrigação</td><td>Pagar o <b>menos</b> imposto possível, de forma legal</td></tr>
+      <tr><td>“Um contador”</td><td>Alguém que organiza o negócio e tira o peso das costas dele</td></tr>
+      <tr><td>Uma planilha / um relatório</td><td>Saber onde o dinheiro entra, sai e some — e decidir melhor</td></tr>
+      <tr><td>Um serviço mensal</td><td>Crescer com segurança, sem susto com o fisco</td></tr>
+    </table>
+    <div class="callout">
+      <h4>Mentalidade do vendedor Rodrigues</h4>
+      <p>Não somos tiradores de pedido. Somos consultores que diagnosticam, mostram números e propõem um plano. Quem faz diagnóstico vende valor; quem só fala preço vira commodity.</p>
+    </div>
+  </section>
+
+  <section id="promessa">
+    <h2 class="sec"><span class="n">2</span> A grande promessa (o benefício central)</h2>
+    <p>Esta é a frase-âncora do fechamento. Tudo converge para ela:</p>
+    <div class="callout">
+      <p class="quote">“Você vai descobrir, em números, quanto pode deixar de pagar em imposto — e transformar isso em lucro no seu bolso, com um plano claro e acompanhamento mês a mês. Em muitos casos, a própria economia paga a nossa assessoria.”</p>
+    </div>
+    <h3>Os 4 ganhos que o cliente leva ao fechar</h3>
+    <table>
+      <tr><th>Ganho</th><th>O que é</th><th>Como falar na venda</th></tr>
+      <tr><td><b>1. Economia recorrente</b></td><td>Paga menos imposto todo mês (enquadramento + créditos da reforma + precificação)</td><td>“Todo mês que passa sem isso é dinheiro saindo do seu caixa.”</td></tr>
+      <tr><td><b>2. Recuperação do passado</b></td><td>Restituição do que foi pago a mais nos últimos 5 anos</td><td>“Vamos olhar os últimos 5 anos e buscar o que já foi pago indevidamente.”</td></tr>
+      <tr><td><b>3. Segurança na Reforma</b></td><td>Notas, sistema e preços prontos para 2026/2027 — sem ser pego de surpresa</td><td>“A Reforma já começou. Quem se preparar sai na frente; quem não, paga a conta.”</td></tr>
+      <tr><td><b>4. Controle e crescimento</b></td><td>ERP + BPO Financeiro: tudo nas mãos (entradas, saídas, fornecedores, clientes)</td><td>“Você vai enxergar seu negócio como nunca — e decidir com dados, não no escuro.”</td></tr>
+    </table>
+    <p><i>Regra de ouro: sempre traduza serviço em benefício. Ninguém se emociona com “apuração de impostos”; as pessoas se emocionam com “sobrar mais dinheiro no fim do mês”.</i></p>
+  </section>
+
+  <section id="reforma">
+    <h2 class="sec"><span class="n">3</span> O momento perfeito: a Reforma Tributária</h2>
+    <p>A Reforma Tributária (EC 132/2023 + LC 214/2025) é a maior mudança no sistema de impostos do Brasil em décadas — e ela <b>já começou</b>. 2026 é o ano de teste. Isso cria medo e oportunidade ao mesmo tempo: é o gancho perfeito para abrir conversas.</p>
+    <h3>O que muda, em linguagem simples</h3>
+    <ul class="clean">
+      <li>Vários impostos viram dois: <b>CBS</b> (federal, no lugar de PIS/COFINS/IPI) e <b>IBS</b> (estadual/municipal, no lugar de ICMS/ISS). É o “IVA dual”.</li>
+      <li>Não-cumulatividade ampla: a empresa passa a tomar crédito de quase tudo que compra. Quem se organiza paga menos; quem não controla as notas, perde crédito e paga mais.</li>
+      <li>Split payment: o imposto passa a ser recolhido na hora do pagamento. Informalidade e desorganização ficam caríssimas.</li>
+      <li>Preço vai mudar: quem não recalcular a precificação perde margem sem perceber. Precificação correta vira vantagem competitiva.</li>
+      <li>Simples Nacional continua existindo — mas pode prender o cliente: quem compra de empresa do Simples pode não aproveitar crédito cheio. Decidir entre ficar no Simples ou adotar o regime regular de IBS/CBS é uma escolha estratégica que vale dinheiro.</li>
+    </ul>
+    <h3>Cronograma (use para criar urgência)</h3>
+    <table>
+      <tr><th>Período</th><th>O que acontece</th></tr>
+      <tr><td><b>2026</b></td><td>Fase de teste: CBS e IBS começam com alíquotas simbólicas. Hora de adaptar notas, sistema e preços.</td></tr>
+      <tr><td><b>2027</b></td><td>CBS entra pra valer; PIS/COFINS são extintos.</td></tr>
+      <tr><td><b>2029 – 2032</b></td><td>Transição gradual do IBS (ICMS/ISS vão saindo aos poucos).</td></tr>
+      <tr><td><b>2033</b></td><td>Sistema novo 100% em vigor.</td></tr>
+    </table>
+    <div class="callout orange">
+      <h4>Frase de abertura (cold / indicação)</h4>
+      <p>“A Reforma Tributária já está valendo em fase de teste. A maioria das empresas vai descobrir o impacto no caixa tarde demais. A gente faz um diagnóstico e te mostra, em números, se você vai pagar mais ou menos — e o que dá para organizar agora para pagar menos.”</p>
+    </div>
+  </section>
+
+  <section id="cenarios">
+    <h2 class="sec"><span class="n">4</span> O que vendemos: os dois cenários</h2>
+    <p>Toda empresa que chega está em um de dois momentos. Identifique cedo em qual o cliente está e conduza para o pacote certo.</p>
+    <div class="scenarios">
+      <div class="sc b1">
+        <div class="head"><b>Cenário 1 — Já tenho contador</b><small>Mantém seu contador. Ganha estratégia.</small></div>
+        <div class="body"><ul>
+          <li>Sistema ERP</li>
+          <li>BPO Financeiro</li>
+          <li>Consultoria Reforma Tributária + RH</li>
+          <li>Educação+ (comercial, compras, financeiro)</li>
+          <li>Precificação para a Reforma</li>
+        </ul></div>
+      </div>
+      <div class="sc b2">
+        <div class="head"><b>Cenário 2 — Quero mudar de contador</b><small>Tudo do Cenário 1 + contabilidade completa.</small></div>
+        <div class="body"><ul>
+          <li>Tudo do Cenário 1, e mais:</li>
+          <li>Assessoria Contábil completa</li>
+          <li>Escrituração e impostos</li>
+          <li>Departamento Pessoal</li>
+          <li>Obrigações e regularizações</li>
+        </ul></div>
+      </div>
+    </div>
+    <p>No <b>Cenário 1</b> não brigamos com o contador atual: entramos como a camada de inteligência e gestão que o contador comum não entrega. No <b>Cenário 2</b> assumimos a contabilidade de ponta a ponta, com inteligência tributária desde o primeiro dia.</p>
+    <div class="callout green">
+      <h4>Área de Membros (bônus que todo cliente ganha)</h4>
+      <p>Todo cliente ganha acesso <b>gratuito</b> à nossa Área de Membros: aulas e treinamentos sobre Reforma Tributária, Escala 6x1, gestão, finanças e vendas.</p>
+      <p>Use como gancho de valor: “Além do serviço, você e seu time entram na nossa área de treinamentos, sem custo. Conhecimento que vale dinheiro.”</p>
+    </div>
+  </section>
+
+  <section id="preco">
+    <h2 class="sec"><span class="n">5</span> Precificação — valor conforme a realidade do cliente</h2>
+    <p>Não temos tabela fixa: o valor é definido conforme a realidade e o potencial de economia de cada cliente. Isso é uma <b>força</b> — vendemos valor, não preço.</p>
+    <ul class="clean">
+      <li>Ancore no retorno, nunca no custo: “O investimento se paga com a própria economia de imposto.”</li>
+      <li>Mostre o número <b>antes</b> do preço: primeiro o quanto ele pode economizar/recuperar; depois o honorário. O preço sempre parece pequeno diante do ganho.</li>
+      <li>Quando fizer sentido, use ativação/enquadramento inicial separada do mensal.</li>
+      <li>Bônus de entrada (ex.: primeiro mês) só para criar gatilho de decisão — nunca como desconto que desvaloriza o serviço.</li>
+    </ul>
+    <div class="callout">
+      <h4>Como apresentar o investimento</h4>
+      <p>1) “Hoje você paga <b>X</b> de imposto.” &nbsp; 2) “Com o nosso trabalho, a projeção é pagar <b>Y</b> — uma economia de <b>Z</b> por mês.” &nbsp; 3) “O investimento na assessoria é <b>W</b> — ou seja, ele se paga e ainda sobra.”</p>
+    </div>
+  </section>
+
+  <section id="funil">
+    <h2 class="sec"><span class="n">6</span> O funil de vendas — nosso processo em 3 passos</h2>
+    <p>Produto de confiança se vende em etapas. Nunca tente fechar no primeiro contato. Conduza o cliente pelas 3 calls.</p>
+    <div class="funnel">
+      <div class="step"><div class="circ">1</div><b>Diagnóstico</b><small>Levanta as informações do negócio e qualifica. Gera interesse, não fecha.</small><div class="who">Pedro (Comercial)</div></div>
+      <div class="step mid"><div class="circ">2</div><b>Plano de Ação</b><small>Mostra, em números, como reduzir impostos e melhorar a gestão. Gera o “uau”.</small><div class="who">Lucas, Ezequiel e Gabriel</div></div>
+      <div class="step"><div class="circ">3</div><b>Fechamento</b><small>Formaliza o contrato e inicia o onboarding.</small><div class="who">Comercial + gestor</div></div>
+    </div>
+
+    <h3>Call 1 — Diagnóstico (com Pedro)</h3>
+    <p>Objetivo: entender o cliente a fundo e sair com os dados que o time técnico precisa. Ouça mais do que fale. Anote tudo.</p>
+    <p><b>Perguntas-chave (entradas, saídas e o cenário completo):</b></p>
+    <ul class="clean">
+      <li>Faturamento médio por mês? E a sazonalidade (meses fortes/fracos)?</li>
+      <li>Qual o regime tributário hoje (MEI, Simples, Presumido)? Qual anexo/CNAE?</li>
+      <li>Quem são seus principais fornecedores? Compra de quem? Tem nota de tudo?</li>
+      <li>Quem são seus clientes? Vende para empresa (B2B) ou consumidor final (B2C)?</li>
+      <li>Como recebe (Pix, cartão, boleto, prazo)? E como paga seus custos?</li>
+      <li>Tem controle de entradas e saídas? Onde? (sistema, planilha, caderno?)</li>
+      <li>Quantos funcionários? Pró-labore definido?</li>
+      <li>Qual a sua maior dor hoje com impostos / dinheiro / organização?</li>
+      <li>Já ouviu falar da Reforma Tributária? Sabe como ela te afeta?</li>
+    </ul>
+    <div class="callout">
+      <h4>Encerramento da Call 1</h4>
+      <p>“Perfeito. Com esses dados, meu time vai montar um cenário com números reais pra você. Marcamos a próxima conversa para eu te mostrar quanto dá pra economizar e o plano pra chegar lá?”</p>
+    </div>
+
+    <h3>Call 2 — Plano de Ação (com Lucas, Ezequiel e Gabriel)</h3>
+    <p>Objetivo: provocar o “uau” com números reais e apresentar o plano. Aqui a venda acontece de verdade.</p>
+    <ol class="steps">
+      <li>Mostre o <b>cenário atual</b>: quanto ele paga hoje (em R$ e em % do faturamento).</li>
+      <li>Mostre o <b>cenário otimizado</b>: quanto pode pagar com o nosso trabalho — a economia mensal e anual.</li>
+      <li>Mostre a <b>recuperação</b>: estimativa do que pode ser restituído dos últimos 5 anos.</li>
+      <li>Conecte à <b>Reforma</b>: o que precisa ser ajustado agora (enquadramento, créditos, preços).</li>
+      <li>Apresente o <b>plano e o investimento</b> — sempre depois do número da economia.</li>
+    </ol>
+    <div class="callout orange">
+      <h4>Pergunta de transição para o fechamento</h4>
+      <p>“Até aqui, a proposta faz sentido pra você?” (silêncio — deixe o cliente responder). Se sim: “Então vamos dar o primeiro passo e começar a organizar isso?”</p>
+    </div>
+
+    <h3>Call 3 — Fechamento</h3>
+    <ul class="clean">
+      <li>Reforce os 4 ganhos e a grande promessa.</li>
+      <li>Use a garantia/compromisso: nosso trabalho é técnico e sério — entregamos resultado.</li>
+      <li>Facilite a decisão: contrato + adesão à cobrança recorrente no mesmo fluxo.</li>
+      <li>Já peça a primeira indicação.</li>
+    </ul>
+  </section>
+
+  <section id="objecoes">
+    <h2 class="sec"><span class="n">7</span> Objeções mais comuns — e como responder</h2>
+    <table>
+      <tr><th style="width:30%">Objeção</th><th>Resposta</th></tr>
+      <tr><td>“Já tenho contador.”</td><td>“Ótimo, e a gente nem precisa tirar ele. Nós entramos com a parte de estratégia e gestão que o contador comum não faz — reduzir imposto, preparar pra reforma e organizar o financeiro. Posso te mostrar num diagnóstico, sem compromisso?”</td></tr>
+      <tr><td>“Está caro.”</td><td>“Entendo. Mas repara: o investimento se paga com a própria economia de imposto. Deixa eu te mostrar o número primeiro — aí você decide se faz sentido.”</td></tr>
+      <tr><td>“Vou pensar.”</td><td>“Faz sentido pensar. Só uma coisa: a reforma já está valendo e cada mês parado é dinheiro saindo do caixa. Posso ao menos te entregar o diagnóstico pra você pensar com números na mão?”</td></tr>
+      <tr><td>“Não confio / não conheço vocês.”</td><td>“Justo. Por isso a gente trabalha muito por indicação. Olha o resultado de quem já está com a gente. E o diagnóstico é sem compromisso — você vê o valor antes de decidir.”</td></tr>
+      <tr><td>“Minha empresa é pequena.”</td><td>“Pequeno é exatamente quem mais sente imposto no bolso. É aí que a nossa organização faz mais diferença proporcional.”</td></tr>
+      <tr><td>“Meu contador disse que está tudo certo.”</td><td>“Pode estar certo em termos de obrigação. A nossa pergunta é outra: está sendo pago o mínimo legal? Essas são coisas diferentes. O diagnóstico responde isso.”</td></tr>
+    </table>
+  </section>
+
+  <section id="indicacoes">
+    <h2 class="sec"><span class="n">8</span> Nosso maior canal: indicações</h2>
+    <p>Produto de confiança cresce no boca a boca. Cada cliente satisfeito é a nossa melhor propaganda. Indicação não acontece por acaso — a gente provoca.</p>
+    <h3>Quando pedir indicação</h3>
+    <ul class="clean">
+      <li>No fechamento (o cliente está empolgado).</li>
+      <li>Quando entregamos um resultado (economia confirmada, restituição, problema resolvido).</li>
+      <li>Em todo contato de sucesso (elogio espontâneo).</li>
+    </ul>
+    <h3>Como pedir (roteiro)</h3>
+    <div class="callout">
+      <p>“Fico muito feliz que você esteja gostando. A gente cresce com indicação de quem confia na gente. Você conhece algum dono de empresa que também anda incomodado com imposto ou bagunça no financeiro? Posso falar com ele com o seu nome?”</p>
+    </div>
+    <h3>Como recompensamos</h3>
+    <ul class="clean">
+      <li>Parceiro que indica: comissão recorrente sobre o que o indicado paga, todo mês enquanto for cliente.</li>
+      <li>Cliente que indica: recompensa em dinheiro (Pix) ou como desconto no próprio honorário.</li>
+      <li>Quem foi indicado ganha uma condição especial no primeiro mês (gancho de entrada).</li>
+      <li>Link público de indicação: <a href="https://rodriguesconta.com.br/indicar">rodriguesconta.com.br/indicar</a> — mande para clientes e parceiros captarem sozinhos.</li>
+    </ul>
+    <p><i>Registre toda indicação no portal (aba Comercial › Indicações). Lá também está a Base de Contatos para o time abordar um a um.</i></p>
+  </section>
+
+  <section id="checklist">
+    <h2 class="sec"><span class="n">9</span> Checklist do vendedor</h2>
+    <ul class="check">
+      <li>Abri com o gancho da Reforma / dor de imposto, não com preço.</li>
+      <li>Identifiquei o cenário (1 ou 2) e as dores reais.</li>
+      <li>Fiz as perguntas-chave do diagnóstico e anotei tudo.</li>
+      <li>Passei o cliente para a Call do Plano de Ação (números reais).</li>
+      <li>Mostrei a economia antes do preço.</li>
+      <li>Usei a grande promessa e os 4 ganhos no fechamento.</li>
+      <li>Pedi pelo menos uma indicação.</li>
+      <li>Registrei tudo no portal.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="lema2">“Menos impostos. <b>Mais lucro.</b>”</div>
+  <div>Rodrigues Assessoria Contábil · <a href="https://www.rodriguesconta.com.br" style="color:#cadcfc">www.rodriguesconta.com.br</a> · contato@rodriguesconta.com.br · (24) 3181-1114</div>
+  <div style="margin-top:8px;font-size:.78rem;opacity:.7">Documento de uso interno — Equipe Comercial</div>
+</footer>
+
+</body>
+</html>
