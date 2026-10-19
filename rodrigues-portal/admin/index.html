@@ -22,16 +22,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .fg input,.fg select,.fg textarea{width:100%;padding:.65rem .9rem;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;color:#1e293b;background:#fff;outline:none}
 .fg input:focus,.fg select:focus{border-color:#4A6BD4}
 .fg textarea{resize:vertical;min-height:72px}
-.btn{padding:.65rem 1.2rem;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#1e293b;transition:all .15s}
-.btn-primary{background:#4A6BD4;color:#fff;border-color:#4A6BD4}
-.btn-primary:hover{background:#3D5BB8}
-.btn-orange{background:#F57C1A;color:#fff;border-color:#F57C1A}
-.btn-success{background:#16a34a;color:#fff;border-color:#16a34a}
-.btn-success:hover{background:#15803d}
-.btn-danger{background:#dc2626;color:#fff;border-color:#dc2626}
-.btn-danger:hover{background:#b91c1c}
+.btn{padding:.6rem 1.15rem;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#1e293b;transition:all .15s;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.btn:hover{box-shadow:0 4px 10px rgba(16,24,40,.1);transform:translateY(-1px)}
+.btn:active{transform:translateY(0);box-shadow:0 1px 2px rgba(16,24,40,.06)}
+.btn-primary{background:linear-gradient(135deg,#4A6BD4,#3D5BB8);color:#fff;border-color:#3D5BB8}
+.btn-primary:hover{filter:brightness(1.07)}
+.btn-orange{background:linear-gradient(135deg,#F57C1A,#ea6f0e);color:#fff;border-color:#ea6f0e}
+.btn-success{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border-color:#15803d}
+.btn-success:hover{filter:brightness(1.07)}
+.btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border-color:#dc2626}
+.btn-danger:hover{filter:brightness(1.07)}
 .btn-block{width:100%}
-.btn-sm{padding:.4rem .8rem;font-size:12px}
+.btn-sm{padding:.42rem .8rem;font-size:12px}
 #app{display:flex;min-height:100vh}
 .sidebar{width:230px;background:#1a2744;display:flex;flex-direction:column;flex-shrink:0;min-height:100vh;transition:transform .25s ease;z-index:100}
 .sb-logo{padding:1.25rem;border-bottom:1px solid #243460;display:flex;align-items:center;gap:.75rem}
@@ -52,7 +54,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem}
 .page-hdr h1{font-size:20px;font-weight:600}
 .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:1rem;margin-bottom:1.5rem}
-.metric{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.1rem;border-top:3px solid #e2e8f0}
+.metric{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.1rem;border-top:3px solid #e2e8f0;box-shadow:0 1px 3px rgba(16,24,40,.03);transition:box-shadow .15s,transform .15s}
+.metric:hover{box-shadow:0 6px 16px rgba(16,24,40,.07);transform:translateY(-1px)}
 .metric.m-blue{border-top-color:#4A6BD4}
 .metric.m-green{border-top-color:#16a34a}
 .metric.m-red{border-top-color:#dc2626}
@@ -211,7 +214,13 @@ tr:hover td{background:#f8fafc}
 .seclbl{font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin:1.1rem 0 .6rem}
 .dgrid{display:grid;gap:1rem;margin-bottom:.5rem}
 .dgrid.c4{grid-template-columns:repeat(4,1fr)}
-.tile{background:#fff;border:1px solid #eaeef4;border-radius:14px;padding:1rem 1.15rem;border-top:3px solid #e2e8f0}
+.tile{background:#fff;border:1px solid #eaeef4;border-radius:14px;padding:1rem 1.15rem;border-top:3px solid #e2e8f0;box-shadow:0 1px 3px rgba(16,24,40,.03);transition:box-shadow .15s,transform .15s}
+.tile:hover{box-shadow:0 6px 16px rgba(16,24,40,.07);transform:translateY(-1px)}
+.hero{display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap;background:linear-gradient(135deg,#1e3a6e,#4A6BD4);border-radius:16px;padding:1.2rem 1.5rem;color:#fff;box-shadow:0 8px 24px rgba(30,58,110,.15);margin-bottom:1.3rem}
+.hero .h-ttl{font-size:17px;font-weight:800;text-transform:capitalize}
+.hero .h-sub{font-size:12.5px;opacity:.92;margin-top:2px}
+.hero .h-stats{display:flex;gap:1.3rem;flex-wrap:wrap;margin-top:.85rem;font-size:12.5px}
+.hero .h-stats b{font-size:15px;display:block;margin-top:1px}
 .tile.b{border-top-color:#4A6BD4}.tile.g{border-top-color:#16a34a}.tile.a{border-top-color:#F57C1A}.tile.r{border-top-color:#dc2626}.tile.p{border-top-color:#7c3aed}
 .tile .tl{font-size:12px;color:#64748b;margin-bottom:.35rem}
 .tile .tv{font-size:21px;font-weight:800;line-height:1}
@@ -366,6 +375,8 @@ tr:hover td{background:#f8fafc}
         <h1>Dashboard</h1>
         <input type="month" id="dash-mes" class="si" onchange="loadDash()">
       </div>
+
+      <div id="dash-hero"></div>
 
       <div class="seclbl">💰 Financeiro</div>
       <div class="dgrid c4" id="dash-fin1"></div>
@@ -2083,6 +2094,18 @@ async function loadDash(){
   const resultado=pago-totD;
   const pctPrev=previstoMes?Math.round(pago/previstoMes*100):0;
 
+  // Banner resumo do mês (padrão profissional)
+  const mesLbl=new Date(mes+'-02').toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  document.getElementById('dash-hero').innerHTML='<div class="hero">'+
+    _donut(pctPrev)+
+    '<div style="flex:1;min-width:210px"><div class="h-ttl">Resumo de '+mesLbl+'</div>'+
+    '<div class="h-sub">'+pctPrev+'% do faturado no mês já recebido · '+clisL.length+' clientes ativos</div>'+
+    '<div class="h-stats">'+
+      '<span>💰 Faturado<b>'+fmt(previstoMes)+'</b></span>'+
+      '<span>✅ Recebido<b>'+fmt(pago)+'</b></span>'+
+      '<span>🟠 A receber<b>'+fmt(aRec)+'</b></span>'+
+      '<span>🔴 Em atraso<b>'+fmt(atras)+'</b></span>'+
+    '</div></div></div>';
   document.getElementById('dash-fin1').innerHTML=
     tileHtml('b','Faturamento previsto',fmt(mrr),clisL.length+' clientes ativos')+
     tileHtml('g','Recebido no mês',fmt(pago),pctPrev+'% do faturado','#16a34a')+
