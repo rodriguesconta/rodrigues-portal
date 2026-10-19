@@ -1116,29 +1116,8 @@ tr:hover td{background:#f8fafc}
       <!-- FILTROS: RESPONSÁVEL + DEMANDA (só admin) -->
       <div id="tar-filtros-extra" class="hidden" style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem"></div>
 
-      <!-- DASHBOARD DE PROGRESSO -->
-      <div id="tar-dashboard" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem">
-        <div class="card" style="padding:1rem 1.25rem">
-          <div style="font-size:12px;color:#64748b;margin-bottom:6px">Progresso do período</div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px">
-            <span id="tar-prog-label">0 de 0 enviadas</span>
-            <span id="tar-prog-pct" style="color:#4A6BD4">0%</span>
-          </div>
-          <div class="tar-progress"><div class="tar-progress-bar" id="tar-prog-bar" style="width:0%;background:linear-gradient(90deg,#4A6BD4,#16a34a)"></div></div>
-        </div>
-        <div class="card" style="padding:1rem 1.25rem">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><div style="font-size:12px;color:#64748b">Pendentes</div><div id="tar-n-pend" style="font-size:28px;font-weight:700;color:#d97706">0</div></div>
-            <div><div style="font-size:12px;color:#64748b">Executadas</div><div id="tar-n-exec" style="font-size:28px;font-weight:700;color:#2563eb">0</div></div>
-            <div><div style="font-size:12px;color:#64748b">Enviadas</div><div id="tar-n-env" style="font-size:28px;font-weight:700;color:#16a34a">0</div></div>
-          </div>
-        </div>
-        <div class="card" style="padding:1rem 1.25rem">
-          <div style="font-size:12px;color:#64748b;margin-bottom:4px">Atrasadas</div>
-          <div id="tar-n-atrasadas" style="font-size:28px;font-weight:700;color:#dc2626">0</div>
-          <div id="tar-atrasadas-detalhe" style="font-size:11px;color:#94a3b8"></div>
-        </div>
-      </div>
+      <!-- RESUMO DO MÊS (padrão design system) -->
+      <div id="tar-hero"></div>
 
       <div id="alert-tar"></div>
 
@@ -5053,6 +5032,12 @@ function aplicarFiltrosRespDemanda(list){
   return r;
 }
 
+function _avColor(nome){
+  if(nome==='todos')return '#4A6BD4';
+  if(nome==='Administrador')return '#64748b';
+  let h=0; const s=String(nome); for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%360;
+  return 'hsl('+h+',52%,42%)';
+}
 function renderFiltrosTar(baseList){
   const box=document.getElementById('tar-filtros-extra');
   if(userRole!=='admin'){ box.classList.add('hidden'); return; }
@@ -5063,15 +5048,19 @@ function renderFiltrosTar(baseList){
   // Contagem por responsável já considerando o filtro de demanda ativo
   const listForCount=tarFiltroDemanda?baseList.filter(t=>demandaKey(t)===tarFiltroDemanda):baseList;
   const cnt=nome=>listForCount.filter(t=>tarResponsavel(t)===nome).length;
-  const chip=(val,label,count)=>{
+  const avchip=(val,label,count)=>{
     const active=tarFiltroResp===val;
-    const cor=active?'#fff':(val==='Administrador'?'#64748b':'#7c3aed');
-    return '<button onclick="setFiltroResp(\''+val.replace(/'/g,"\\'")+'\')" style="font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid '+(active?'#4A6BD4':'#e2e8f0')+';background:'+(active?'#4A6BD4':'#fff')+';color:'+cor+';cursor:pointer;font-weight:'+(active?'600':'400')+'">'+label+' ('+count+')</button>';
+    const col=_avColor(val);
+    const ini=(val==='todos')?'👥':(label.trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase());
+    return '<button onclick="setFiltroResp(\''+String(val).replace(/'/g,"\\'")+'\')" title="'+label+'" style="display:flex;align-items:center;gap:.5rem;padding:4px 13px 4px 4px;border-radius:30px;border:1.5px solid '+(active?'#4A6BD4':'#eaeef4')+';background:'+(active?'#eef2fd':'#fff')+';cursor:pointer;transition:all .15s;box-shadow:'+(active?'0 2px 8px rgba(74,107,212,.15)':'0 1px 2px rgba(16,24,40,.04)')+'">'+
+      '<span style="width:30px;height:30px;border-radius:50%;background:'+col+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">'+ini+'</span>'+
+      '<span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.15"><span style="font-size:12.5px;font-weight:600;color:#1e293b">'+label+'</span><span style="font-size:10.5px;color:#94a3b8">'+count+' tarefa'+(count===1?'':'s')+'</span></span>'+
+      '</button>';
   };
-  let html='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:.5rem">'+
-    '<span style="font-size:12px;font-weight:600;color:#475569;margin-right:4px">👥 Responsável:</span>';
-  html+=chip('todos','Todos',listForCount.length);
-  tarRespChips.forEach(nome=>{ html+=chip(nome,nome,cnt(nome)); });
+  let html='<div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:.75rem">'+
+    '<span style="font-size:12px;font-weight:700;color:#475569;margin-right:4px">👥 Equipe:</span>';
+  html+=avchip('todos','Todos',listForCount.length);
+  tarRespChips.forEach(nome=>{ html+=avchip(nome,nome,cnt(nome)); });
   html+='</div>';
   html+='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+
     '<span style="font-size:12px;font-weight:600;color:#475569;margin-right:4px">📋 Demanda:</span>'+
@@ -5138,14 +5127,17 @@ async function carregarTarefas(){
   const pct=total?Math.round(env/total*100):0;
   const atrasadas=lista.filter(t=>t.data_prazo<hoje&&t.status!=='enviado').length;
 
-  document.getElementById('tar-prog-label').textContent=env+' de '+total+' enviadas';
-  document.getElementById('tar-prog-pct').textContent=pct+'%';
-  document.getElementById('tar-prog-bar').style.width=pct+'%';
-  document.getElementById('tar-n-pend').textContent=pend;
-  document.getElementById('tar-n-exec').textContent=exec;
-  document.getElementById('tar-n-env').textContent=env;
-  document.getElementById('tar-n-atrasadas').textContent=atrasadas;
-  document.getElementById('tar-atrasadas-detalhe').textContent=atrasadas?'Atenção! Verifique as pendências':'Tudo em dia ✓';
+  const heroEl=document.getElementById('tar-hero');
+  if(heroEl)heroEl.innerHTML='<div class="hero">'+
+    _donut(pct)+
+    '<div style="flex:1;min-width:220px"><div class="h-ttl">Progresso do mês</div>'+
+    '<div class="h-sub">'+env+' de '+total+' tarefas enviadas'+(atrasadas?' · <span style="color:#fecaca;font-weight:700">⚠ '+atrasadas+' atrasada'+(atrasadas>1?'s':'')+'</span>':' · tudo em dia ✓')+'</div>'+
+    '<div class="h-stats">'+
+      '<span>🟠 Pendentes<b>'+pend+'</b></span>'+
+      '<span>🔵 Executadas<b>'+exec+'</b></span>'+
+      '<span>🟢 Enviadas<b>'+env+'</b></span>'+
+      '<span>🔴 Atrasadas<b>'+atrasadas+'</b></span>'+
+    '</div></div></div>';
   document.getElementById('tar-count-label').textContent=total+' tarefa'+(total!==1?'s':'')+' encontrada'+(total!==1?'s':'');
 
   // Cabeçalho do modo lista (voltar ao painel + título da declaração)
