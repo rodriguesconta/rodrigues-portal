@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Indique e ganhe — Rodrigues Assessoria Contábil</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px}
+  .wrap{width:100%;max-width:520px}
+  .hero{background:linear-gradient(135deg,#1e3a6e,#4A6BD4);color:#fff;border-radius:16px 16px 0 0;padding:1.8rem 1.5rem 1.5rem;text-align:center}
+  .hero .ico{font-size:40px;line-height:1}
+  .hero h1{font-size:21px;margin:.5rem 0 .3rem;font-weight:700}
+  .hero p{font-size:13px;opacity:.9;line-height:1.5}
+  .hero .tag{display:inline-block;margin-top:.7rem;background:#F57C1A;color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:999px}
+  .card{background:#fff;border-radius:0 0 16px 16px;padding:1.5rem;box-shadow:0 8px 30px rgba(30,58,110,.1)}
+  .sec-t{font-size:11px;font-weight:700;color:#4A6BD4;text-transform:uppercase;letter-spacing:.04em;margin:1.1rem 0 .6rem;padding-bottom:.25rem;border-bottom:1px solid #eef2f7}
+  .sec-t:first-of-type{margin-top:0}
+  label{display:block;font-size:12px;color:#64748b;font-weight:600;margin-bottom:4px}
+  .fg{margin-bottom:.8rem}
+  input,select,textarea{width:100%;font-size:14px;padding:11px 13px;border:1px solid #cbd5e1;border-radius:9px;outline:none;font-family:inherit;background:#fff}
+  input:focus,select:focus,textarea:focus{border-color:#4A6BD4;box-shadow:0 0 0 3px rgba(74,107,212,.12)}
+  textarea{resize:vertical;min-height:70px}
+  .row{display:flex;gap:.7rem}
+  .row .fg{flex:1}
+  .hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
+  .btn{width:100%;background:#F57C1A;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:.5rem;transition:filter .15s}
+  .btn:hover{filter:brightness(1.05)}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .msg{margin-top:1rem;padding:.9rem 1rem;border-radius:10px;font-size:13.5px;display:none}
+  .msg.ok{display:block;background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
+  .msg.err{display:block;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c}
+  .foot{text-align:center;font-size:11.5px;color:#94a3b8;margin-top:1.2rem;line-height:1.6}
+  .ok-screen{text-align:center;padding:1rem 0}
+  .ok-screen .big{font-size:52px}
+  .ok-screen h2{color:#15803d;margin:.5rem 0}
+  .ok-screen p{font-size:14px;color:#475569;line-height:1.6}
+  .ok-screen button{margin-top:1.2rem;background:#4A6BD4;color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="ico">🤝</div>
+    <h1>Indique e seja recompensado</h1>
+    <p>Conhece alguém que precisa de uma contabilidade de confiança? Indique para a <strong>Rodrigues Assessoria Contábil</strong> e ganhe comissão por cada indicação que vira cliente.</p>
+    <div class="tag">Programa de Indicação</div>
+  </div>
+  <div class="card">
+    <div id="form-area">
+      <div class="sec-t">Seus dados (quem está indicando)</div>
+      <div class="fg"><label>Seu nome *</label><input id="indicador_nome" placeholder="Nome completo"></div>
+      <div class="row">
+        <div class="fg"><label>Seu WhatsApp / e-mail *</label><input id="indicador_contato" placeholder="(21) 99999-9999"></div>
+        <div class="fg" style="max-width:150px"><label>Você é</label><select id="indicador_tipo"><option value="cliente">Cliente</option><option value="parceiro">Parceiro</option></select></div>
+      </div>
+
+      <div class="sec-t">Quem você está indicando</div>
+      <div class="fg"><label>Nome da pessoa / empresa *</label><input id="indicado_nome" placeholder="Nome de quem você indica"></div>
+      <div class="fg"><label>Contato da indicação (WhatsApp / e-mail)</label><input id="indicado_contato" placeholder="Como falamos com ela"></div>
+      <div class="fg"><label>Observação (opcional)</label><textarea id="observacao" placeholder="Ex.: abriu MEI agora, precisa de apoio fiscal..."></textarea></div>
+
+      <input class="hp" id="hp" tabindex="-1" autocomplete="off" placeholder="Não preencha">
+
+      <button class="btn" id="btn-enviar" onclick="enviar()">Enviar indicação</button>
+      <div class="msg" id="msg"></div>
+    </div>
+
+    <div class="ok-screen" id="ok-area" style="display:none">
+      <div class="big">🎉</div>
+      <h2>Indicação enviada!</h2>
+      <p>Obrigado! Já recebemos sua indicação e nossa equipe vai entrar em contato. Assim que ela virar cliente, sua comissão começa a contar.</p>
+      <button onclick="novaIndicacao()">Fazer outra indicação</button>
+    </div>
+  </div>
+  <div class="foot">
+    Rodrigues Assessoria Contábil · Atendimento (21) 99401-4601<br>
+    Seus dados são usados apenas para contato sobre esta indicação.
+  </div>
+</div>
+
+<script>
+  // empresa_id da contabilidade. Padrão = Rodrigues. Outras contabilidades usam ?e=<id>.
+  const DEFAULT_EMPRESA='b01804f2-30ad-4108-80ea-74044f95cca6';
+  const params=new URLSearchParams(location.search);
+  const EMPRESA_ID=params.get('e')||DEFAULT_EMPRESA;
+
+  function showMsg(t,cls){const m=document.getElementById('msg');m.textContent=t;m.className='msg '+cls;}
+  function val(id){return (document.getElementById(id).value||'').trim();}
+
+  async function enviar(){
+    const btn=document.getElementById('btn-enviar');
+    const indicador_nome=val('indicador_nome');
+    const indicado_nome=val('indicado_nome');
+    const indicador_contato=val('indicador_contato');
+    if(!indicador_nome||!indicador_contato||!indicado_nome){
+      showMsg('Preencha seu nome, seu contato e o nome de quem você indica.','err');return;
+    }
+    btn.disabled=true;btn.textContent='Enviando...';
+    try{
+      const r=await fetch('/.netlify/functions/indicacao-capturar',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          empresa_id:EMPRESA_ID,
+          indicador_nome,
+          indicador_contato,
+          indicador_tipo:val('indicador_tipo')||'cliente',
+          indicado_nome,
+          indicado_contato:val('indicado_contato'),
+          observacao:val('observacao'),
+          hp:val('hp')
+        })
+      });
+      const d=await r.json().catch(()=>({}));
+      if(r.ok&&d.ok){
+        document.getElementById('form-area').style.display='none';
+        document.getElementById('ok-area').style.display='block';
+      }else{
+        showMsg(d.erro||'Não foi possível enviar agora. Tente novamente.','err');
+        btn.disabled=false;btn.textContent='Enviar indicação';
+      }
+    }catch(e){
+      showMsg('Erro de conexão. Verifique sua internet e tente de novo.','err');
+      btn.disabled=false;btn.textContent='Enviar indicação';
+    }
+  }
+  function novaIndicacao(){
+    ['indicador_nome','indicador_contato','indicado_nome','indicado_contato','observacao'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('msg').className='msg';
+    document.getElementById('ok-area').style.display='none';
+    document.getElementById('form-area').style.display='block';
+    const btn=document.getElementById('btn-enviar');btn.disabled=false;btn.textContent='Enviar indicação';
+  }
+</script>
+</body>
+</html>
