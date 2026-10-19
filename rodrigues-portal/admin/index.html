@@ -4963,7 +4963,7 @@ function aplicarLayoutTar(){
   const isPainel=(!isCat&&!isVenc&&tarModo==='painel');
   const isLista=(!isCat&&!isVenc&&tarModo==='lista');
   const set=(id,show)=>{const el=document.getElementById(id);if(el)el.classList.toggle('hidden',!show);};
-  document.getElementById('tar-dashboard').style.display=(isCat||isVenc)?'none':'grid';
+  { const heroEl=document.getElementById('tar-hero'); if(heroEl)heroEl.style.display=(isCat||isVenc)?'none':'block'; }
   document.getElementById('alert-tar').style.display=isCat?'none':'block';
   if(isCat)document.getElementById('tar-filtros-extra').classList.add('hidden');
   document.getElementById('tar-viewtoggle').style.display=isLista?'flex':'none';
