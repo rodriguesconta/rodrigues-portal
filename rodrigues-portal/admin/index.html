@@ -66,7 +66,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .metric .val.red{color:#dc2626}
 .metric .val.amber{color:#F57C1A}
 .metric .val.blue{color:#4A6BD4}
-.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+.card{background:#fff;border:1px solid #e6eaf1;border-radius:12px;overflow:hidden;margin-bottom:1.5rem;box-shadow:0 1px 3px rgba(16,24,40,.04)}
 .card-hdr{padding:.9rem 1.1rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
 .card-hdr h2{font-size:15px;font-weight:600}
 .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem}
@@ -78,7 +78,8 @@ th{background:#f8fafc;padding:.65rem 1rem;font-size:11px;font-weight:600;color:#
 td{padding:.75rem 1rem;font-size:13px;border-bottom:1px solid #f8fafc;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#f8fafc}
-.tbl-wrap{overflow-x:auto}
+.tbl-wrap{overflow-x:auto;border:1px solid #e6eaf1;border-radius:12px;background:#fff}
+.card .tbl-wrap{border:none;border-radius:0;background:transparent}
 .badge{display:inline-block;padding:.2rem .65rem;border-radius:20px;font-size:11px;font-weight:500}
 .badge-green{background:#dcfce7;color:#166534}
 .badge-amber{background:#fff7ed;color:#9a3412}
@@ -464,6 +465,7 @@ tr:hover td{background:#f8fafc}
         </div>
       </div>
       <div id="alerta-cob"></div>
+      <div id="cob-hero"></div>
       <div class="card">
         <div class="card-hdr">
           <h2>Cobranças <span id="cob-dup-count" style="font-size:12px;color:#f59e0b;font-weight:600"></span></h2>
@@ -3335,6 +3337,23 @@ async function importarClientes(){
 async function carregarCobs(){
   const mes=document.getElementById('fil-mes-cob').value||mesAtual();
   document.getElementById('fil-mes-cob').value=mes;
+  // Resumo do mês (independe do filtro de status)
+  db.from('cobrancas').select('valor,status').gte('data_vencimento',mes+'-01').lte('data_vencimento',mes+'-'+ultimoDia(mes)).limit(1000).then(({data:tot})=>{
+    const L=tot||[]; let vPrev=0,vPago=0,vAR=0,vAtr=0;
+    L.forEach(c=>{const v=parseFloat(c.valor||0);vPrev+=v;if(c.status==='pago')vPago+=v;else if(c.status==='atrasado')vAtr+=v;else vAR+=v;});
+    const pct=vPrev?Math.round(vPago/vPrev*100):0;
+    const mesLbl=new Date(mes+'-02').toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+    const he=document.getElementById('cob-hero');
+    if(he)he.innerHTML='<div class="hero">'+_donut(pct)+
+      '<div style="flex:1;min-width:210px"><div class="h-ttl">Cobranças de '+mesLbl+'</div>'+
+      '<div class="h-sub">'+pct+'% do faturado do mês já recebido · '+L.length+' cobrança'+(L.length===1?'':'s')+'</div>'+
+      '<div class="h-stats">'+
+        '<span>💰 Faturado<b>'+fmt(vPrev)+'</b></span>'+
+        '<span>✅ Recebido<b>'+fmt(vPago)+'</b></span>'+
+        '<span>🟠 A receber<b>'+fmt(vAR)+'</b></span>'+
+        '<span>🔴 Em atraso<b>'+fmt(vAtr)+'</b></span>'+
+      '</div></div></div>';
+  });
   const st=document.getElementById('fil-status').value;
   let q=db.from('cobrancas').select('*,clientes(nome,email,telefone,documento)').gte('data_vencimento',mes+'-01').lte('data_vencimento',mes+'-'+ultimoDia(mes)).order('data_vencimento').limit(200);
   if(st)q=q.eq('status',st);
