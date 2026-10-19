@@ -824,6 +824,17 @@ tr:hover td{background:#f8fafc}
         </div>
       </div>
 
+      <div class="ig-card">
+        <div class="ig-hd">📣 Meta ADS (Lead Ads)</div>
+        <div class="ig-bd">
+          <div class="ig-f"><label>Page ID (Facebook)</label><div class="ig-wrap"><input id="ig-meta-page" placeholder="ID da página"><button class="ig-edit" onclick="igEdit('ig-meta-page')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Verify Token (você cria)</label><div class="ig-wrap"><input id="ig-meta-verify" placeholder="ex.: rodrigues2026"><button class="ig-edit" onclick="igEdit('ig-meta-verify')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>Page Access Token</label><div class="ig-wrap"><input id="ig-meta-token" type="password" autocomplete="new-password"><button class="ig-edit" onclick="igEdit('ig-meta-token')" title="Editar">✏️</button></div></div>
+          <div class="ig-f"><label>App Secret (opcional)</label><div class="ig-wrap"><input id="ig-meta-secret" type="password" autocomplete="new-password"><button class="ig-edit" onclick="igEdit('ig-meta-secret')" title="Editar">✏️</button></div></div>
+        </div>
+        <div style="padding:0 .9rem .75rem"><div style="font-size:10.5px;color:#64748b">Callback URL para o webhook do Meta: <code style="font-size:10.5px;background:#f1f5f9;padding:1px 5px;border-radius:4px">https://rodriguesconta.com.br/.netlify/functions/meta-leads</code> — use o mesmo <strong>Verify Token</strong> acima.</div></div>
+      </div>
+
       <div style="margin:.2rem 0 1rem"><button class="btn btn-primary btn-sm" onclick="salvarIntegracoes()">💾 Salvar integrações</button></div>
 
       <div class="ig-card">
@@ -957,12 +968,21 @@ tr:hover td{background:#f8fafc}
 
       <!-- META ADS -->
       <div id="ct-ads" class="com-pane hidden">
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem;text-align:center">
-          <div style="font-size:34px">📣</div>
-          <h3 style="margin:.4rem 0;color:#1e293b">Meta ADS</h3>
-          <p style="font-size:13px;color:#64748b;max-width:460px;margin:0 auto .9rem">Acompanhe os leads vindos de campanhas no Facebook/Instagram. Cada lead cairá direto no CRM com origem <strong>meta_ads</strong>.</p>
-          <span class="badge badge-amber">Em breve — próxima entrega</span>
+        <div class="link-box" style="flex-direction:column;align-items:stretch">
+          <div style="font-size:12px;color:#1e40af;font-weight:700;margin-bottom:.4rem">🔗 Webhook do Meta → Portal (configure uma vez)</div>
+          <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+            <span style="font-size:11.5px;color:#1e40af;white-space:nowrap">Callback URL:</span>
+            <input id="meta-callback" readonly value="https://rodriguesconta.com.br/.netlify/functions/meta-leads">
+            <button class="btn btn-sm" onclick="copiarMetaCallback()" style="background:#2563eb;color:#fff;border:none">Copiar</button>
+          </div>
+          <span style="font-size:10.5px;color:#64748b;margin-top:.5rem;line-height:1.5">No Meta (app → Webhooks → objeto <strong>Page</strong> → campo <strong>leadgen</strong>): cole essa URL e o <strong>Verify Token</strong> definido em Integrações → Meta ADS. Depois assine a sua Página. Os leads caem aqui e no CRM com origem <strong>meta_ads</strong>.</span>
         </div>
+        <div class="cm-bar">
+          <button class="btn btn-sm" onclick="carregarMetaAds()">🔄 Atualizar</button>
+          <span style="font-size:11.5px;color:#64748b">Leads capturados automaticamente das suas campanhas.</span>
+        </div>
+        <div class="cm-tiles" id="meta-tiles"></div>
+        <div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:10px"><table><thead><tr><th>Lead</th><th>Contato</th><th>Etapa</th><th>Recebido</th><th></th></tr></thead><tbody id="meta-tbody"></tbody></table></div>
       </div>
     </div>
 
@@ -2412,6 +2432,7 @@ function comTab(t){
   else if(t==='comissoes'){const f=document.getElementById('fil-com-comp');if(!f.value){const d=new Date();f.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}carregarComissoes();}
   else if(t==='contatos')carregarContatos();
   else if(t==='emailmkt')carregarEmailMkt();
+  else if(t==='ads')carregarMetaAds();
 }
 function carregarComercial(){comTab('crm');}
 
@@ -2728,8 +2749,8 @@ let _campanhas=[],_econtatos=[],_emMotorOk=false;
 async function carregarEmailMkt(){
   // Status do motor (Resend): verifica se há chave configurada
   try{
-    const {data:ig}=await db.from('integracoes').select('email_provider_key,email_provider,email_remetente').eq('empresa_id',userEmpresa).maybeSingle();
-    _emMotorOk=!!(ig&&ig.email_provider_key&&String(ig.email_provider_key).trim());
+    const {data:ig}=await db.from('integracoes').select('email_api_key,email_provider,email_remetente').eq('empresa_id',userEmpresa).maybeSingle();
+    _emMotorOk=!!(ig&&ig.email_api_key&&String(ig.email_api_key).trim());
     const el=document.getElementById('em-motor-status');
     if(el){el.textContent=_emMotorOk?'ligado ✅ (Resend)':'desligado — sem chave Resend';el.style.color=_emMotorOk?'#16a34a':'#b45309';}
   }catch(e){const el=document.getElementById('em-motor-status');if(el){el.textContent='desligado';el.style.color='#b45309';}_emMotorOk=false;}
@@ -2895,6 +2916,34 @@ async function enviarCampanha(){
   fecharModal('m-campanha');carregarCampanhas();
 }
 async function excluirCampanha(id){if(!confirm('Excluir esta campanha?'))return;await db.from('email_campanhas').delete().eq('id',id);carregarCampanhas();}
+
+// ================= META ADS =================
+async function carregarMetaAds(){
+  const {data}=await db.from('leads').select('*').eq('origem','meta_ads').order('created_at',{ascending:false}).limit(500);
+  const list=data||[];
+  const mesStr=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
+  const novos=list.filter(l=>l.etapa==='novo').length;
+  const mes=list.filter(l=>String(l.created_at||'').slice(0,7)===mesStr).length;
+  const tiles=document.getElementById('meta-tiles');
+  if(tiles)tiles.innerHTML=
+    '<div class="cm-tile" style="border-top-color:#4A6BD4"><div class="l">Leads Meta</div><div class="v">'+list.length+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#F57C1A"><div class="l">Novos</div><div class="v" style="color:#F57C1A">'+novos+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#16a34a"><div class="l">Este mês</div><div class="v" style="color:#16a34a">'+mes+'</div></div>';
+  const tb=document.getElementById('meta-tbody');
+  if(!list.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:1.2rem">Nenhum lead do Meta ainda. Configure o webhook (acima) e as credenciais em Integrações → Meta ADS.</td></tr>';return;}
+  tb.innerHTML=list.map(l=>'<tr>'+
+    '<td style="font-weight:600">'+(l.nome||'—')+'</td>'+
+    '<td style="font-size:12px;color:#64748b">'+([l.telefone,l.email].filter(Boolean).join('<br>')||'—')+'</td>'+
+    '<td style="font-size:12px">'+(l.etapa||'novo')+'</td>'+
+    '<td style="font-size:11px;color:#94a3b8;white-space:nowrap">'+(l.created_at?new Date(l.created_at).toLocaleDateString('pt-BR'):'')+'</td>'+
+    '<td><button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:none" onclick="comTab(\'crm\')">Ver no CRM</button></td>'+
+    '</tr>').join('');
+}
+function copiarMetaCallback(){
+  const i=document.getElementById('meta-callback'); const ok=()=>alerta('alerta-com','🔗 URL copiada!','s');
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(i.value).then(ok).catch(()=>{i.select();document.execCommand('copy');ok();});}
+  else{i.select();document.execCommand('copy');ok();}
+}
 function analisarSpam(){
   const assunto=document.getElementById('cp-assunto').value||'';
   const corpo=document.getElementById('cp-corpo').value||'';
@@ -5833,6 +5882,8 @@ async function carregarIntegracoes(){
   setSec('ig-sieg',row.sieg_api_key); set('ig-umb-num',row.umbler_numero); setSec('ig-umb-token',row.umbler_token);
   set('ig-dom-user',row.dominio_usuario); setSec('ig-dom-pass',row.dominio_senha);
   set('ig-wh-email',row.webhook_email); set('ig-wh-wadoc',row.webhook_whatsapp_doc); set('ig-wh-cob',row.webhook_cobrancas);
+  set('ig-meta-page',row.meta_page_id); set('ig-meta-verify',row.meta_verify_token);
+  setSec('ig-meta-token',row.meta_access_token); setSec('ig-meta-secret',row.meta_app_secret);
   carregarUsoBanco();
 }
 
@@ -5843,12 +5894,14 @@ async function salvarIntegracoes(){
     wa_numero_exibicao:val('ig-wa-num'), wa_phone_number_id:val('ig-wa-pid'), wa_waba_id:val('ig-wa-waba'),
     email_remetente:val('ig-mail-rem'), email_reply_to:val('ig-mail-reply'), email_provider:val('ig-mail-prov'),
     umbler_numero:val('ig-umb-num'), dominio_usuario:val('ig-dom-user'),
-    webhook_email:val('ig-wh-email'), webhook_whatsapp_doc:val('ig-wh-wadoc'), webhook_cobrancas:val('ig-wh-cob')
+    webhook_email:val('ig-wh-email'), webhook_whatsapp_doc:val('ig-wh-wadoc'), webhook_cobrancas:val('ig-wh-cob'),
+    meta_page_id:val('ig-meta-page'), meta_verify_token:val('ig-meta-verify')
   };
   // Sensíveis: só grava se o usuário digitou um valor novo (em branco mantém o atual)
   const sec=(id,col)=>{const v=val(id); if(v) obj[col]=v;};
   sec('ig-wa-token','wa_token'); sec('ig-mail-key','email_api_key'); sec('ig-mp-token','mp_access_token');
   sec('ig-sieg','sieg_api_key'); sec('ig-umb-token','umbler_token'); sec('ig-dom-pass','dominio_senha');
+  sec('ig-meta-token','meta_access_token'); sec('ig-meta-secret','meta_app_secret');
   const {error}=await db.from('integracoes').upsert(obj,{onConflict:'empresa_id'});
   if(error){alerta('alerta-integ','Erro ao salvar: '+error.message,'e');return;}
   // Mantém o remetente do fluxo de e-mail atual (Make) em sincronia
