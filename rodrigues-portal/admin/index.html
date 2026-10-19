@@ -734,7 +734,14 @@ tr:hover td{background:#f8fafc}
       </div>
       <div id="perm-clientes-wrap" class="hidden">
         <div class="card" style="margin-bottom:1rem">
-          <div class="card-hdr"><h2>Departamentos liberados</h2></div>
+          <div class="card-hdr"><h2>Páginas e abas liberadas</h2></div>
+          <div style="padding:1rem">
+            <p style="font-size:11.5px;color:#64748b;margin-bottom:.8rem">Marque o que este colaborador pode acessar. Marcar a página inteira (ex.: Comercial) libera todas as abas dela; ou marque só abas específicas (ex.: só Meta ADS). Integrações e Permissões ficam restritas ao administrador.</p>
+            <div id="perm-paginas-grid"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-hdr"><h2>Departamentos liberados <span style="font-size:11px;color:#94a3b8;font-weight:400">(filtra Tarefas)</span></h2></div>
           <div style="padding:1rem;display:flex;gap:1.5rem;flex-wrap:wrap">
             <label style="font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0"><input type="checkbox" class="perm-dept-cb" value="fiscal" checked> 📊 Fiscal</label>
             <label style="font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0"><input type="checkbox" class="perm-dept-cb" value="pessoal" checked> 👥 Pessoal</label>
@@ -1846,7 +1853,7 @@ async function iniciar(u){
   // para o colaborador nunca ver (nem por um instante) as abas de admin.
 
   // Buscar role do usuário
-  const {data:usr}=await db.from('usuarios').select('role,nome,departamentos_permitidos,ativo,empresa_id').eq('email',u.email).single();
+  const {data:usr}=await db.from('usuarios').select('role,nome,departamentos_permitidos,ativo,empresa_id,paginas_liberadas').eq('email',u.email).single();
   if(usr&&usr.ativo===false){
     await db.auth.signOut();
     document.getElementById('app').classList.add('hidden');
@@ -1878,28 +1885,28 @@ async function iniciar(u){
     if(userRole!=='admin')document.querySelectorAll('#tb-user-drop a:not(.sair)').forEach(a=>a.style.display='none');
   }catch(e){}
 
-  // Se colaborador, buscar carteira de clientes
+  // Se colaborador, buscar carteira de clientes + páginas liberadas
   if(userRole==='colaborador'){
     const {data:uc}=await db.from('usuario_clientes').select('cliente_id').eq('usuario_email',u.email);
     userClienteIds=(uc||[]).map(x=>x.cliente_id);
     // Buscar departamentos permitidos
     userDepartamentos=(usr&&usr.departamentos_permitidos)||['fiscal','pessoal','contabil'];
-    // Esconder abas financeiras
-    document.querySelectorAll('.nav-item').forEach(el=>{
-      const pg=el.getAttribute('data-page');
-      if(pg&&pg!=='tarefas') el.style.display='none';
-    });
+    // Páginas/abas liberadas (fallback: só Tarefas, comportamento antigo)
+    userPaginas=(usr&&Array.isArray(usr.paginas_liberadas)&&usr.paginas_liberadas.length)?usr.paginas_liberadas:['tarefas'];
+    // Mostra só o que foi liberado no menu
+    aplicarVisibilidadeMenu();
     // Esconder aba catálogo (só admin gerencia)
     const catTab=document.querySelector('.tar-tab[data-tab="catalogo"]');
     if(catTab) catTab.style.display='none';
     // Subtítulo
-    document.querySelector('.sb-logo p').textContent='Portal de tarefas';
-    // Ir direto para tarefas
+    document.querySelector('.sb-logo p').textContent='Portal';
+    // Ir direto para a primeira página liberada
     carregarCats();
-    go('tarefas');
+    go(primeiraPaginaAcessivel());
   }else{
     userClienteIds=null;
     userDepartamentos=null;
+    userPaginas=null;
     document.getElementById('dash-mes').value=mesAtual();
     document.getElementById('rel-mes').value=mesAtual();
     document.getElementById('fil-mes-desp').value=mesAtual();
@@ -1908,7 +1915,7 @@ async function iniciar(u){
     // Restaura a última tela em que o usuário estava (item: não voltar ao Dashboard ao atualizar)
     let _last='dashboard';
     try{_last=localStorage.getItem('rc_last_page')||'dashboard';}catch(e){}
-    const _paginasValidas=['dashboard','clientes','cobrancas','irpf','despesas','relatorios','prolabore','historico','mensagens','permissoes','tarefas'];
+    const _paginasValidas=['dashboard','clientes','caminho','cobrancas','comercial','irpf','despesas','relatorios','prolabore','historico','mensagens','permissoes','integracoes','tarefas'];
     if(!_paginasValidas.includes(_last))_last='dashboard';
     go(_last);
   }
@@ -1916,9 +1923,51 @@ async function iniciar(u){
   document.getElementById('app').classList.remove('hidden');
 }
 
+// ===== Permissões granulares por página/sub-aba =====
+let userPaginas=null; // null = admin (tudo). Colaborador: array de chaves ["comercial"] ou ["comercial.ads"]
+const PERM_PAGES=[
+  {k:'dashboard',t:'🏠 Dashboard'},
+  {k:'tarefas',t:'✅ Tarefas'},
+  {k:'clientes',t:'👥 Clientes'},
+  {k:'caminho',t:'🎯 Caminho do Sucesso'},
+  {k:'cobrancas',t:'💳 Cobranças'},
+  {k:'comercial',t:'📈 Comercial',subs:[
+    {k:'crm',t:'CRM / Funil'},{k:'indicacoes',t:'Indicações'},{k:'comissoes',t:'Comissões'},
+    {k:'contatos',t:'Banco de Contatos'},{k:'emailmkt',t:'E-mail Marketing'},{k:'ads',t:'Meta ADS'}
+  ]},
+  {k:'irpf',t:'📄 IRPF'},
+  {k:'despesas',t:'💸 Despesas'},
+  {k:'relatorios',t:'📊 Relatórios'},
+  {k:'prolabore',t:'💼 Pró-labore'},
+  {k:'historico',t:'🕘 Históricos'},
+  {k:'mensagens',t:'💬 Mensagens'}
+];
+function podeAcessarPagina(pg){
+  if(userRole==='admin')return true;
+  const p=userPaginas||[];
+  if(p.includes(pg))return true;
+  return p.some(x=>x.indexOf(pg+'.')===0); // tem alguma sub-aba dessa página
+}
+function podeAcessarSub(parent,sub){
+  if(userRole==='admin')return true;
+  const p=userPaginas||[];
+  return p.includes(parent)||p.includes(parent+'.'+sub);
+}
+function primeiraPaginaAcessivel(){
+  if(userRole==='admin')return 'dashboard';
+  const ordem=['tarefas','dashboard','clientes','caminho','cobrancas','comercial','irpf','despesas','relatorios','prolabore','historico','mensagens'];
+  return ordem.find(pg=>podeAcessarPagina(pg))||'tarefas';
+}
+function aplicarVisibilidadeMenu(){
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    const pg=el.getAttribute('data-page'); if(!pg)return;
+    el.style.display=podeAcessarPagina(pg)?'':'none';
+  });
+}
+
 function go(pg){
-  // Colaborador só acessa tarefas
-  if(userRole==='colaborador'&&pg!=='tarefas'){pg='tarefas';}
+  // Colaborador: só acessa o que foi liberado
+  if(userRole!=='admin'&&!podeAcessarPagina(pg)){pg=primeiraPaginaAcessivel();}
   // Lembra a última tela aberta (para não voltar ao Dashboard quando a página é atualizada)
   try{localStorage.setItem('rc_last_page',pg);}catch(e){}
   document.querySelectorAll('[id^="pg-"]').forEach(el=>el.classList.add('hidden'));
@@ -2428,6 +2477,12 @@ async function toggleCaminho(clienteId,passoId,checked,boxId){
 // ================= COMERCIAL =================
 let _leads=[],_indics=[],_comissoes=[],_contatos=[];
 function comTab(t){
+  // Colaborador: esconde abas não liberadas e cai na primeira permitida
+  const _subs=['crm','indicacoes','comissoes','contatos','emailmkt','ads'];
+  if(userRole!=='admin'){
+    document.querySelectorAll('#pg-comercial .com-tab').forEach(b=>{b.style.display=podeAcessarSub('comercial',b.dataset.ct)?'':'none';});
+    if(!podeAcessarSub('comercial',t)) t=_subs.find(s=>podeAcessarSub('comercial',s))||t;
+  }
   document.querySelectorAll('#pg-comercial .com-tab').forEach(b=>b.classList.toggle('active',b.dataset.ct===t));
   document.querySelectorAll('#pg-comercial .com-pane').forEach(p=>p.classList.add('hidden'));
   document.getElementById('ct-'+t).classList.remove('hidden');
@@ -4608,12 +4663,14 @@ async function carregarPermissoes(){
   const email=document.getElementById('perm-user').value;
   if(!email){document.getElementById('perm-clientes-wrap').classList.add('hidden');return;}
   // Buscar dados do user
-  const {data:usr}=await db.from('usuarios').select('departamentos_permitidos').eq('email',email).single();
+  const {data:usr}=await db.from('usuarios').select('departamentos_permitidos,paginas_liberadas').eq('email',email).single();
   const depts=(usr&&usr.departamentos_permitidos)||['fiscal','pessoal','contabil'];
   // Marcar checkboxes de departamento
   document.querySelectorAll('.perm-dept-cb').forEach(cb=>{
     cb.checked=depts.includes(cb.value);
   });
+  // Árvore de páginas/abas liberadas
+  renderPermPaginas((usr&&Array.isArray(usr.paginas_liberadas))?usr.paginas_liberadas:[]);
   // Buscar todos os clientes ativos
   const {data:clis}=await db.from('clientes').select('id,nome').eq('status','ativo').order('nome');
   permClisList=clis||[];
@@ -4651,22 +4708,55 @@ function toggleTodosPerm(marcar){
   });
 }
 
+// ===== Árvore de páginas/abas (Permissões) =====
+function renderPermPaginas(selected){
+  selected=selected||[];
+  const full=k=>selected.includes(k);
+  const subOn=(k,s)=>selected.includes(k)||selected.includes(k+'.'+s);
+  const box=document.getElementById('perm-paginas-grid'); if(!box)return;
+  box.innerHTML=PERM_PAGES.map(p=>{
+    let h='<div style="border:1px solid #e2e8f0;border-radius:10px;padding:.55rem .8rem;margin-bottom:.5rem">';
+    h+='<label style="display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;cursor:pointer"><input type="checkbox" class="perm-pg-cb" value="'+p.k+'" '+(full(p.k)?'checked':'')+' onchange="onPermPgToggle(this)"> '+p.t+(p.subs?' <span style="font-size:10.5px;color:#94a3b8;font-weight:400">(ou escolha abas abaixo)</span>':'')+'</label>';
+    if(p.subs){
+      h+='<div style="display:flex;flex-wrap:wrap;gap:.45rem 1.1rem;margin:.55rem 0 .15rem 1.6rem">';
+      h+=p.subs.map(s=>'<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#475569;cursor:pointer"><input type="checkbox" class="perm-sub-cb" data-parent="'+p.k+'" value="'+s.k+'" '+(subOn(p.k,s.k)?'checked':'')+(full(p.k)?' disabled':'')+'> '+s.t+'</label>').join('');
+      h+='</div>';
+    }
+    return h+'</div>';
+  }).join('');
+}
+function onPermPgToggle(cb){
+  document.querySelectorAll('.perm-sub-cb[data-parent="'+cb.value+'"]').forEach(s=>{
+    if(cb.checked){s.checked=true;s.disabled=true;}else{s.disabled=false;}
+  });
+}
+function coletarPaginasPerm(){
+  const sel=[];
+  PERM_PAGES.forEach(p=>{
+    const pcb=document.querySelector('.perm-pg-cb[value="'+p.k+'"]');
+    if(pcb&&pcb.checked){sel.push(p.k);return;}
+    if(p.subs){p.subs.forEach(s=>{const scb=document.querySelector('.perm-sub-cb[data-parent="'+p.k+'"][value="'+s.k+'"]');if(scb&&scb.checked)sel.push(p.k+'.'+s.k);});}
+  });
+  return sel;
+}
 async function salvarPermissoes(){
   const email=document.getElementById('perm-user').value;
   if(!email)return;
   const marcados=[...document.querySelectorAll('.perm-cb:checked')].map(cb=>cb.value);
-  const depts=[...document.querySelectorAll('.perm-dept-cb:checked')].map(cb=>cb.value);
-  if(!depts.length){alerta('alerta-perm','⚠ Selecione ao menos um departamento.','e');return;}
-  // Salvar departamentos no perfil do usuário
-  await db.from('usuarios').update({departamentos_permitidos:depts}).eq('email',email);
+  let depts=[...document.querySelectorAll('.perm-dept-cb:checked')].map(cb=>cb.value);
+  if(!depts.length) depts=['fiscal','pessoal','contabil']; // sem depto marcado = todos (não bloqueia)
+  const paginas=coletarPaginasPerm();
+  if(!paginas.length){alerta('alerta-perm','⚠ Libere ao menos uma página/aba para este colaborador.','e');return;}
+  // Salvar departamentos + páginas liberadas no perfil
+  await db.from('usuarios').update({departamentos_permitidos:depts,paginas_liberadas:paginas}).eq('email',email);
   // Limpar permissões de clientes e inserir novas
   await db.from('usuario_clientes').delete().eq('usuario_email',email);
   if(marcados.length){
     const novas=marcados.map(cid=>({usuario_email:email,cliente_id:cid}));
     await db.from('usuario_clientes').insert(novas);
   }
-  alerta('alerta-perm','✅ Permissões salvas! '+marcados.length+' clientes e '+depts.length+' departamento(s) liberados.','s');
-  if(typeof invalidarRespMap==='function') invalidarRespMap(); // o filtro/marcador de responsável reflete a nova divisão
+  alerta('alerta-perm','✅ Permissões salvas! '+paginas.length+' página(s)/aba(s), '+marcados.length+' clientes, '+depts.length+' departamento(s).','s');
+  if(typeof invalidarRespMap==='function') invalidarRespMap();
 }
 
 let todasTarefas=[];
