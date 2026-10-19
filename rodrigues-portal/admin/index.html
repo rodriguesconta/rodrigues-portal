@@ -2974,7 +2974,7 @@ function abrirCaminhoCliente(id){
 }
 
 // ================= E-MAIL MARKETING =================
-let _campanhas=[],_econtatos=[],_emMotorOk=false;
+let _campanhas=[],_econtatos=[],_emMotorOk=false,_bancoContatos=[];
 async function carregarEmailMkt(){
   // Status do motor (Resend): verifica se há chave configurada
   try{
@@ -2983,6 +2983,8 @@ async function carregarEmailMkt(){
     const el=document.getElementById('em-motor-status');
     if(el){el.textContent=_emMotorOk?'ligado ✅ (Resend)':'desligado — sem chave Resend';el.style.color=_emMotorOk?'#16a34a':'#b45309';}
   }catch(e){const el=document.getElementById('em-motor-status');if(el){el.textContent='desligado';el.style.color='#b45309';}_emMotorOk=false;}
+  // Base de Contatos com e-mail (campanhas podem disparar direto para ela)
+  try{const {data:bc}=await db.from('contatos').select('nome,email,empresa_nome').not('email','is',null);_bancoContatos=(bc||[]).filter(c=>c.email&&/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.email));}catch(e){_bancoContatos=[];}
   await carregarEmailContatos(); // precisa das listas/totais para as campanhas
   emSub('campanhas');
 }
@@ -3002,7 +3004,7 @@ function preencherListasOpcoes(){
   const fil=document.getElementById('fil-elista');
   if(fil){const cur=fil.value;fil.innerHTML='<option value="">Todas as listas</option>'+listas.map(l=>'<option value="'+l+'">'+l+'</option>').join('');fil.value=cur;}
   const dl=document.getElementById('dl-listas');if(dl)dl.innerHTML=listas.map(l=>'<option value="'+l+'">').join('');
-  const cp=document.getElementById('cp-lista');if(cp){const cur=cp.value;cp.innerHTML='<option value="todos">Todos os contatos</option>'+listas.map(l=>'<option value="'+l+'">'+l+'</option>').join('');cp.value=cur||'todos';}
+  const cp=document.getElementById('cp-lista');if(cp){const cur=cp.value;cp.innerHTML='<option value="banco">📇 Base de Contatos — com e-mail ('+_bancoContatos.length+')</option><optgroup label="Listas de e-mail (importadas)"><option value="todos">Todas as listas</option>'+listas.map(l=>'<option value="'+l+'">'+l+'</option>').join('')+'</optgroup>';cp.value=cur||'banco';}
 }
 function renderEmailContatos(){
   const fL=document.getElementById('fil-elista').value;
@@ -3079,7 +3081,7 @@ function abrirModalCampanha(){
   document.getElementById('m-camp-title').textContent='Nova campanha';
   ['cp-id','cp-nome','cp-assunto','cp-corpo'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('cp-remetente').value='Rodrigues Assessoria';
-  document.getElementById('cp-lista').value='todos';
+  document.getElementById('cp-lista').value='banco';
   document.getElementById('cp-preview').style.display='none';
   document.getElementById('cp-dest-info').textContent='';
   document.getElementById('cp-err').classList.add('hidden');
@@ -3100,7 +3102,10 @@ function editarCampanha(id){
   document.getElementById('cp-err').classList.add('hidden');
   document.getElementById('m-campanha').classList.remove('hidden');
 }
-function _destinatariosCampanha(lista){return _econtatos.filter(c=>c.status==='ativo'&&(lista==='todos'||!lista||c.lista===lista));}
+function _destinatariosCampanha(lista){
+  if(lista==='banco')return _bancoContatos.map(c=>({nome:c.nome,email:c.email,empresa_nome:c.empresa_nome,status:'ativo'}));
+  return _econtatos.filter(c=>c.status==='ativo'&&(lista==='todos'||!lista||c.lista===lista));
+}
 function previewCampanha(){
   const corpo=document.getElementById('cp-corpo').value||'';
   const lista=document.getElementById('cp-lista').value;
