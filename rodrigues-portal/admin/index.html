@@ -914,11 +914,32 @@ tr:hover td{background:#f8fafc}
 
       <!-- E-MAIL MARKETING -->
       <div id="ct-emailmkt" class="com-pane hidden">
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem;text-align:center">
-          <div style="font-size:34px">✉️</div>
-          <h3 style="margin:.4rem 0;color:#1e293b">E-mail Marketing</h3>
-          <p style="font-size:13px;color:#64748b;max-width:460px;margin:0 auto .9rem">Dispare campanhas para o Banco de Contatos (clientes, leads e parceiros). Vamos ligar ao provedor de e-mail já configurado em <strong>Integrações</strong>.</p>
-          <span class="badge badge-amber">Em breve — próxima entrega</span>
+        <div style="display:flex;gap:6px;margin-bottom:.9rem">
+          <button class="btn btn-sm em-sub" data-em="campanhas" onclick="emSub('campanhas')" style="font-weight:600">📣 Campanhas</button>
+          <button class="btn btn-sm em-sub" data-em="listas" onclick="emSub('listas')" style="font-weight:600">👥 Listas de contatos</button>
+        </div>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:.6rem .85rem;margin-bottom:1rem;font-size:11.5px;color:#1e40af">
+          ⚙️ Motor de envio: <strong id="em-motor-status">verificando...</strong> — o disparo real usa o provedor <strong>Resend</strong> (chave em Integrações). Enquanto não houver chave, você monta, revisa e salva tudo normalmente; só o disparo fica bloqueado.
+        </div>
+
+        <!-- CAMPANHAS -->
+        <div id="em-campanhas">
+          <div class="cm-bar">
+            <button class="btn btn-sm" style="background:#4A6BD4;color:#fff;border:none;font-weight:600" onclick="abrirModalCampanha()">+ Nova campanha</button>
+            <button class="btn btn-sm" onclick="carregarCampanhas()">🔄 Atualizar</button>
+          </div>
+          <div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:10px"><table><thead><tr><th>Campanha</th><th>Assunto</th><th>Público</th><th>Status</th><th>Enviados</th><th></th></tr></thead><tbody id="camp-tbody"></tbody></table></div>
+        </div>
+
+        <!-- LISTAS -->
+        <div id="em-listas" class="hidden">
+          <div class="cm-bar">
+            <button class="btn btn-sm" style="background:#4A6BD4;color:#fff;border:none;font-weight:600" onclick="abrirModalEmailContato()">+ Novo contato</button>
+            <select id="fil-elista" class="si" style="width:180px" onchange="renderEmailContatos()"><option value="">Todas as listas</option></select>
+            <input class="si" id="busca-econt" placeholder="🔍 Buscar nome/e-mail/empresa..." oninput="renderEmailContatos()" style="flex:1;min-width:160px;font-size:13px;padding:8px 12px">
+          </div>
+          <div class="cm-tiles" id="econt-tiles"></div>
+          <div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:10px"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Empresa</th><th>Lista</th><th>Status</th><th></th></tr></thead><tbody id="econt-tbody"></tbody></table></div>
         </div>
       </div>
 
@@ -1517,6 +1538,60 @@ tr:hover td{background:#f8fafc}
     <div id="cm-caminho-box"><p style="font-size:11.5px;color:#94a3b8">Carregando...</p></div>
     <div class="ma">
       <button class="btn btn-sm" onclick="fecharModal('m-caminho')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CAMPANHA DE E-MAIL -->
+<div id="m-campanha" class="overlay hidden">
+  <div class="modal" style="max-width:680px">
+    <h2 id="m-camp-title">Nova campanha</h2>
+    <input type="hidden" id="cp-id">
+    <div class="fr">
+      <div class="fg" style="flex:2"><label>Nome interno da campanha *</label><input id="cp-nome" placeholder="Ex.: Promo abertura de CNPJ — Outubro"></div>
+      <div class="fg"><label>Público (lista)</label><select id="cp-lista" class="si" style="width:100%" onchange="previewCampanha()"><option value="todos">Todos os contatos</option></select></div>
+    </div>
+    <div class="fr">
+      <div class="fg" style="flex:2"><label>Assunto do e-mail *</label><input id="cp-assunto" placeholder="O que aparece na caixa de entrada"></div>
+      <div class="fg"><label>Nome do remetente</label><input id="cp-remetente" placeholder="Rodrigues Assessoria"></div>
+    </div>
+    <div class="fg"><label>Corpo do e-mail (HTML ou texto)</label>
+      <textarea id="cp-corpo" rows="9" style="width:100%;resize:vertical;font-family:monospace;font-size:12px" placeholder="Olá {{nome}},&#10;&#10;Escreva aqui sua mensagem...&#10;&#10;Abraço,&#10;Rodrigues Assessoria"></textarea>
+      <p style="font-size:10.5px;color:#94a3b8;margin-top:3px">Dica: use <code>{{nome}}</code> e <code>{{empresa}}</code> — serão trocados pelos dados de cada contato.</p>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:center;margin:.3rem 0 .6rem;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="previewCampanha()">👁 Pré-visualizar</button>
+      <span id="cp-dest-info" style="font-size:11.5px;color:#64748b"></span>
+    </div>
+    <div id="cp-preview" style="display:none;border:1px solid #e2e8f0;border-radius:10px;padding:1rem;background:#fff;margin-bottom:.6rem;max-height:260px;overflow:auto"></div>
+    <p class="err hidden" id="cp-err"></p>
+    <div class="ma">
+      <button class="btn btn-sm" onclick="fecharModal('m-campanha')">Cancelar</button>
+      <button class="btn btn-sm" onclick="salvarCampanha('rascunho')">💾 Salvar rascunho</button>
+      <button class="btn btn-primary btn-sm" onclick="enviarCampanha()">📤 Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONTATO DE E-MAIL (lista marketing) -->
+<div id="m-econtato" class="overlay hidden">
+  <div class="modal" style="max-width:480px">
+    <h2 id="m-econt-title">Novo contato de e-mail</h2>
+    <input type="hidden" id="ec-id">
+    <div class="fr"><div class="fg" style="flex:1"><label>E-mail *</label><input type="email" id="ec-email"></div></div>
+    <div class="fr">
+      <div class="fg"><label>Nome</label><input id="ec-nome"></div>
+      <div class="fg"><label>Empresa</label><input id="ec-empresa"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Lista</label><input id="ec-lista" placeholder="Ex.: Empresas RJ" list="dl-listas"><datalist id="dl-listas"></datalist></div>
+      <div class="fg"><label>Status</label><select id="ec-status" class="si" style="width:100%"><option value="ativo">Ativo</option><option value="descadastrado">Descadastrado</option><option value="invalido">Inválido</option></select></div>
+    </div>
+    <div class="fr"><div class="fg" style="flex:1"><label>Telefone (opcional)</label><input id="ec-tel"></div></div>
+    <p class="err hidden" id="ec-err"></p>
+    <div class="ma">
+      <button class="btn btn-sm" onclick="fecharModal('m-econtato')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarEmailContato()">Salvar</button>
     </div>
   </div>
 </div>
@@ -2316,6 +2391,7 @@ function comTab(t){
   else if(t==='indicacoes')carregarIndicacoes();
   else if(t==='comissoes'){const f=document.getElementById('fil-com-comp');if(!f.value){const d=new Date();f.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}carregarComissoes();}
   else if(t==='contatos')carregarContatos();
+  else if(t==='emailmkt')carregarEmailMkt();
 }
 function carregarComercial(){comTab('crm');}
 
@@ -2621,6 +2697,179 @@ function abrirCaminhoCliente(id){
   document.getElementById('m-caminho').classList.remove('hidden');
   carregarCaminho(id,'cm-caminho-box');
 }
+
+// ================= E-MAIL MARKETING =================
+let _campanhas=[],_econtatos=[],_emMotorOk=false;
+async function carregarEmailMkt(){
+  // Status do motor (Resend): verifica se há chave configurada
+  try{
+    const {data:ig}=await db.from('integracoes').select('email_provider_key,email_provider,email_remetente').eq('empresa_id',userEmpresa).maybeSingle();
+    _emMotorOk=!!(ig&&ig.email_provider_key&&String(ig.email_provider_key).trim());
+    const el=document.getElementById('em-motor-status');
+    if(el){el.textContent=_emMotorOk?'ligado ✅ (Resend)':'desligado — sem chave Resend';el.style.color=_emMotorOk?'#16a34a':'#b45309';}
+  }catch(e){const el=document.getElementById('em-motor-status');if(el){el.textContent='desligado';el.style.color='#b45309';}_emMotorOk=false;}
+  await carregarEmailContatos(); // precisa das listas/totais para as campanhas
+  emSub('campanhas');
+}
+function emSub(which){
+  document.querySelectorAll('#ct-emailmkt .em-sub').forEach(b=>{const on=b.dataset.em===which;b.style.background=on?'#1e293b':'';b.style.color=on?'#fff':'';});
+  document.getElementById('em-campanhas').classList.toggle('hidden',which!=='campanhas');
+  document.getElementById('em-listas').classList.toggle('hidden',which!=='listas');
+  if(which==='campanhas')carregarCampanhas();
+  else renderEmailContatos();
+}
+
+/* ----- Listas de contatos ----- */
+async function carregarEmailContatos(){const {data}=await db.from('email_contatos').select('*').order('nome').limit(5000);_econtatos=data||[];preencherListasOpcoes();renderEmailContatos();}
+function listasDistintas(){return [...new Set(_econtatos.map(c=>c.lista).filter(Boolean))].sort();}
+function preencherListasOpcoes(){
+  const listas=listasDistintas();
+  const fil=document.getElementById('fil-elista');
+  if(fil){const cur=fil.value;fil.innerHTML='<option value="">Todas as listas</option>'+listas.map(l=>'<option value="'+l+'">'+l+'</option>').join('');fil.value=cur;}
+  const dl=document.getElementById('dl-listas');if(dl)dl.innerHTML=listas.map(l=>'<option value="'+l+'">').join('');
+  const cp=document.getElementById('cp-lista');if(cp){const cur=cp.value;cp.innerHTML='<option value="todos">Todos os contatos</option>'+listas.map(l=>'<option value="'+l+'">'+l+'</option>').join('');cp.value=cur||'todos';}
+}
+function renderEmailContatos(){
+  const fL=document.getElementById('fil-elista').value;
+  const q=(document.getElementById('busca-econt').value||'').toLowerCase();
+  const ativos=_econtatos.filter(c=>c.status==='ativo').length;
+  const desc=_econtatos.filter(c=>c.status==='descadastrado').length;
+  const tiles=document.getElementById('econt-tiles');
+  if(tiles)tiles.innerHTML=
+    '<div class="cm-tile" style="border-top-color:#4A6BD4"><div class="l">Total</div><div class="v">'+_econtatos.length+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#16a34a"><div class="l">Ativos</div><div class="v" style="color:#16a34a">'+ativos+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#94a3b8"><div class="l">Descadastrados</div><div class="v" style="color:#64748b">'+desc+'</div></div>'+
+    '<div class="cm-tile" style="border-top-color:#F57C1A"><div class="l">Listas</div><div class="v" style="color:#F57C1A">'+listasDistintas().length+'</div></div>';
+  const list=_econtatos.filter(c=>(!fL||c.lista===fL)&&(!q||((c.nome||'')+' '+(c.email||'')+' '+(c.empresa_nome||'')).toLowerCase().includes(q)));
+  const tb=document.getElementById('econt-tbody');
+  if(!list.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:1.2rem">Nenhum contato. Importaremos sua lista de empresas aqui.</td></tr>';return;}
+  const stCor={ativo:'#16a34a',descadastrado:'#94a3b8',invalido:'#dc2626'};
+  tb.innerHTML=list.slice(0,1000).map(c=>{const cor=stCor[c.status]||'#64748b';return '<tr>'+
+    '<td style="font-weight:600">'+(c.nome||'—')+'</td>'+
+    '<td style="font-size:12px;color:#64748b">'+(c.email||'—')+'</td>'+
+    '<td style="font-size:12px">'+(c.empresa_nome||'—')+'</td>'+
+    '<td style="font-size:12px">'+(c.lista||'—')+'</td>'+
+    '<td><span style="font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:'+cor+'22;color:'+cor+'">'+(c.status||'ativo')+'</span></td>'+
+    '<td style="white-space:nowrap"><button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:none" onclick="editarEmailContato(\''+c.id+'\')">✏</button> <button class="btn btn-sm btn-danger" onclick="excluirEmailContato(\''+c.id+'\')">🗑</button></td>'+
+    '</tr>';}).join('')+(list.length>1000?'<tr><td colspan="6" style="text-align:center;color:#94a3b8;font-size:11px;padding:.6rem">Mostrando os primeiros 1000 de '+list.length+'. Use a busca/filtro.</td></tr>':'');
+}
+function abrirModalEmailContato(){
+  document.getElementById('m-econt-title').textContent='Novo contato de e-mail';
+  ['ec-id','ec-email','ec-nome','ec-empresa','ec-lista','ec-tel'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ec-status').value='ativo';
+  document.getElementById('ec-err').classList.add('hidden');
+  document.getElementById('m-econtato').classList.remove('hidden');
+}
+function editarEmailContato(id){
+  const c=_econtatos.find(x=>x.id===id);if(!c)return;
+  document.getElementById('m-econt-title').textContent='Editar contato';
+  document.getElementById('ec-id').value=c.id;
+  document.getElementById('ec-email').value=c.email||'';
+  document.getElementById('ec-nome').value=c.nome||'';
+  document.getElementById('ec-empresa').value=c.empresa_nome||'';
+  document.getElementById('ec-lista').value=c.lista||'';
+  document.getElementById('ec-status').value=c.status||'ativo';
+  document.getElementById('ec-tel').value=c.telefone||'';
+  document.getElementById('ec-err').classList.add('hidden');
+  document.getElementById('m-econtato').classList.remove('hidden');
+}
+async function salvarEmailContato(){
+  const id=document.getElementById('ec-id').value;
+  const p={email:document.getElementById('ec-email').value.trim().toLowerCase(),nome:document.getElementById('ec-nome').value.trim()||null,empresa_nome:document.getElementById('ec-empresa').value.trim()||null,lista:document.getElementById('ec-lista').value.trim()||null,status:document.getElementById('ec-status').value,telefone:document.getElementById('ec-tel').value.trim()||null,origem:'manual'};
+  const err=document.getElementById('ec-err');
+  if(!p.email||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(p.email)){err.textContent='Informe um e-mail válido.';err.classList.remove('hidden');return;}
+  const {error}=id?await db.from('email_contatos').update(p).eq('id',id):await db.from('email_contatos').insert([p]);
+  if(error){err.textContent=(error.code==='23505'?'Esse e-mail já está na base.':error.message);err.classList.remove('hidden');return;}
+  fecharModal('m-econtato');carregarEmailContatos();
+}
+async function excluirEmailContato(id){if(!confirm('Remover este contato da base de e-mail?'))return;await db.from('email_contatos').delete().eq('id',id);carregarEmailContatos();}
+
+/* ----- Campanhas ----- */
+async function carregarCampanhas(){const {data}=await db.from('email_campanhas').select('*').order('created_at',{ascending:false}).limit(500);_campanhas=data||[];renderCampanhas();}
+function renderCampanhas(){
+  const stMap={rascunho:['#94a3b8','rascunho'],pronta:['#F57C1A','pronta'],enviando:['#4A6BD4','enviando'],enviada:['#16a34a','enviada ✓']};
+  const tb=document.getElementById('camp-tbody');
+  if(!_campanhas.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:1.2rem">Nenhuma campanha ainda. Clique em "+ Nova campanha".</td></tr>';return;}
+  tb.innerHTML=_campanhas.map(c=>{const st=stMap[c.status]||['#64748b',c.status||'—'];return '<tr>'+
+    '<td style="font-weight:600">'+(c.nome||'—')+'</td>'+
+    '<td style="font-size:12px;color:#64748b">'+(c.assunto||'—')+'</td>'+
+    '<td style="font-size:12px">'+(c.lista_alvo==='todos'||!c.lista_alvo?'Todos':c.lista_alvo)+' ('+(c.total_destinatarios||0)+')</td>'+
+    '<td><span style="font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:'+st[0]+'22;color:'+st[0]+'">'+st[1]+'</span></td>'+
+    '<td style="font-size:12px">'+(c.enviados||0)+'</td>'+
+    '<td style="white-space:nowrap"><button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:none" onclick="editarCampanha(\''+c.id+'\')">✏</button> <button class="btn btn-sm btn-danger" onclick="excluirCampanha(\''+c.id+'\')">🗑</button></td>'+
+    '</tr>';}).join('');
+}
+function abrirModalCampanha(){
+  preencherListasOpcoes();
+  document.getElementById('m-camp-title').textContent='Nova campanha';
+  ['cp-id','cp-nome','cp-assunto','cp-corpo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cp-remetente').value='Rodrigues Assessoria';
+  document.getElementById('cp-lista').value='todos';
+  document.getElementById('cp-preview').style.display='none';
+  document.getElementById('cp-dest-info').textContent='';
+  document.getElementById('cp-err').classList.add('hidden');
+  document.getElementById('m-campanha').classList.remove('hidden');
+}
+function editarCampanha(id){
+  const c=_campanhas.find(x=>x.id===id);if(!c)return;
+  preencherListasOpcoes();
+  document.getElementById('m-camp-title').textContent='Editar campanha';
+  document.getElementById('cp-id').value=c.id;
+  document.getElementById('cp-nome').value=c.nome||'';
+  document.getElementById('cp-assunto').value=c.assunto||'';
+  document.getElementById('cp-remetente').value=c.remetente_nome||'Rodrigues Assessoria';
+  document.getElementById('cp-corpo').value=c.corpo_html||'';
+  document.getElementById('cp-lista').value=c.lista_alvo||'todos';
+  document.getElementById('cp-preview').style.display='none';
+  document.getElementById('cp-dest-info').textContent='';
+  document.getElementById('cp-err').classList.add('hidden');
+  document.getElementById('m-campanha').classList.remove('hidden');
+}
+function _destinatariosCampanha(lista){return _econtatos.filter(c=>c.status==='ativo'&&(lista==='todos'||!lista||c.lista===lista));}
+function previewCampanha(){
+  const corpo=document.getElementById('cp-corpo').value||'';
+  const lista=document.getElementById('cp-lista').value;
+  const dests=_destinatariosCampanha(lista);
+  const sample=dests[0]||{nome:'Fulano de Tal',empresa_nome:'Empresa Exemplo'};
+  const html=corpo.replace(/{{\s*nome\s*}}/gi,sample.nome||'cliente').replace(/{{\s*empresa\s*}}/gi,sample.empresa_nome||'sua empresa');
+  const box=document.getElementById('cp-preview');
+  box.style.display='block';
+  box.innerHTML='<div style="font-size:11px;color:#94a3b8;margin-bottom:.5rem">Prévia (dados de exemplo) — assunto: <strong>'+(document.getElementById('cp-assunto').value||'(sem assunto)')+'</strong></div><div style="font-size:13px;line-height:1.5;color:#1e293b;white-space:pre-wrap">'+html+'</div>';
+  document.getElementById('cp-dest-info').textContent='📬 '+dests.length+' destinatário(s) ativos nesta seleção';
+}
+async function salvarCampanha(status,silencioso){
+  const id=document.getElementById('cp-id').value;
+  const lista=document.getElementById('cp-lista').value;
+  const p={nome:document.getElementById('cp-nome').value.trim(),assunto:document.getElementById('cp-assunto').value.trim(),remetente_nome:document.getElementById('cp-remetente').value.trim()||null,corpo_html:document.getElementById('cp-corpo').value||null,lista_alvo:lista,status:status||'rascunho',total_destinatarios:_destinatariosCampanha(lista).length};
+  const err=document.getElementById('cp-err');
+  if(!p.nome||!p.assunto){err.textContent='Nome e assunto são obrigatórios.';err.classList.remove('hidden');return false;}
+  const {data:ret,error}=id?await db.from('email_campanhas').update(p).eq('id',id).select().single():await db.from('email_campanhas').insert([p]).select().single();
+  if(error){err.textContent=error.message;err.classList.remove('hidden');return false;}
+  const cid=(ret&&ret.id)||id;
+  document.getElementById('cp-id').value=cid;
+  if(!silencioso){alerta('alerta-com','💾 Campanha salva.','s');fecharModal('m-campanha');carregarCampanhas();}
+  return cid;
+}
+async function enviarCampanha(){
+  const cid=await salvarCampanha('pronta',true);
+  if(!cid)return;
+  if(!_emMotorOk){
+    alerta('alerta-com','✋ Campanha salva como "pronta". O motor de envio (Resend) ainda não está ligado — adicione a chave do Resend em Integrações para disparar.','t');
+    fecharModal('m-campanha');carregarCampanhas();return;
+  }
+  const dests=_destinatariosCampanha(document.getElementById('cp-lista').value);
+  if(!dests.length){alerta('alerta-com','Nenhum destinatário ativo nesta lista.','e');return;}
+  if(!confirm('Enviar a campanha agora para '+dests.length+' destinatário(s)?'))return;
+  try{
+    const {data:{session}}=await db.auth.getSession();
+    const r=await fetch('/.netlify/functions/email-campanha',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+((session&&session.access_token)||'')},body:JSON.stringify({empresa_id:userEmpresa,campanha_id:cid})});
+    const rj=await r.json().catch(()=>({}));
+    if(r.ok&&rj.ok){alerta('alerta-com','✅ Campanha enviada! '+(rj.enviados||0)+' e-mail(s).','s');}
+    else{alerta('alerta-com','Não enviou: '+(rj.erro||'erro'),'e');}
+  }catch(e){alerta('alerta-com','Falha ao enviar: '+e.message,'e');}
+  fecharModal('m-campanha');carregarCampanhas();
+}
+async function excluirCampanha(id){if(!confirm('Excluir esta campanha?'))return;await db.from('email_campanhas').delete().eq('id',id);carregarCampanhas();}
 async function excluirCli(id,nome){
   if(!confirm('Excluir "'+nome+'"? Todos os dados serão apagados permanentemente.'))return;
   await db.from('cobrancas').delete().eq('cliente_id',id);
