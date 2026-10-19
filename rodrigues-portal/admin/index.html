@@ -183,7 +183,11 @@ tr:hover td{background:#f8fafc}
 .ic-sm{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .vtag{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;margin-left:.35rem;vertical-align:middle}
 /* ===== TOP BAR PROFISSIONAL ===== */
-.apptop{background:#fff;border-bottom:1px solid #e6eaf1;display:flex;align-items:center;justify-content:flex-end;gap:.25rem;padding:.5rem 1.75rem;position:sticky;top:0;z-index:40}
+.apptop{background:#fff;border-bottom:1px solid #e6eaf1;display:flex;align-items:center;justify-content:space-between;gap:.25rem;padding:.55rem 1.75rem;position:sticky;top:0;z-index:40}
+.tb-left{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.tb-greet{font-size:15px;font-weight:700;color:#1e293b;line-height:1.15}
+.tb-date{font-size:11.5px;color:#94a3b8;margin-top:1px;text-transform:capitalize}
+.tb-right{display:flex;align-items:center;gap:.25rem}
 .tb-btn{background:none;border:none;cursor:pointer;padding:.5rem;border-radius:9px;position:relative;color:#475569;line-height:0}
 .tb-btn:hover{background:#f1f5f9}
 .tb-badge{position:absolute;top:3px;right:3px;background:#dc2626;color:#fff;font-size:9px;font-weight:700;border-radius:20px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px}
@@ -328,23 +332,29 @@ tr:hover td{background:#f8fafc}
   <div class="main">
     <!-- TOP BAR PROFISSIONAL -->
     <div class="apptop">
-      <button class="tb-btn" onclick="toggleTbDrop('tb-noti-drop')" title="Notificações">
-        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-        <span class="tb-badge hidden" id="tb-noti-count">0</span>
-      </button>
-      <div class="tb-drop" id="tb-noti-drop">
-        <div class="tb-drop-h">Notificações</div>
-        <div id="tb-noti-list"><p style="font-size:12px;color:#94a3b8;padding:.9rem">Sem novidades.</p></div>
+      <div class="tb-left">
+        <div class="tb-greet" id="tb-greet">Bem-vindo</div>
+        <div class="tb-date" id="tb-date"></div>
       </div>
-      <div class="tb-div"></div>
-      <div class="tb-user" onclick="toggleTbDrop('tb-user-drop')">
-        <div class="tb-av" id="tb-av">--</div>
-        <div><div class="tb-un" id="tb-user-name">—</div><div class="tb-ur" id="tb-user-role">—</div></div>
-      </div>
-      <div class="tb-drop tb-menu" id="tb-user-drop" style="width:220px">
-        <a onclick="go('integracoes')">🔗 Integrações</a>
-        <a onclick="go('permissoes')">👥 Permissões</a>
-        <a class="sair" onclick="logout()">⎋ Sair</a>
+      <div class="tb-right">
+        <button class="tb-btn" onclick="toggleTbDrop('tb-noti-drop')" title="Notificações">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span class="tb-badge hidden" id="tb-noti-count">0</span>
+        </button>
+        <div class="tb-drop" id="tb-noti-drop">
+          <div class="tb-drop-h">Notificações</div>
+          <div id="tb-noti-list"><p style="font-size:12px;color:#94a3b8;padding:.9rem">Sem novidades.</p></div>
+        </div>
+        <div class="tb-div"></div>
+        <div class="tb-user" onclick="toggleTbDrop('tb-user-drop')">
+          <div class="tb-av" id="tb-av">--</div>
+          <div><div class="tb-un" id="tb-user-name">—</div><div class="tb-ur" id="tb-user-role">—</div></div>
+        </div>
+        <div class="tb-drop tb-menu" id="tb-user-drop" style="width:220px">
+          <a onclick="go('integracoes')">🔗 Integrações</a>
+          <a onclick="go('permissoes')">👥 Permissões</a>
+          <a class="sair" onclick="logout()">⎋ Sair</a>
+        </div>
       </div>
     </div>
 
@@ -935,8 +945,10 @@ tr:hover td{background:#f8fafc}
         <div id="em-listas" class="hidden">
           <div class="cm-bar">
             <button class="btn btn-sm" style="background:#4A6BD4;color:#fff;border:none;font-weight:600" onclick="abrirModalEmailContato()">+ Novo contato</button>
-            <select id="fil-elista" class="si" style="width:180px" onchange="renderEmailContatos()"><option value="">Todas as listas</option></select>
-            <input class="si" id="busca-econt" placeholder="🔍 Buscar nome/e-mail/empresa..." oninput="renderEmailContatos()" style="flex:1;min-width:160px;font-size:13px;padding:8px 12px">
+            <button class="btn btn-sm" style="background:#16a34a;color:#fff;border:none;font-weight:600" onclick="document.getElementById('csv-email-input').click()">⬆ Importar CSV</button>
+            <input type="file" id="csv-email-input" accept=".csv,text/csv" style="display:none" onchange="importEmailCSV(this)">
+            <select id="fil-elista" class="si" style="width:170px" onchange="renderEmailContatos()"><option value="">Todas as listas</option></select>
+            <input class="si" id="busca-econt" placeholder="🔍 Buscar nome/e-mail/empresa..." oninput="renderEmailContatos()" style="flex:1;min-width:150px;font-size:13px;padding:8px 12px">
           </div>
           <div class="cm-tiles" id="econt-tiles"></div>
           <div class="tbl-wrap" style="border:1px solid #e2e8f0;border-radius:10px"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Empresa</th><th>Lista</th><th>Status</th><th></th></tr></thead><tbody id="econt-tbody"></tbody></table></div>
@@ -1561,8 +1573,10 @@ tr:hover td{background:#f8fafc}
     </div>
     <div style="display:flex;gap:.5rem;align-items:center;margin:.3rem 0 .6rem;flex-wrap:wrap">
       <button class="btn btn-sm" onclick="previewCampanha()">👁 Pré-visualizar</button>
+      <button class="btn btn-sm" onclick="analisarSpam()" style="background:#fef3c7;color:#92400e;border:none">🛡 Analisar SPAM</button>
       <span id="cp-dest-info" style="font-size:11.5px;color:#64748b"></span>
     </div>
+    <div id="cp-spam" style="display:none;border:1px solid #fde68a;border-radius:10px;padding:.8rem 1rem;background:#fffbeb;margin-bottom:.6rem"></div>
     <div id="cp-preview" style="display:none;border:1px solid #e2e8f0;border-radius:10px;padding:1rem;background:#fff;margin-bottom:.6rem;max-height:260px;overflow:auto"></div>
     <p class="err hidden" id="cp-err"></p>
     <div class="ma">
@@ -1830,6 +1844,12 @@ async function iniciar(u){
     document.getElementById('tb-av').textContent=ini2||'US';
     document.getElementById('tb-user-name').textContent=nomeU;
     document.getElementById('tb-user-role').textContent=userRole==='admin'?'Administrador':'Colaborador';
+    // Saudação + data na barra superior
+    const h=new Date().getHours();
+    const saud=h<12?'Bom dia':(h<18?'Boa tarde':'Boa noite');
+    const prim=(nomeU||'').trim().split(/\s+/)[0]||'';
+    document.getElementById('tb-greet').textContent=saud+(prim?', '+prim:'')+' 👋';
+    document.getElementById('tb-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     // Colaborador não vê atalhos de admin no menu do topo
     if(userRole!=='admin')document.querySelectorAll('#tb-user-drop a:not(.sair)').forEach(a=>a.style.display='none');
   }catch(e){}
@@ -2870,6 +2890,65 @@ async function enviarCampanha(){
   fecharModal('m-campanha');carregarCampanhas();
 }
 async function excluirCampanha(id){if(!confirm('Excluir esta campanha?'))return;await db.from('email_campanhas').delete().eq('id',id);carregarCampanhas();}
+function analisarSpam(){
+  const assunto=document.getElementById('cp-assunto').value||'';
+  const corpo=document.getElementById('cp-corpo').value||'';
+  const txt=assunto+' '+corpo, low=txt.toLowerCase();
+  let pts=0; const avisos=[];
+  const spamWords=['grátis','gratis','promoção','promocao','clique aqui','ganhe dinheiro','renda extra','urgente','100%','imperdível','imperdivel','sem juros','última chance','ultima chance','compre agora','sorteio','prêmio','premio','enriqueça','enriqueca','dinheiro fácil','dinheiro facil'];
+  const achadas=spamWords.filter(w=>low.includes(w));
+  if(achadas.length){pts+=achadas.length*8;avisos.push('Palavras que disparam filtros: '+achadas.slice(0,6).join(', ')+'.');}
+  const letras=assunto.replace(/[^A-Za-zÀ-ÿ]/g,''), caps=assunto.replace(/[^A-ZÀ-Þ]/g,'');
+  if(letras.length>5&&caps.length/letras.length>0.6){pts+=20;avisos.push('Assunto quase todo em MAIÚSCULAS.');}
+  const exc=(txt.match(/!/g)||[]).length; if(exc>=4){pts+=12;avisos.push('Excesso de "!" ('+exc+').');}
+  if(!assunto.trim()){pts+=25;avisos.push('Sem assunto.');} else if(assunto.length>70){pts+=8;avisos.push('Assunto longo ('+assunto.length+' caracteres) — ideal até ~60.');}
+  if(/\$\$|💰|🤑/.test(txt)){pts+=8;avisos.push('Símbolos de dinheiro no texto.');}
+  const emo=(txt.match(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu)||[]).length; if(emo>=6){pts+=8;avisos.push('Muitos emojis ('+emo+').');}
+  const links=(txt.match(/https?:\/\//g)||[]).length; if(links>=5){pts+=10;avisos.push('Muitos links ('+links+').');}
+  if(!/descadastr|cancelar inscri|unsubscribe|sair da lista/i.test(corpo)){pts+=10;avisos.push('Sem opção de descadastro — recomendado (LGPD) e melhora a entrega.');}
+  if(corpo.trim().length<40){pts+=8;avisos.push('Corpo muito curto.');}
+  pts=Math.min(100,pts);
+  let nivel,cor; if(pts<=20){nivel='Baixo risco ✅';cor='#16a34a';} else if(pts<=45){nivel='Risco médio';cor='#F57C1A';} else {nivel='Alto risco';cor='#dc2626';}
+  const box=document.getElementById('cp-spam'); box.style.display='block';
+  box.innerHTML='<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem"><strong style="color:'+cor+'">🛡 '+nivel+'</strong><span style="font-size:11px;color:#94a3b8">pontuação '+pts+'/100 (quanto menor, melhor)</span></div>'+
+    (avisos.length?'<ul style="margin:0;padding-left:1.1rem;font-size:12px;color:#475569">'+avisos.map(a=>'<li style="margin-bottom:2px">'+a+'</li>').join('')+'</ul>':'<p style="font-size:12px;color:#16a34a;margin:0">Nenhum problema relevante encontrado. Pode enviar com tranquilidade.</p>');
+}
+async function importEmailCSV(input){
+  const file=input.files&&input.files[0]; if(!file)return; input.value='';
+  const listaPadrao=prompt('Nome da lista para estes contatos (ex.: Empresas RJ).\nDeixe em branco para usar a coluna "lista" do arquivo, se houver:','');
+  let txt; try{txt=await file.text();}catch(e){alerta('alerta-com','Não consegui ler o arquivo.','e');return;}
+  const linhas=txt.split(/\r?\n/).filter(l=>l.trim());
+  if(linhas.length<2){alerta('alerta-com','Arquivo vazio ou só com cabeçalho.','e');return;}
+  const delim=((linhas[0].match(/;/g)||[]).length>(linhas[0].match(/,/g)||[]).length)?';':',';
+  const split=l=>l.split(delim).map(c=>c.trim().replace(/^"|"$/g,''));
+  const header=split(linhas[0]).map(h=>h.toLowerCase());
+  const idx=names=>{for(const n of names){const i=header.indexOf(n);if(i>=0)return i;}return -1;};
+  const iEmail=idx(['email','e-mail','mail']);
+  if(iEmail<0){alerta('alerta-com','Não encontrei a coluna de e-mail. Inclua um cabeçalho com "email".','e');return;}
+  const iNome=idx(['nome','name','contato','responsavel','responsável']);
+  const iEmp=idx(['empresa','empresa_nome','razao social','razão social','company','fantasia','razao_social']);
+  const iTel=idx(['telefone','tel','celular','whatsapp','fone']);
+  const iLista=idx(['lista','grupo','segmento','tag']);
+  const existentes=new Set(_econtatos.map(c=>(c.email||'').toLowerCase()));
+  const vistos=new Set(); const novos=[]; let invalidos=0,repetidos=0;
+  for(let k=1;k<linhas.length;k++){
+    const cols=split(linhas[k]);
+    const email=(cols[iEmail]||'').toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){invalidos++;continue;}
+    if(existentes.has(email)||vistos.has(email)){repetidos++;continue;}
+    vistos.add(email);
+    novos.push({email,nome:iNome>=0?(cols[iNome]||null):null,empresa_nome:iEmp>=0?(cols[iEmp]||null):null,telefone:iTel>=0?(cols[iTel]||null):null,lista:(listaPadrao&&listaPadrao.trim())?listaPadrao.trim():(iLista>=0?(cols[iLista]||null):null),status:'ativo',origem:'importacao'});
+  }
+  if(!novos.length){alerta('alerta-com','Nada novo para importar — '+repetidos+' já existiam, '+invalidos+' inválidos.','t');return;}
+  let ok=0;
+  for(let i=0;i<novos.length;i+=500){
+    const {error}=await db.from('email_contatos').insert(novos.slice(i,i+500));
+    if(error){alerta('alerta-com','Importou '+ok+', mas parou com erro: '+error.message,'e');await carregarEmailContatos();return;}
+    ok+=Math.min(500,novos.length-i);
+  }
+  alerta('alerta-com','✅ '+ok+' contato(s) importado(s). '+repetidos+' já existiam, '+invalidos+' inválidos.','s');
+  await carregarEmailContatos();
+}
 async function excluirCli(id,nome){
   if(!confirm('Excluir "'+nome+'"? Todos os dados serão apagados permanentemente.'))return;
   await db.from('cobrancas').delete().eq('cliente_id',id);
@@ -3444,8 +3523,16 @@ async function carregarDesps(){
   if(!data?.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:2rem">Nenhuma despesa</td></tr>';return;}
   data.forEach(d=>{
     const recBadge=d.recorrente?' <span class="badge badge-orange">🔁 '+(d.periodicidade||'mensal')+'</span>':'';
-    tb.innerHTML+='<tr><td style="font-weight:500">'+d.descricao+recBadge+'</td><td><span class="badge badge-gray">'+(d.categorias_despesa?.nome||'--')+'</span></td><td style="font-weight:500">'+fmt(d.valor)+'</td><td>'+fmtDt(d.data_despesa)+'</td><td><span class="badge '+(d.status==='pago'?'badge-green':'badge-amber')+'">'+d.status+'</span></td><td style="display:flex;gap:.4rem"><button class="btn btn-sm" onclick="editarDesp(\''+d.id+'\')">Editar</button><button class="btn btn-danger btn-sm" onclick="excluirDesp(\''+d.id+'\')">Excluir</button></td></tr>';
+    const baixaBtn=d.status==='pendente'?'<button class="btn btn-sm" style="background:#dcfce7;color:#15803d;border:none;font-weight:600" onclick="darBaixaDesp(\''+d.id+'\')" title="Marcar como pago">✓ Dar baixa</button>':'';
+    tb.innerHTML+='<tr><td style="font-weight:500">'+d.descricao+recBadge+'</td><td><span class="badge badge-gray">'+(d.categorias_despesa?.nome||'--')+'</span></td><td style="font-weight:500">'+fmt(d.valor)+'</td><td>'+fmtDt(d.data_despesa)+'</td><td><span class="badge '+(d.status==='pago'?'badge-green':'badge-amber')+'">'+d.status+'</span></td><td style="display:flex;gap:.4rem;flex-wrap:wrap">'+baixaBtn+'<button class="btn btn-sm" onclick="editarDesp(\''+d.id+'\')">Editar</button><button class="btn btn-danger btn-sm" onclick="excluirDesp(\''+d.id+'\')">Excluir</button></td></tr>';
   });
+}
+async function darBaixaDesp(id){
+  if(!confirm('Marcar esta despesa como PAGA?'))return;
+  const {error}=await db.from('despesas').update({status:'pago'}).eq('id',id);
+  if(error){alerta('alerta-desp','Erro ao dar baixa: '+error.message,'e');return;}
+  alerta('alerta-desp','✅ Despesa baixada (paga).','s');
+  carregarDesps();
 }
 
 function toggleRecorrencia(){
