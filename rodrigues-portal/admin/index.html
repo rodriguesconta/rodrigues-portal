@@ -2389,7 +2389,11 @@ async function converterLeadCliente(id){
 
 /* ----- Indicações ----- */
 const _indStMap={recebida:['#4A6BD4','Recebida'],em_negociacao:['#F57C1A','Em negociação'],convertida:['#16a34a','Convertida ✓'],perdida:['#dc2626','Perdida']};
-async function carregarIndicacoes(){const {data}=await db.from('indicacoes').select('*').order('created_at',{ascending:false}).limit(500);_indics=data||[];renderIndicacoes();}
+async function carregarIndicacoes(){
+  const linkEl=document.getElementById('link-indicacao');
+  if(linkEl)linkEl.value='https://rodriguesconta.com.br/indicar.html'+(userEmpresa?('?e='+userEmpresa):'');
+  const {data}=await db.from('indicacoes').select('*').order('created_at',{ascending:false}).limit(500);_indics=data||[];renderIndicacoes();
+}
 function renderIndicacoes(){
   const fS=document.getElementById('fil-ind-status').value;
   document.getElementById('ind-tiles').innerHTML=Object.keys(_indStMap).map(k=>{const n=_indics.filter(i=>i.status===k).length;return '<div class="cm-tile" style="border-top-color:'+_indStMap[k][0]+'"><div class="l">'+_indStMap[k][1]+'</div><div class="v" style="color:'+_indStMap[k][0]+'">'+n+'</div></div>';}).join('');
