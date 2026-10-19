@@ -63,9 +63,16 @@ exports.handler = async (event) => {
     const camp = (await rc.json())[0];
     if (!camp) return { statusCode: 404, headers: cors, body: JSON.stringify({ erro: 'Campanha não encontrada.' }) };
 
-    // 5) Destinatários (ativos, da lista escolhida)
-    let q = 'email_contatos?empresa_id=eq.' + encodeURIComponent(empresa_id) + '&status=eq.ativo&select=nome,email,empresa_nome';
-    if (camp.lista_alvo && camp.lista_alvo !== 'todos') q += '&lista=eq.' + encodeURIComponent(camp.lista_alvo);
+    // 5) Destinatários
+    let q;
+    if (camp.lista_alvo === 'banco') {
+      // Base de Contatos (contatos com e-mail)
+      q = 'contatos?empresa_id=eq.' + encodeURIComponent(empresa_id) + '&email=not.is.null&select=nome,email,empresa_nome';
+    } else {
+      // Listas de e-mail importadas (email_contatos)
+      q = 'email_contatos?empresa_id=eq.' + encodeURIComponent(empresa_id) + '&status=eq.ativo&select=nome,email,empresa_nome';
+      if (camp.lista_alvo && camp.lista_alvo !== 'todos') q += '&lista=eq.' + encodeURIComponent(camp.lista_alvo);
+    }
     const rd = await fetch(sb(q), { headers: sbHeaders });
     const dests = (await rd.json()).filter(c => c.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.email));
     if (!dests.length) return { statusCode: 400, headers: cors, body: JSON.stringify({ erro: 'Nenhum destinatário ativo nesta lista.' }) };
