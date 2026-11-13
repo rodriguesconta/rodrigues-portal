@@ -18,6 +18,10 @@
 //      "header_document": { "link": "https://.../arquivo.pdf", "filename": "DAS MEI - 09-2026.pdf" } // opcional
 //    }
 //
+//  OU, para RESPONDER texto livre (só funciona dentro da janela de 24h — o cliente
+//  precisa ter mandado mensagem nas últimas 24h; fora disso a Meta recusa):
+//    { "empresa_id": "...", "to": "5524999...", "text": "Olá! Recebemos sua mensagem..." }
+//
 //  Header obrigatório:  Authorization: Bearer <access_token do usuário logado no portal>
 // =====================================================================
 
@@ -47,10 +51,10 @@ exports.handler = async (event) => {
 
     // 2) Entrada
     const b = JSON.parse(event.body || '{}');
-    const { empresa_id, to, template, lang, body_params, header_document } = b;
+    const { empresa_id, to, template, lang, body_params, header_document, text } = b;
     if (!empresa_id) return { statusCode: 400, headers: cors, body: JSON.stringify({ erro: 'empresa_id obrigatório' }) };
     if (!to) return { statusCode: 400, headers: cors, body: JSON.stringify({ erro: 'destinatário (to) obrigatório' }) };
-    if (!template) return { statusCode: 400, headers: cors, body: JSON.stringify({ erro: 'template obrigatório' }) };
+    if (!template && !(text && String(text).trim())) return { statusCode: 400, headers: cors, body: JSON.stringify({ erro: 'template ou text obrigatório' }) };
 
     // 3) Credenciais da empresa (service key — bypassa RLS)
     const q = SUPABASE_URL + '/rest/v1/integracoes?empresa_id=eq.' + encodeURIComponent(empresa_id) + '&select=wa_phone_number_id,wa_token';
@@ -74,12 +78,9 @@ exports.handler = async (event) => {
       components.push({ type: 'body', parameters: body_params.map(t => ({ type: 'text', text: String(t == null ? '' : t) })) });
     }
 
-    const payload = {
-      messaging_product: 'whatsapp',
-      to: tel,
-      type: 'template',
-      template: { name: template, language: { code: lang || 'pt_BR' }, components }
-    };
+    const payload = template
+      ? { messaging_product: 'whatsapp', to: tel, type: 'template', template: { name: template, language: { code: lang || 'pt_BR' }, components } }
+      : { messaging_product: 'whatsapp', to: tel, type: 'text', text: { preview_url: false, body: String(text).slice(0, 4000) } };
 
     // 6) Graph API (credencial da empresa)
     const g = await fetch('https://graph.facebook.com/v21.0/' + cfg.wa_phone_number_id + '/messages', {
