@@ -324,6 +324,20 @@ tr:hover td{background:#f8fafc}
 .ctl-obra-ic{font-size:34px;line-height:1}
 .ctl-obra h2{font-size:16px;color:#92400e;margin-bottom:.3rem}
 .ctl-obra p{font-size:13px;color:#78350f;line-height:1.55;max-width:760px}
+.dsp-cat{display:grid;grid-template-columns:minmax(140px,220px) 1fr 150px;gap:.8rem;align-items:center;padding:.32rem 0}
+.dsp-cat-n{font-size:12.5px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dsp-cat-n i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px}
+.dsp-cat-bar{height:10px;background:#f1f5f9;border-radius:999px;overflow:hidden}.dsp-cat-bar b{display:block;height:100%;border-radius:999px}
+.dsp-cat-v{font-size:12.5px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap}.dsp-cat-v small{color:#94a3b8;font-weight:600;margin-left:4px}
+.crm-funil{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:.9rem 1rem;display:flex;flex-direction:column;gap:.45rem;margin-bottom:.4rem}
+.crm-et{display:grid;grid-template-columns:1fr 170px;gap:.8rem;align-items:center;cursor:pointer;border-radius:8px;padding:2px}
+.crm-et:hover{background:#f8fafc}.crm-et.on{background:#eef2ff}
+.crm-et-bar{height:26px;border-radius:7px;display:flex;align-items:center;padding:0 .7rem;color:#fff;min-width:44px;transition:width .4s}
+.crm-et-bar b{font-size:13px}
+.crm-et span{font-size:12.5px;color:#475569;font-weight:600}
+@media(max-width:700px){.dsp-cat{grid-template-columns:1fr 110px}.dsp-cat-bar{display:none}.crm-et{grid-template-columns:1fr 110px}}
+.ib-ano{display:inline-block;font-size:10px;font-weight:700;padding:1px 4px;margin-right:2px;border-radius:4px;background:#f1f5f9;color:#cbd5e1}
+.ib-ano.on{background:#dbeafe;color:#1e40af}
 </style>
 </head>
 <body>
@@ -582,14 +596,20 @@ tr:hover td{background:#f8fafc}
           <h1>IRPF</h1>
           <select id="irpf-ano" class="si" style="width:108px;font-weight:700" onchange="carregarIrpf()"></select>
         </div>
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap" id="irpf-hdr-btns">
           <button class="btn btn-success btn-sm" onclick="abrirModalIrpf()">+ Novo cliente IRPF</button>
           <button class="btn btn-sm" onclick="sincronizarMpIrpf()" style="background:#0f766e;color:#fff;border-color:#0f766e">🔄 Sincronizar MP</button>
           <button class="btn btn-sm" onclick="limparAnoIrpf()" style="background:#fee2e2;color:#b91c1c;border:none" title="Apagar os registros deste ano">🗑 Limpar ano</button>
         </div>
       </div>
+      <div class="ctl-tabs" id="irpf-tabs">
+        <button class="active" data-t="cob" onclick="irpfTab('cob')">💳 Cobranças do ano</button>
+        <button data-t="base" onclick="irpfTab('base')">🗂️ Base IRPF — campanha 2027</button>
+      </div>
+      <div id="irpf-pane-base" class="hidden"></div>
+      <div id="irpf-pane-cob">
       <div id="alerta-irpf"></div>
-      <div class="metrics" id="irpf-metrics"></div>
+      <div id="irpf-metrics"></div>
       <div class="card">
         <div class="card-hdr">
           <h2>Clientes IRPF <span id="irpf-ano-lbl"></span> <span id="irpf-count" style="font-size:12px;color:#94a3b8;font-weight:400"></span></h2>
@@ -604,6 +624,7 @@ tr:hover td{background:#f8fafc}
         </div>
         <div class="tbl-wrap"><table><thead><tr><th>Nome</th><th>Telefone</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tb-irpf"></tbody></table></div>
       </div>
+      </div>
     </div>
 
     <div id="pg-despesas" class="hidden">
@@ -617,11 +638,12 @@ tr:hover td{background:#f8fafc}
         </div>
       </div>
       <div id="alerta-desp"></div>
-      <div class="metrics" id="desp-metrics"></div>
+      <div id="desp-metrics"></div>
       <div class="card">
         <div class="card-hdr">
-          <h2>Lançamentos</h2>
-          <div style="display:flex;gap:.5rem">
+          <h2>Lançamentos <span id="desp-count" style="font-size:12px;color:#94a3b8;font-weight:400"></span></h2>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+            <div class="ctl-chips" id="desp-chips" style="margin:0"></div>
             <input type="month" id="fil-mes-desp" class="si" onchange="carregarDesps()">
             <select id="fil-cat-desp" class="si" style="width:180px" onchange="carregarDesps()"><option value="">Todas as categorias</option></select>
           </div>
@@ -2137,7 +2159,7 @@ const PERM_PAGES=[
     {k:'crm',t:'CRM / Funil'},{k:'indicacoes',t:'Indicações'},{k:'comissoes',t:'Comissões'},
     {k:'contatos',t:'Banco de Contatos'},{k:'emailmkt',t:'E-mail Marketing'},{k:'ads',t:'Meta ADS'}
   ]},
-  {k:'irpf',t:'📄 IRPF'},
+  {k:'irpf',t:'📄 IRPF',subs:[{k:'cob',t:'Cobranças do ano'},{k:'base',t:'Base IRPF (campanha)'}]},
   {k:'despesas',t:'💸 Despesas'},
   {k:'relatorios',t:'📊 Relatórios'},
   {k:'prolabore',t:'💼 Pró-labore'},
@@ -2820,16 +2842,28 @@ function renderLeads(){
   const fE=document.getElementById('fil-lead-etapa').value;
   const q=(document.getElementById('busca-lead').value||'').toLowerCase();
   const etapas=[['novo','Novo','#4A6BD4'],['contato','Em contato','#F57C1A'],['proposta','Proposta','#a855f7'],['fechado','Fechado','#16a34a'],['perdido','Perdido','#dc2626']];
-  document.getElementById('lead-tiles').innerHTML=etapas.map(e=>{const n=_leads.filter(l=>l.etapa===e[0]).length;return '<div class="cm-tile" style="border-top-color:'+e[2]+'"><div class="l">'+e[1]+'</div><div class="v" style="color:'+e[2]+'">'+n+'</div></div>';}).join('');
+  {
+    const tot=_leads.length, cnt=k=>_leads.filter(l=>l.etapa===k).length;
+    const abertos=_leads.filter(l=>!['fechado','perdido'].includes(l.etapa));
+    const pipe=abertos.reduce((a,l)=>a+(parseFloat(l.valor_estimado)||0),0);
+    const fech=cnt('fechado'), perd=cnt('perdido'), conv=(fech+perd)?Math.round(fech/(fech+perd)*100):0;
+    const mesI=mesAtual();const fechMes=_leads.filter(l=>l.etapa==='fechado'&&String(l.updated_at||l.created_at||'').slice(0,7)===mesI).length;
+    const maxE=Math.max(1,...etapas.map(e=>cnt(e[0])));
+    document.getElementById('lead-tiles').innerHTML='<div class="hero" style="grid-column:1/-1;margin-bottom:.4rem">'+_donut(conv)+'<div style="flex:1;min-width:240px"><div class="h-ttl">Funil comercial</div>'+
+      '<div class="h-sub">Taxa de conversão (fechados ÷ decididos) · '+abertos.length+' leads em andamento</div>'+
+      '<div class="h-stats"><span>🎯 Leads<b>'+tot+'</b></span><span>💼 Em negociação<b>'+fmt(pipe)+'</b></span><span>🏆 Fechados<b>'+fech+'</b></span><span>📅 Fechados no mês<b>'+fechMes+'</b></span><span>✖ Perdidos<b>'+perd+'</b></span></div></div></div>'+
+      '<div class="crm-funil" style="grid-column:1/-1">'+etapas.map(e=>{const n=cnt(e[0]);const w=Math.max(8,(n/maxE)*100);
+        return '<div class="crm-et'+(fE===e[0]?' on':'')+'" onclick="document.getElementById(\'fil-lead-etapa\').value=\''+(fE===e[0]?'':e[0])+'\';renderLeads()"><div class="crm-et-bar" style="width:'+w+'%;background:'+e[2]+'"><b>'+n+'</b></div><span>'+e[1]+(tot&&e[0]!=='perdido'?' · '+Math.round(n/tot*100)+'%':'')+'</span></div>';}).join('')+'</div>';
+  }
   const list=_leads.filter(l=>(!fE||l.etapa===fE)&&(!q||((l.nome||'')+' '+(l.email||'')+' '+(l.telefone||'')).toLowerCase().includes(q)));
   const tb=document.getElementById('lead-tbody');
   if(!list.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:1.2rem">Nenhum lead.</td></tr>';return;}
   const opt=v=>etapas.map(e=>'<option value="'+e[0]+'"'+(e[0]===v?' selected':'')+'>'+e[1]+'</option>').join('');
   tb.innerHTML=list.map(l=>'<tr>'+
-    '<td style="font-weight:600">'+(l.nome||'—')+(l.documento?'<div style="font-size:10px;color:#94a3b8;font-family:monospace">'+docHtml(l.documento)+'</div>':'')+'</td>'+
+    '<td><div style="display:flex;align-items:center;gap:.55rem"><div class="wa-av" style="width:32px;height:32px;font-size:12px;background:'+_avColor(l.nome||'?')+'">'+_iniciais(l.nome||'?')+'</div><div><div style="font-weight:600">'+_esc(l.nome||'—')+'</div>'+(l.documento?'<div style="font-size:10px;color:#94a3b8;font-family:monospace">'+docHtml(l.documento)+'</div>':'')+'</div></div></td>'+
     '<td style="font-size:12px;color:#64748b">'+([l.telefone,l.email].filter(Boolean).join('<br>')||'—')+'</td>'+
-    '<td style="font-size:12px">'+(l.origem||'—')+'</td>'+
-    '<td><select class="si" style="font-size:11.5px;padding:4px 6px" onchange="mudarEtapaLead(\''+l.id+'\',this.value)">'+opt(l.etapa)+'</select></td>'+
+    '<td style="font-size:12px">'+({indicacao:'🤝 Indicação',meta_ads:'📣 Meta ADS',site:'🌐 Site',link_externo:'🔗 Link de indicação',whatsapp:'💬 WhatsApp',instagram:'📷 Instagram',outro:'Outro'}[l.origem]||l.origem||'—')+'</td>'+
+    '<td><select class="si crm-sel" style="font-size:11.5px;padding:4px 8px;border-radius:999px;font-weight:700;color:'+((etapas.find(e=>e[0]===l.etapa)||[])[2]||'#475569')+';border-color:'+((etapas.find(e=>e[0]===l.etapa)||[])[2]||'#cbd5e1')+'" onchange="mudarEtapaLead(\''+l.id+'\',this.value)">'+opt(l.etapa)+'</select></td>'+
     '<td style="font-size:12px;white-space:nowrap">'+(l.valor_estimado?fmt(l.valor_estimado):'—')+'</td>'+
     '<td style="font-size:12px;color:#64748b">'+(l.responsavel||'—')+'</td>'+
     '<td style="white-space:nowrap"><button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:none" onclick="editarLead(\''+l.id+'\')">✏</button> '+(l.etapa==='fechado'&&!l.cliente_id?'<button class="btn btn-sm" style="background:#dcfce7;color:#15803d;border:none" onclick="converterLeadCliente(\''+l.id+'\')">→ Cliente</button>':'')+'</td>'+
@@ -4071,27 +4105,48 @@ async function carregarCats(){
   });
 }
 
+let _despCache=[],_despFiltro='todas';
 async function carregarDesps(){
   const mes=document.getElementById('fil-mes-desp').value||mesAtual();
+  document.getElementById('fil-mes-desp').value=mes;
   const cat=document.getElementById('fil-cat-desp').value;
-  let q=db.from('despesas').select('*,categorias_despesa(nome)').gte('data_despesa',mes+'-01').lte('data_despesa',mes+'-'+ultimoDia(mes)).order('data_despesa',{ascending:false}).limit(200);
+  let q=db.from('despesas').select('*,categorias_despesa(nome)').gte('data_despesa',mes+'-01').lte('data_despesa',mes+'-'+ultimoDia(mes)).order('data_despesa',{ascending:false}).limit(500);
   if(cat)q=q.eq('categoria_id',cat);
   const {data}=await q;
-  let tot=0,pend=0;
-  (data||[]).forEach(d=>{tot+=parseFloat(d.valor);if(d.status==='pendente')pend+=parseFloat(d.valor);});
+  _despCache=data||[];
+  const hoje=new Date().toISOString().slice(0,10);
+  let tot=0,pago=0,pend=0,venc=0,nVenc=0,rec=0;const porCat={};
+  _despCache.forEach(d=>{const v=parseFloat(d.valor)||0;tot+=v;if(d.status==='pendente'){pend+=v;if(d.data_despesa<hoje){venc+=v;nVenc++;}}else pago+=v;if(d.recorrente)rec++;const c=d.categorias_despesa?.nome||'Sem categoria';porCat[c]=(porCat[c]||0)+v;});
+  const pct=tot?Math.round(pago/tot*100):0;
+  const cats=Object.entries(porCat).sort((a,b)=>b[1]-a[1]);
+  const max=cats.length?cats[0][1]:1;
+  const cores=['#4A6BD4','#F57C1A','#16a34a','#7c3aed','#0891b2','#db2777','#ca8a04','#64748b'];
   document.getElementById('desp-metrics').innerHTML=
-    '<div class="metric m-red"><div class="lbl">Total do mês</div><div class="val red">'+fmt(tot)+'</div></div>'+
-    '<div class="metric m-green"><div class="lbl">Pago</div><div class="val green">'+fmt(tot-pend)+'</div></div>'+
-    '<div class="metric m-amber"><div class="lbl">Pendente</div><div class="val amber">'+fmt(pend)+'</div></div>'+
-    '<div class="metric m-blue"><div class="lbl">Lançamentos</div><div class="val blue">'+(data?.length||0)+'</div></div>';
+    '<div class="hero">'+_donut(pct)+'<div style="flex:1;min-width:240px"><div class="h-ttl">Despesas de '+nomeMes(mes)+'</div>'+
+      '<div class="h-sub">'+fmt(pago)+' pagos de '+fmt(tot)+(nVenc?' · <span style="color:#fecaca;font-weight:700">⚠ '+nVenc+' vencida'+(nVenc>1?'s':'')+' sem baixa ('+fmt(venc)+')</span>':' · nada vencido ✓')+'</div>'+
+      '<div class="h-stats"><span>💸 Total<b>'+fmt(tot)+'</b></span><span>✅ Pago<b>'+fmt(pago)+'</b></span><span>🟠 Pendente<b>'+fmt(pend)+'</b></span><span>🧾 Lançamentos<b>'+_despCache.length+'</b></span><span>🔁 Recorrentes<b>'+rec+'</b></span></div></div></div>'+
+    (cats.length?'<div class="card" style="padding:1rem 1.15rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem"><h2 style="font-size:15px;font-weight:700">📊 Para onde foi o dinheiro</h2><span style="font-size:11.5px;color:#64748b">por categoria · '+nomeMes(mes)+'</span></div>'+
+      cats.slice(0,8).map((c,i)=>'<div class="dsp-cat"><span class="dsp-cat-n"><i style="background:'+cores[i%cores.length]+'"></i>'+_esc(c[0])+'</span><div class="dsp-cat-bar"><b style="width:'+(c[1]/max*100).toFixed(1)+'%;background:'+cores[i%cores.length]+'"></b></div><span class="dsp-cat-v">'+fmt(c[1])+' <small>'+(tot?Math.round(c[1]/tot*100):0)+'%</small></span></div>').join('')+'</div>':'');
+  renderDespTabela();
+}
+function filtrarDesp(f){_despFiltro=f;renderDespTabela();}
+function renderDespTabela(){
+  const hoje=new Date().toISOString().slice(0,10);
+  const isVenc=d=>d.status==='pendente'&&d.data_despesa<hoje;
+  const n={todas:_despCache.length,pendente:_despCache.filter(d=>d.status==='pendente').length,pago:_despCache.filter(d=>d.status==='pago').length,vencida:_despCache.filter(isVenc).length};
+  const lbl={todas:'Todas',pendente:'Pendentes',pago:'Pagas',vencida:'Vencidas'};
+  document.getElementById('desp-chips').innerHTML=Object.keys(lbl).map(k=>'<button class="'+(_despFiltro===k?'active':'')+'" onclick="filtrarDesp(\''+k+'\')">'+lbl[k]+' <b>'+n[k]+'</b></button>').join('');
+  const lista=_despCache.filter(d=>_despFiltro==='todas'||(_despFiltro==='vencida'?isVenc(d):d.status===_despFiltro));
+  document.getElementById('desp-count').textContent='('+lista.length+')';
   const tb=document.getElementById('tb-desp');
-  tb.innerHTML='';
-  if(!data?.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:2rem">Nenhuma despesa</td></tr>';return;}
-  data.forEach(d=>{
+  if(!lista.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:2rem">Nenhuma despesa neste filtro</td></tr>';return;}
+  tb.innerHTML=lista.map(d=>{
+    const v=isVenc(d);
     const recBadge=d.recorrente?' <span class="badge badge-orange">🔁 '+(d.periodicidade||'mensal')+'</span>':'';
+    const st=d.status==='pago'?'<span class="badge badge-green">✓ Pago</span>':v?'<span class="badge badge-red">⚠ Vencida</span>':'<span class="badge badge-amber">Pendente</span>';
     const baixaBtn=d.status==='pendente'?'<button class="btn btn-sm" style="background:#dcfce7;color:#15803d;border:none;font-weight:600" onclick="darBaixaDesp(\''+d.id+'\')" title="Marcar como pago">✓ Dar baixa</button>':'';
-    tb.innerHTML+='<tr><td style="font-weight:500">'+d.descricao+recBadge+'</td><td><span class="badge badge-gray">'+(d.categorias_despesa?.nome||'--')+'</span></td><td style="font-weight:500">'+fmt(d.valor)+'</td><td>'+fmtDt(d.data_despesa)+'</td><td><span class="badge '+(d.status==='pago'?'badge-green':'badge-amber')+'">'+d.status+'</span></td><td style="display:flex;gap:.4rem;flex-wrap:wrap">'+baixaBtn+'<button class="btn btn-sm" onclick="editarDesp(\''+d.id+'\')">Editar</button><button class="btn btn-danger btn-sm" onclick="excluirDesp(\''+d.id+'\')">Excluir</button></td></tr>';
-  });
+    return '<tr'+(v?' style="background:#fef2f2"':'')+'><td style="font-weight:500">'+_esc(d.descricao)+recBadge+(d.observacao?'<div style="font-size:11px;color:#94a3b8">'+_esc(d.observacao)+'</div>':'')+'</td><td><span class="badge badge-gray">'+_esc(d.categorias_despesa?.nome||'--')+'</span></td><td style="font-weight:600;white-space:nowrap">'+fmt(d.valor)+'</td><td style="white-space:nowrap">'+fmtDt(d.data_despesa)+'</td><td>'+st+'</td><td style="display:flex;gap:.4rem;flex-wrap:wrap">'+baixaBtn+'<button class="btn btn-sm" onclick="editarDesp(\''+d.id+'\')">Editar</button><button class="btn btn-danger btn-sm" onclick="excluirDesp(\''+d.id+'\')">Excluir</button></td></tr>';
+  }).join('');
 }
 async function darBaixaDesp(id){
   if(!confirm('Marcar esta despesa como PAGA?'))return;
@@ -4264,25 +4319,148 @@ async function carregarIrpf(){
   // Métricas
   let aRec=0,pago=0,totalClis=(data||[]).length;
   (data||[]).forEach(c=>{if(c.status==='pago')pago+=parseFloat(c.valor);else aRec+=parseFloat(c.valor);});
-  document.getElementById('irpf-metrics').innerHTML=
-    '<div class="metric m-blue"><div class="lbl">Total de clientes</div><div class="val blue">'+totalClis+'</div></div>'+
-    '<div class="metric m-amber"><div class="lbl">A receber</div><div class="val amber">'+fmt(aRec)+'</div></div>'+
-    '<div class="metric m-green"><div class="lbl">Recebido</div><div class="val green">'+fmt(pago)+'</div></div>'+
-    '<div class="metric m-red"><div class="lbl">Total geral</div><div class="val red">'+fmt(aRec+pago)+'</div></div>';
+  const nPagos=(data||[]).filter(c=>c.status==='pago').length, nPix=(data||[]).filter(c=>c.status!=='pago'&&(c.pix_qr_code||c.pix_copia_cola)).length;
+  const pctI=(aRec+pago)?Math.round(pago/(aRec+pago)*100):0;
+  document.getElementById('irpf-metrics').innerHTML='<div class="hero">'+_donut(pctI)+'<div style="flex:1;min-width:240px"><div class="h-ttl">IRPF '+ano+' — recebimentos</div>'+
+    '<div class="h-sub">'+fmt(pago)+' recebidos de '+fmt(aRec+pago)+' · '+nPagos+' de '+totalClis+' clientes pagaram</div>'+
+    '<div class="h-stats"><span>👥 Clientes<b>'+totalClis+'</b></span><span>✅ Recebido<b>'+fmt(pago)+'</b></span><span>🟠 A receber<b>'+fmt(aRec)+'</b></span><span>🎟️ Ticket médio<b>'+fmt(totalClis?(aRec+pago)/totalClis:0)+'</b></span><span>📲 Pix gerado (aguardando)<b>'+nPix+'</b></span></div></div></div>';
   document.getElementById('irpf-count').textContent='('+filtrados.length+')';
   const tb=document.getElementById('tb-irpf');
   tb.innerHTML='';
   if(!filtrados.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:2rem">Nenhum cliente IRPF cadastrado. Clique em "+ Novo cliente IRPF" para começar.</td></tr>';return;}
   filtrados.forEach(c=>{
-    const b=c.status==='pago'?'badge-green':'badge-orange';
-    const l=c.status==='pago'?'Pago':'A receber';
+    const b=c.status==='pago'?'badge-green':((c.pix_qr_code||c.pix_copia_cola)?'badge-blue':'badge-orange');
+    const l=c.status==='pago'?'✓ Pago':((c.pix_qr_code||c.pix_copia_cola)?'Pix enviado':'A receber');
     const nomeEsc=c.nome.replace(/\'/g,"\\'");
     const temPix=!!(c.pix_qr_code||c.pix_copia_cola);
     const pixBtn=c.status==='a_receber'&&!temPix?'<button class="btn btn-success btn-sm" onclick="gerarPixIrpf(\''+c.id+'\','+c.valor+',\''+nomeEsc+'\',\''+c.telefone+'\')">Gerar Pix</button>':'';
     const copiarBtn=temPix?'<button class="btn btn-sm" style="background:#16a34a;color:#fff;border-color:#16a34a" onclick="copiarPixIrpf(\''+c.id+'\')" title="Copiar código Pix">📋 Pix</button>':'';
     const enviarBtn=c.status==='a_receber'&&temPix?'<button class="btn btn-sm" style="background:#0ea5e9;color:#fff;border-color:#0ea5e9" onclick="enviarIrpfWhatsApp(\''+c.id+'\')">📲 Enviar</button>':'';
-    tb.innerHTML+='<tr><td style="font-weight:500">'+c.nome+'</td><td style="font-family:monospace;font-size:12px;color:#64748b">'+c.telefone+'</td><td style="font-weight:500">'+fmt(c.valor)+'</td><td><span class="badge '+b+'">'+l+'</span></td><td style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="btn btn-sm" onclick="editarIrpf(\''+c.id+'\')">Editar</button>'+pixBtn+copiarBtn+enviarBtn+'<button class="btn btn-danger btn-sm" onclick="excluirIrpf(\''+c.id+'\',\''+nomeEsc+'\')">Excluir</button></td></tr>';
+    tb.innerHTML+='<tr><td><div style="display:flex;align-items:center;gap:.6rem"><div class="wa-av" style="width:32px;height:32px;font-size:12px;background:'+_avColor(c.nome)+'">'+_iniciais(c.nome)+'</div><span style="font-weight:600">'+_esc(c.nome)+'</span></div></td><td style="font-size:12.5px;color:#475569;white-space:nowrap">'+(_telFmt(c.telefone)||'—')+'</td><td style="font-weight:500">'+fmt(c.valor)+'</td><td><span class="badge '+b+'">'+l+'</span></td><td style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="btn btn-sm" onclick="editarIrpf(\''+c.id+'\')">Editar</button>'+pixBtn+copiarBtn+enviarBtn+'<button class="btn btn-danger btn-sm" onclick="excluirIrpf(\''+c.id+'\',\''+nomeEsc+'\')">Excluir</button></td></tr>';
   });
+}
+
+// ============================================================
+// IRPF — BASE HISTÓRICA PARA CAMPANHA (dados das declarações no Dropbox)
+// ============================================================
+let _ib={rows:[],fonesPortal:{},seg:'todos',carregado:false};
+const IB_SEG={renovacao:['Renovação','#16a34a','fez em 2026'],recuperar:['Recuperar','#d97706','fez 2025, não 2026'],reativar:['Reativar','#64748b','último até 2024']};
+const IB_ST={pendente:'⏳ Pendente',enviado:'📨 Mensagem enviada',respondeu:'💬 Respondeu',fechou:'✅ Fechou IRPF 2027',nao_quer:'✖ Não quer'};
+function irpfTab(t){
+  if(typeof podeAcessarSub==='function'&&!podeAcessarSub('irpf',t)){toastRC('Sem permissão para esta aba');return;}
+  document.querySelectorAll('#irpf-tabs button').forEach(b=>b.classList.toggle('active',b.getAttribute('data-t')===t));
+  document.getElementById('irpf-pane-cob').classList.toggle('hidden',t!=='cob');
+  document.getElementById('irpf-pane-base').classList.toggle('hidden',t!=='base');
+  document.getElementById('irpf-hdr-btns').style.display=t==='cob'?'flex':'none';
+  document.getElementById('irpf-ano').style.display=t==='cob'?'':'none';
+  if(t==='base')carregarIrpfBase();
+}
+function _normNome(n){return String(n||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z ]/g,' ').replace(/\s+/g,' ').trim();}
+async function carregarIrpfBase(){
+  const box=document.getElementById('irpf-pane-base');
+  if(!_ib.carregado)box.innerHTML='<div class="card" style="padding:2rem;text-align:center;color:#94a3b8">Carregando base...</div>';
+  const [{data,error},{data:cobs}]=await Promise.all([
+    db.from('irpf_base').select('*').order('nome_completo').limit(2000),
+    db.from('irpf_cobrancas').select('nome,telefone,ano').order('ano',{ascending:false}).limit(3000)
+  ]);
+  if(error){box.innerHTML='<div class="alert alert-e">⚠️ A tabela da Base IRPF ainda não existe. Rode o SQL <b>irpf-base.sql</b> no Supabase e clique na aba de novo.</div>';return;}
+  _ib.rows=data||[];_ib.carregado=true;
+  _ib.fonesPortal={};(cobs||[]).forEach(c=>{const k=_normNome(c.nome);if(c.telefone&&!_ib.fonesPortal[k])_ib.fonesPortal[k]=c.telefone;});
+  renderIrpfBase();
+}
+function _ibFone(r){
+  if(r.telefone)return{tel:r.telefone,origem:'declaração'};
+  const k=_normNome(r.nome_completo);let t=_ib.fonesPortal[k];
+  if(!t){const p=k.split(' ');const k2=p[0]+' '+p[p.length-1];for(const kk in _ib.fonesPortal){const q=kk.split(' ');if(q[0]+' '+q[q.length-1]===k2){t=_ib.fonesPortal[kk];break;}}}
+  return t?{tel:t,origem:'portal'}:null;
+}
+function renderIrpfBase(){
+  const box=document.getElementById('irpf-pane-base');const L=_ib.rows;
+  const n=k=>L.filter(r=>r.segmento===k).length;
+  const comFone=L.filter(r=>_ibFone(r)).length, comEmail=L.filter(r=>r.email).length;
+  const pct=L.length?Math.round(comFone/L.length*100):0;
+  const q=(document.getElementById('ib-busca')||{}).value||'';const qd=soDigitos(q);const ql=q.toLowerCase();
+  const st={};L.forEach(r=>{st[r.status_campanha||'pendente']=(st[r.status_campanha||'pendente']||0)+1;});
+  let lst=L.filter(r=>_ib.seg==='todos'||(_ib.seg==='sem_fone'?!_ibFone(r):r.segmento===_ib.seg));
+  if(ql)lst=lst.filter(r=>(r.nome_completo||'').toLowerCase().includes(ql)||(r.nome_pasta||'').toLowerCase().includes(ql)||(qd.length>=3&&soDigitos(r.cpf).includes(qd)));
+  const ordSeg={renovacao:0,recuperar:1,reativar:2};lst.sort((a,b)=>(ordSeg[a.segmento]-ordSeg[b.segmento])||(a.nome_completo||'').localeCompare(b.nome_completo||''));
+  const chip=(k,l,c)=>'<button class="'+(_ib.seg===k?'active':'')+'" onclick="_ib.seg=\''+k+'\';renderIrpfBase()">'+l+' <b>'+c+'</b></button>';
+  const anosHtml=a=>{const s=String(a||'').split(',').map(x=>x.trim()).filter(Boolean);return ['<2023','2023','2024','2025','2026'].map(y=>'<span class="ib-ano'+(s.includes(y)?' on':'')+'" title="'+y+'">'+(y==='<2023'?'‹23':y.slice(2))+'</span>').join('');};
+  const busca=document.getElementById('ib-busca');const foco=busca&&document.activeElement===busca;const pos=busca?busca.selectionStart:0;
+  box.innerHTML='<div class="hero">'+_donut(pct)+'<div style="flex:1;min-width:240px"><div class="h-ttl">Base IRPF — campanha 2027</div>'+
+      '<div class="h-sub">'+L.length+' contribuintes que já fizeram IRPF com a gente · '+comFone+' com telefone para disparo (fevereiro/2027)</div>'+
+      '<div class="h-stats"><span>🟢 Renovação<b>'+n('renovacao')+'</b></span><span>🟠 Recuperar<b>'+n('recuperar')+'</b></span><span>⚪ Reativar<b>'+n('reativar')+'</b></span><span>📱 Com telefone<b>'+comFone+'</b></span><span>✉️ Com e-mail<b>'+comEmail+'</b></span><span>✅ Já fecharam<b>'+(st.fechou||0)+'</b></span></div></div></div>'+
+    '<div class="card"><div class="card-hdr" style="flex-wrap:wrap;gap:.6rem"><div class="ctl-chips" style="margin:0">'+chip('todos','Todos',L.length)+chip('renovacao','🟢 Renovação',n('renovacao'))+chip('recuperar','🟠 Recuperar',n('recuperar'))+chip('reativar','⚪ Reativar',n('reativar'))+chip('sem_fone','📵 Sem telefone',L.length-comFone)+'</div>'+
+      '<div style="display:flex;gap:.5rem;flex-wrap:wrap"><input class="si" id="ib-busca" placeholder="🔎 Nome ou CPF..." oninput="renderIrpfBase()" style="width:200px" value="'+_esc(q)+'">'+
+      '<button class="btn btn-sm" onclick="exportarIrpfBaseCSV()">⬇ Exportar CSV</button><button class="btn btn-sm btn-primary" onclick="document.getElementById(\'ib-imp\').click()">📥 Importar base (CSV)</button><input type="file" id="ib-imp" accept=".csv" style="display:none" onchange="importarIrpfBaseCSV(this)"></div></div>'+
+    '<div class="tbl-wrap"><table><thead><tr><th>Contribuinte</th><th>Histórico</th><th>Segmento</th><th>Telefone</th><th>E-mail</th><th>Cidade</th><th>Campanha 2027</th><th></th></tr></thead><tbody>'+
+    (lst.length?lst.map(r=>{const f=_ibFone(r);const sg=IB_SEG[r.segmento]||IB_SEG.reativar;const w=f?soDigitos(f.tel):'';
+      return '<tr><td><div style="display:flex;align-items:center;gap:.6rem"><div class="wa-av" style="width:32px;height:32px;font-size:12px;background:'+_avColor(r.nome_completo)+'">'+_iniciais(r.nome_completo)+'</div><div><div style="font-weight:600">'+_esc(r.nome_completo)+'</div><div style="font-size:11px;color:#64748b;font-family:monospace">'+(r.cpf?docHtml(r.cpf):'<span style="color:#94a3b8">sem CPF</span>')+(r.nascimento?' · '+_esc(r.nascimento):'')+'</div></div></div></td>'+
+        '<td style="white-space:nowrap">'+anosHtml(r.anos)+'</td>'+
+        '<td><span class="ctl-pill" style="background:'+sg[1]+'1a;color:'+sg[1]+'" title="'+sg[2]+'">'+sg[0]+'</span></td>'+
+        '<td style="white-space:nowrap;font-size:12.5px">'+(f?'<a href="https://wa.me/'+(w.startsWith('55')?w:'55'+w)+'" target="_blank" rel="noopener" style="color:#16a34a;text-decoration:none;font-weight:600">'+_esc(_telFmt(f.tel)||f.tel)+'</a>'+(f.origem==='portal'?'<div style="font-size:10.5px;color:#94a3b8">do cadastro do portal</div>':''):'<span style="color:#dc2626;font-size:12px">sem telefone</span>')+'</td>'+
+        '<td style="font-size:12px;color:#475569;max-width:190px;overflow:hidden;text-overflow:ellipsis">'+(r.email?_esc(r.email):'<span style="color:#94a3b8">—</span>')+'</td>'+
+        '<td style="font-size:12px;color:#475569">'+_esc([r.municipio,r.uf].filter(Boolean).join('/')||'—')+'</td>'+
+        '<td><select class="si" style="font-size:11.5px;padding:4px 6px" onchange="mudarStatusIrpfBase(\''+r.id+'\',this.value)">'+Object.keys(IB_ST).map(k=>'<option value="'+k+'"'+((r.status_campanha||'pendente')===k?' selected':'')+'>'+IB_ST[k]+'</option>').join('')+'</select></td>'+
+        '<td><button class="btn btn-sm" onclick="editarIrpfBase(\''+r.id+'\')">Editar</button></td></tr>';}).join('')
+     :'<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:2rem">'+(L.length?'Nenhum contribuinte neste filtro.':'Base vazia. Clique em <b>📥 Importar base (CSV)</b> e escolha o arquivo <b>base-irpf-importar.csv</b>.')+'</td></tr>')+
+    '</tbody></table></div></div>';
+  if(foco){const b=document.getElementById('ib-busca');b.focus();try{b.setSelectionRange(pos,pos);}catch(e){}}
+}
+async function mudarStatusIrpfBase(id,v){
+  const {error}=await db.from('irpf_base').update({status_campanha:v,contatado_em:v==='pendente'?null:new Date().toISOString().slice(0,10),updated_at:new Date().toISOString()}).eq('id',id);
+  if(error){toastRC('✗ '+error.message);return;}
+  const r=_ib.rows.find(x=>x.id===id);if(r)r.status_campanha=v;toastRC('✓ Status atualizado');renderIrpfBase();
+}
+function editarIrpfBase(id){
+  const r=_ib.rows.find(x=>x.id===id)||{};const f=_ibFone(r);
+  _ctlEdit={tipo:'irpfbase',row:r};
+  const i=(id_,lbl,val,ph)=>'<div class="fg"><label>'+lbl+'</label><input id="'+id_+'" value="'+_esc(val||'')+'"'+(ph?' placeholder="'+ph+'"':'')+'></div>';
+  _abrirCtl('🗂️ Contribuinte — Base IRPF',(r.nome_pasta?'Pasta no Dropbox: '+_esc(r.nome_pasta):'')+(r.ano_dados?' · dados da declaração de '+_esc(r.ano_dados):''),
+    i('ib-nome','Nome completo *',r.nome_completo)+
+    '<div class="fr">'+i('ib-cpf','CPF',r.cpf)+i('ib-nasc','Nascimento',r.nascimento,'dd/mm/aaaa')+'</div>'+
+    '<div class="fr">'+i('ib-tel','Telefone / WhatsApp',r.telefone||(f&&f.origem==='portal'?f.tel:''),'(24) 99999-9999')+i('ib-email','E-mail',r.email)+'</div>'+
+    '<div class="fr">'+i('ib-log','Endereço',r.logradouro)+i('ib-num','Número',r.numero)+'</div>'+
+    '<div class="fr">'+i('ib-comp','Complemento',r.complemento)+i('ib-bairro','Bairro',r.bairro)+'</div>'+
+    '<div class="fr">'+i('ib-mun','Cidade',r.municipio)+'<div class="fr">'+i('ib-uf','UF',r.uf)+i('ib-cep','CEP',r.cep)+'</div></div>'+
+    '<div class="fg"><label>Status da campanha 2027</label><select id="ib-st" class="si" style="width:100%">'+Object.keys(IB_ST).map(k=>'<option value="'+k+'"'+((r.status_campanha||'pendente')===k?' selected':'')+'>'+IB_ST[k]+'</option>').join('')+'</select></div>'+
+    i('ib-obs','Observação',r.obs));
+}
+function _parseCSV(txt){
+  txt=txt.replace(/^﻿/,'');const rows=[];let row=[],cur='',q=false;
+  const sep=(txt.split('\n')[0].split(';').length>=txt.split('\n')[0].split(',').length)?';':',';
+  for(let i=0;i<txt.length;i++){const ch=txt[i];
+    if(q){if(ch==='"'){if(txt[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=ch;}
+    else if(ch==='"')q=true;else if(ch===sep){row.push(cur);cur='';}
+    else if(ch==='\n'){row.push(cur.replace(/\r$/,''));rows.push(row);row=[];cur='';}else cur+=ch;}
+  if(cur||row.length){row.push(cur);rows.push(row);}
+  const h=rows.shift().map(x=>x.trim());return rows.filter(r=>r.some(x=>x.trim())).map(r=>{const o={};h.forEach((k,i)=>o[k]=(r[i]||'').trim());return o;});
+}
+async function importarIrpfBaseCSV(input){
+  const file=input.files[0];if(!file)return;input.value='';
+  try{
+    const lin=_parseCSV(await file.text());
+    if(!lin.length||!('nome_completo' in lin[0])){toastRC('✗ Arquivo fora do formato esperado (use base-irpf-importar.csv)');return;}
+    const {data:ex}=await db.from('irpf_base').select('id,cpf,nome_completo,telefone,email,status_campanha');
+    const porCpf={},porNome={};(ex||[]).forEach(r=>{if(r.cpf)porCpf[soDigitos(r.cpf)]=r;porNome[_normNome(r.nome_completo)]=r;});
+    let novos=[],atu=0;const agora=new Date().toISOString();
+    for(const l of lin){
+      const p={nome_pasta:l.nome_pasta||null,nome_completo:l.nome_completo,cpf:l.cpf||null,nascimento:l.nascimento||null,logradouro:l.logradouro||null,numero:l.numero||null,complemento:l.complemento||null,bairro:l.bairro||null,municipio:l.municipio||null,uf:l.uf||null,cep:l.cep||null,anos:l.anos||'',ultimo_ano:l.ultimo_ano||null,segmento:l.segmento||'reativar',valor_ref:parseFloat(l.valor_ref)||null,ano_dados:l.ano_dados||null,fonte_dropbox:l.fonte_dropbox||null,obs:l.obs||null,updated_at:agora};
+      const e=(p.cpf&&porCpf[soDigitos(p.cpf)])||porNome[_normNome(p.nome_completo)];
+      if(e){ // não sobrescreve telefone/e-mail/status já editados no portal
+        if(!e.telefone&&l.telefone)p.telefone=l.telefone; if(!e.email&&l.email)p.email=l.email;
+        const {error}=await db.from('irpf_base').update(p).eq('id',e.id);if(!error)atu++;
+      }else novos.push(Object.assign(p,{telefone:l.telefone||null,email:l.email||null,status_campanha:'pendente'}));
+    }
+    for(let i=0;i<novos.length;i+=200){const {error}=await db.from('irpf_base').insert(novos.slice(i,i+200));if(error)throw error;}
+    toastRC('✓ Base importada: '+novos.length+' novos, '+atu+' atualizados');
+    _ib.carregado=false;carregarIrpfBase();
+  }catch(e){toastRC('✗ Erro na importação: '+(e.message||e));}
+}
+function exportarIrpfBaseCSV(){
+  const cols=['nome_completo','cpf','nascimento','telefone','email','logradouro','numero','complemento','bairro','municipio','uf','cep','anos','segmento','status_campanha'];
+  const csv=cols.join(';')+'\n'+_ib.rows.map(r=>cols.map(k=>{let v=k==='telefone'?((_ibFone(r)||{}).tel||''):(r[k]||'');return '"'+String(v).replace(/"/g,'""')+'"';}).join(';')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));a.download='base-irpf-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 
 function abrirModalIrpf(){
@@ -5196,6 +5374,12 @@ async function ctlSalvar(){
       const q=e.row.id?db.from('controle_licencas').update(p).eq('id',e.row.id):db.from('controle_licencas').insert([p]);
       const {error}=await q;if(error)throw error;
       if(!e.row.id)await db.from('controle_licencas').delete().eq('cliente_id',cli).eq('nao_se_aplica',true);
+    }else if(e.tipo==='irpfbase'){
+      const p={nome_completo:v('ib-nome'),cpf:v('ib-cpf')||null,nascimento:v('ib-nasc')||null,telefone:v('ib-tel')||null,email:v('ib-email')||null,logradouro:v('ib-log')||null,numero:v('ib-num')||null,complemento:v('ib-comp')||null,bairro:v('ib-bairro')||null,municipio:v('ib-mun')||null,uf:v('ib-uf')||null,cep:v('ib-cep')||null,status_campanha:v('ib-st'),obs:v('ib-obs')||null,updated_at:agora,atualizado_por:quem};
+      if(!p.nome_completo)throw new Error('Informe o nome.');
+      const q=e.row&&e.row.id?db.from('irpf_base').update(p).eq('id',e.row.id):db.from('irpf_base').insert([Object.assign(p,{segmento:'reativar',anos:''})]);
+      const {error}=await q;if(error)throw error;
+      fecharModal('m-ctl');toastRC('✓ Salvo');carregarIrpfBase();return;
     }else if(e.tipo==='impproc'){
       const docs=[...new Set((v('ip-txt').match(/\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}|\d{3}\.?\d{3}\.?\d{3}-?\d{2}/g)||[]).map(soDigitos))];
       if(!docs.length)throw new Error('Não encontrei nenhum CNPJ/CPF no texto colado.');
