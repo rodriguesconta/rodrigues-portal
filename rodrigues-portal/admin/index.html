@@ -4402,7 +4402,7 @@ function renderIrpfBase(){
         '<td style="font-size:12px;color:#475569;max-width:190px;overflow:hidden;text-overflow:ellipsis">'+(r.email?_esc(r.email):'<span style="color:#94a3b8">—</span>')+'</td>'+
         '<td style="font-size:12px;color:#475569">'+_esc([r.municipio,r.uf].filter(Boolean).join('/')||'—')+'</td>'+
         '<td><select class="si" style="font-size:11.5px;padding:4px 6px" onchange="mudarStatusIrpfBase(\''+r.id+'\',this.value)">'+Object.keys(IB_ST).map(k=>'<option value="'+k+'"'+((r.status_campanha||'pendente')===k?' selected':'')+'>'+IB_ST[k]+'</option>').join('')+'</select></td>'+
-        '<td><button class="btn btn-sm" onclick="editarIrpfBase(\''+r.id+'\')">Editar</button></td></tr>';}).join('')
+        '<td style="white-space:nowrap"><button class="btn btn-sm" onclick="editarIrpfBase(\''+r.id+'\')">Editar</button> <button class="btn btn-sm" title="Excluir da base" style="color:#dc2626;border-color:#fecaca" onclick="excluirIrpfBase(\''+r.id+'\')">Excluir</button></td></tr>';}).join('')
      :'<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:2rem">'+(L.length?'Nenhum contribuinte neste filtro.':'Base vazia. Clique em <b>📥 Importar base (CSV)</b> e escolha o arquivo <b>base-irpf-importar.csv</b>.')+'</td></tr>')+
     '</tbody></table></div></div>';
   if(foco){const b=document.getElementById('ib-busca');b.focus();try{b.setSelectionRange(pos,pos);}catch(e){}}
@@ -4424,7 +4424,17 @@ function editarIrpfBase(id){
     '<div class="fr">'+i('ib-comp','Complemento',r.complemento)+i('ib-bairro','Bairro',r.bairro)+'</div>'+
     '<div class="fr">'+i('ib-mun','Cidade',r.municipio)+'<div class="fr">'+i('ib-uf','UF',r.uf)+i('ib-cep','CEP',r.cep)+'</div></div>'+
     '<div class="fg"><label>Status da campanha 2027</label><select id="ib-st" class="si" style="width:100%">'+Object.keys(IB_ST).map(k=>'<option value="'+k+'"'+((r.status_campanha||'pendente')===k?' selected':'')+'>'+IB_ST[k]+'</option>').join('')+'</select></div>'+
-    i('ib-obs','Observação',r.obs));
+    i('ib-obs','Observação',r.obs)+
+    (r.id?'<div style="margin-top:.9rem;padding-top:.8rem;border-top:1px dashed #e2e8f0;display:flex;justify-content:space-between;align-items:center;gap:.6rem"><span style="font-size:11.5px;color:#94a3b8">Remove este contribuinte da base da campanha.</span><button type="button" class="btn btn-sm" style="color:#dc2626;border-color:#fecaca" onclick="excluirIrpfBase(\''+r.id+'\',true)">🗑 Excluir contribuinte</button></div>':''));
+}
+async function excluirIrpfBase(id,doModal){
+  const r=_ib.rows.find(x=>x.id===id);if(!r)return;
+  if(!confirm('Excluir "'+(r.nome_completo||'contribuinte')+'" da Base IRPF?\n\nEssa ação não pode ser desfeita.'))return;
+  const {error}=await db.from('irpf_base').delete().eq('id',id);
+  if(error){toastRC('✗ '+error.message);return;}
+  _ib.rows=_ib.rows.filter(x=>x.id!==id);
+  if(doModal)fecharModal('m-ctl');
+  toastRC('✓ Contribuinte excluído da base');renderIrpfBase();
 }
 function _parseCSV(txt){
   txt=txt.replace(/^﻿/,'');const rows=[];let row=[],cur='',q=false;
