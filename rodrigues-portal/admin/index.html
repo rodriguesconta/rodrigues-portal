@@ -4,19 +4,89 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rodrigues Assessoria Contábil</title>
-<link rel="icon" type="image/png" href="https://xuzcczbdbgihkurcbepw.supabase.co/storage/v1/object/public/assets/LOGO%20RODRIGUES%20CONT.png">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#0A1130">
+<meta name="robots" content="noindex,nofollow">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;color:#1e293b;font-size:14px}
 .hidden{display:none!important}
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1a2744}
-.login-box{background:#fff;border-radius:20px;padding:2.5rem;width:420px;border:1px solid #e2e8f0}
-.login-logo{text-align:center;margin-bottom:1.5rem}
-.login-logo img{height:90px;object-fit:contain}
-.login-box h1{font-size:18px;font-weight:600;text-align:center;margin-bottom:.25rem}
-.login-box p{font-size:13px;color:#64748b;text-align:center;margin-bottom:1.75rem}
+/* ===== LOGIN (mesma identidade do site) ===== */
+@font-face{font-family:"RGeist";src:url("/assets/fonts/Geist-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"RGeistMono";src:url("/assets/fonts/GeistMono-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"RSerif";src:url("/assets/fonts/instrument-serif-latin-400-italic.woff2") format("woff2");font-style:italic;font-weight:400;font-display:swap}
+#login-screen{--ink:#0A1130;--paper:#F6F5F0;--line:#E3E0D6;--blue:#3254E2;--blue2:#2440C4;--sky:#7EB2FF;--or:#FF7A1A;--mut:#5A6079;
+  min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;font-family:"RGeist",-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
+.lg-brand{position:relative;overflow:hidden;background:var(--ink);color:#fff;padding:44px 56px;display:flex;flex-direction:column}
+.lg-brand::before{content:"";position:absolute;inset:0;background-image:linear-gradient(to right,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.05) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 75% 35%,#000,transparent 78%);mask-image:radial-gradient(ellipse 70% 60% at 75% 35%,#000,transparent 78%)}
+.lg-brand .orb{position:absolute;right:-190px;top:-120px;width:560px;height:560px;border-radius:50%;border:1.5px solid rgba(255,122,26,.45)}
+.lg-brand .orb2{position:absolute;right:-110px;top:-40px;width:400px;height:400px;border-radius:50%;border:1px dashed rgba(126,178,255,.28)}
+.lg-brand>*{position:relative;z-index:1}
+.lg-brand .logo{height:44px;width:auto}
+.lg-mid{margin:auto 0;padding:56px 0}
+.lg-eyebrow{font-family:"RGeistMono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:10px}
+.lg-eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--or);box-shadow:0 0 0 4px rgba(255,122,26,.18)}
+.lg-h{font-size:clamp(40px,4.6vw,68px);font-weight:500;letter-spacing:-.045em;line-height:.98;margin:22px 0 22px}
+.lg-h .l2{display:block;color:var(--sky)}
+.lg-ring{position:relative;display:inline-block;white-space:nowrap}
+.lg-ring svg{position:absolute;left:-9%;top:-14%;width:118%;height:132%;overflow:visible;pointer-events:none}
+.lg-ring path{fill:none;stroke:var(--or);stroke-width:3;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:lgDraw 1.6s cubic-bezier(.6,.05,.2,1) .4s forwards}
+@keyframes lgDraw{to{stroke-dashoffset:0}}
+.lg-sub{font-size:17px;line-height:1.55;color:rgba(255,255,255,.66);max-width:40ch}
+.lg-feat{list-style:none;margin:30px 0 0;padding:0;display:grid;gap:12px}
+.lg-feat li{display:flex;align-items:center;gap:12px;font-size:15px;color:rgba(255,255,255,.85)}
+.lg-feat .tk{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(126,178,255,.16);color:var(--sky);flex:0 0 22px}
+.lg-feat .tk svg{width:12px;height:12px}
+.lg-foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-size:13px;color:rgba(255,255,255,.5)}
+.lg-foot a{color:rgba(255,255,255,.72);text-decoration:none;transition:color .2s}
+.lg-foot a:hover{color:#fff}
+.lg-foot .sep{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.3)}
+.lg-side{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;position:relative}
+.lg-back{position:absolute;top:28px;right:32px;font-size:14px;color:var(--mut);text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;transition:.2s}
+.lg-back:hover{color:var(--ink);border-color:var(--ink)}
+.lg-card{width:100%;max-width:420px}
+.lg-mark{display:none;height:38px;width:auto;margin-bottom:24px}
+.lg-hi{font-family:"RGeistMono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.lg-card h1{font-size:34px;font-weight:500;letter-spacing:-.035em;line-height:1.1;margin:10px 0 8px;text-align:left}
+.lg-card h1 em{font-family:"RSerif",Georgia,serif;font-weight:400;font-style:italic;color:var(--blue)}
+.lg-card .lg-p{font-size:15px;color:var(--mut);margin:0 0 28px;text-align:left}
+.lg-notice{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45;background:#EEF2FF;color:#2440C4;border:1px solid #D7DFFC;border-radius:12px;padding:11px 14px;margin-bottom:18px}
+.lg-who{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);background:#fff;border-radius:14px;margin-bottom:16px}
+.lg-who .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff;font-weight:600;font-size:14px;flex:0 0 38px}
+.lg-who .em{flex:1;min-width:0}
+.lg-who .em small{display:block;font-size:11.5px;color:var(--mut);font-family:"RGeistMono",monospace;letter-spacing:.04em;text-transform:uppercase}
+.lg-who .em b{display:block;font-weight:500;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg-who button{background:none;border:0;color:var(--blue);font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;padding:6px 8px;border-radius:8px}
+.lg-who button:hover{background:#EEF2FF}
+.lg-f{display:grid;gap:7px;margin-bottom:16px}
+.lg-f label{font-size:13.5px;font-weight:500}
+.lg-in{position:relative}
+.lg-f input{width:100%;height:52px;border-radius:12px;border:1px solid var(--line);background:#fff;padding:0 46px 0 15px;font:inherit;font-size:16px;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s}
+.lg-f input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(50,84,226,.12)}
+.lg-eye{position:absolute;right:6px;top:6px;width:40px;height:40px;border:0;background:none;border-radius:10px;display:grid;place-items:center;color:var(--mut);cursor:pointer}
+.lg-eye:hover{background:#F1F0EA;color:var(--ink)}
+.lg-eye svg{width:19px;height:19px}
+.lg-caps{display:none;font-size:12.5px;color:#B45309;margin-top:2px}
+.lg-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:4px 0 22px;font-size:14px;color:var(--mut)}
+.lg-chk{display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.lg-chk input{width:18px;height:18px;accent-color:var(--blue);cursor:pointer}
+.lg-btn{width:100%;height:54px;border:0;border-radius:999px;background:var(--blue);color:#fff;font:inherit;font-size:16px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 12px 26px -12px rgba(50,84,226,.85);transition:background .2s,transform .2s}
+.lg-btn:hover{background:var(--blue2);transform:translateY(-1px)}
+.lg-btn:disabled{opacity:.7;cursor:wait;transform:none}
+.lg-btn svg{width:18px;height:18px}
+#login-screen .err{margin-top:14px;font-size:14px;color:#C62828;text-align:center}
+.lg-note{margin-top:22px;font-size:12.5px;color:#8A8FA6;text-align:center;line-height:1.5}
+@media(max-width:960px){
+  #login-screen{grid-template-columns:1fr}
+  .lg-brand{display:none}
+  .lg-mark{display:block}
+  .lg-side{min-height:100vh;justify-content:flex-start;padding-top:96px}
+  .lg-back{top:20px;right:20px}
+}
 .fg{margin-bottom:1rem}
 .fg label{display:block;font-size:12px;font-weight:500;color:#475569;margin-bottom:.4rem}
 .fg input,.fg select,.fg textarea{width:100%;padding:.65rem .9rem;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;color:#1e293b;background:#fff;outline:none}
@@ -109,7 +179,6 @@ tr:hover td{background:#f8fafc}
 .mob-menu-btn span{display:block;width:22px;height:2px;background:#f8fafc;border-radius:2px}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
 @media(max-width:768px){
-  .login-box{width:92vw;padding:1.75rem 1.25rem}
   #app{flex-direction:column}
   .sidebar{position:fixed;top:0;left:0;height:100vh;transform:translateX(-100%);width:240px;z-index:100}
   .sidebar.open{transform:translateX(0)}
@@ -343,18 +412,43 @@ tr:hover td{background:#f8fafc}
 <body>
 
 <div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">
-      <img src="https://xuzcczbdbgihkurcbepw.supabase.co/storage/v1/object/public/assets/LOGO%20RODRIGUES%20CONT.png" alt="Logo">
+  <aside class="lg-brand" aria-hidden="false">
+    <div class="orb"></div><div class="orb2"></div>
+    <a href="/" title="Ir para o site"><img class="logo" src="/assets/logo-light.png" alt="Rodrigues Assessoria Empresarial"></a>
+    <div class="lg-mid">
+      <div class="lg-eyebrow"><i></i>Portal da equipe</div>
+      <div class="lg-h">Menos impostos.<span class="l2">Mais <span class="lg-ring">lucro.<svg viewBox="0 0 200 80" preserveAspectRatio="none"><path pathLength="1" d="M118 6 C 62 2, 10 14, 6 40 C 3 62, 52 76, 104 75 C 160 74, 196 60, 194 38 C 192 16, 150 4, 92 7 C 70 8, 52 11, 40 15"/></svg></span></span></div>
+      <p class="lg-sub">Clientes, tarefas, cobranças, WhatsApp e IRPF em um só lugar — para nenhum prazo ficar para trás.</p>
+      <ul class="lg-feat">
+        <li><span class="tk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span> Guias e documentos direto no WhatsApp do cliente</li>
+        <li><span class="tk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span> Cobrança por Pix e boleto, com baixa automática</li>
+        <li><span class="tk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span> Tarefas e prazos da equipe sob controle</li>
+      </ul>
     </div>
-    <h1>Rodrigues Assessoria Contábil</h1>
-    <p>Portal financeiro — acesso restrito</p>
-    <div class="fg"><label>E-mail</label><input type="email" id="l-email" placeholder="contato@rodriguesconta.com.br"></div>
-    <div class="fg"><label>Senha</label><input type="password" id="l-pass" onkeydown="if(event.key==='Enter')login()"></div>
-    <p class="err hidden" id="l-err"></p>
-    <br>
-    <button class="btn btn-primary btn-block" onclick="login()">Entrar</button>
-  </div>
+    <div class="lg-foot">
+      <a href="/">rodriguesconta.com.br ↗</a><span class="sep"></span>
+      <a href="/mini-mercado/">Mini mercados</a><span class="sep"></span>
+      <a href="/medicos/">Médicos PJ</a><span class="sep"></span>
+      <a href="/autonomos/">Autônomos PJ</a>
+    </div>
+  </aside>
+  <main class="lg-side">
+    <a class="lg-back" href="/">← Voltar ao site</a>
+    <form class="lg-card" id="lg-form" onsubmit="event.preventDefault();login();" autocomplete="on">
+      <img class="lg-mark" src="/assets/logo-dark.png" alt="Rodrigues Assessoria Empresarial">
+      <div class="lg-hi" id="lg-hi">Bem-vindo</div>
+      <h1 id="lg-tit">Acesse o <em>portal</em></h1>
+      <p class="lg-p" id="lg-p">Entre com o e-mail e a senha da sua conta Rodrigues.</p>
+      <div class="lg-notice hidden" id="lg-idle">⏱ Sua sessão foi encerrada após 20 minutos sem uso. Digite sua senha para continuar.</div>
+      <div class="lg-who hidden" id="lg-who"><div class="av" id="lg-av">R</div><div class="em"><small>Entrando como</small><b id="lg-who-em"></b></div><button type="button" onclick="lgTrocarConta()">Trocar</button></div>
+      <div class="lg-f" id="lg-f-email"><label for="l-email">E-mail</label><div class="lg-in"><input type="email" id="l-email" name="username" autocomplete="username" placeholder="voce@rodriguesconta.com.br" required></div></div>
+      <div class="lg-f"><label for="l-pass">Senha</label><div class="lg-in"><input type="password" id="l-pass" name="password" autocomplete="current-password" placeholder="Sua senha" required onkeyup="lgCaps(event)" onkeydown="lgCaps(event)"><button type="button" class="lg-eye" onclick="lgOlho()" title="Mostrar senha" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="lg-caps" id="lg-caps">⚠ Caps Lock está ligado</div></div>
+      <div class="lg-row"><label class="lg-chk"><input type="checkbox" id="l-lembrar" checked> Lembrar meu e-mail</label></div>
+      <button class="lg-btn" type="submit" id="lg-btn">Entrar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      <p class="err hidden" id="l-err"></p>
+      <p class="lg-note">Acesso restrito à equipe Rodrigues. Por segurança, a sessão encerra após 20 minutos sem uso. Esqueceu a senha? Fale com o administrador.</p>
+    </form>
+  </main>
 </div>
 
 <div id="app" class="hidden">
@@ -2056,15 +2150,56 @@ function toggleSidebar(){
   ov.classList.toggle('open');
 }
 
+// ===== LOGIN: lembrar e-mail, sessão expirada, mostrar senha =====
+const LG_KEY='rc_login_email';
+function _lgGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function _lgSet(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
+function lgPreparar(){
+  const h=new Date().getHours();
+  document.getElementById('lg-hi').textContent=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
+  let idle=false;try{idle=sessionStorage.getItem('rc_idle')==='1';sessionStorage.removeItem('rc_idle');}catch(e){}
+  document.getElementById('lg-idle').classList.toggle('hidden',!idle);
+  const em=_lgGet(LG_KEY);
+  if(em){
+    document.getElementById('l-email').value=em;
+    document.getElementById('lg-who-em').textContent=em;
+    document.getElementById('lg-av').textContent=em.charAt(0).toUpperCase();
+    document.getElementById('lg-who').classList.remove('hidden');
+    document.getElementById('lg-f-email').classList.add('hidden');
+    document.getElementById('lg-tit').innerHTML='Que bom te ver <em>de novo</em>';
+    document.getElementById('lg-p').textContent='Digite sua senha para entrar.';
+    setTimeout(()=>document.getElementById('l-pass').focus(),60);
+  }else{
+    setTimeout(()=>document.getElementById('l-email').focus(),60);
+  }
+}
+function lgTrocarConta(){
+  _lgSet(LG_KEY,null);
+  document.getElementById('l-email').value='';
+  document.getElementById('lg-who').classList.add('hidden');
+  document.getElementById('lg-f-email').classList.remove('hidden');
+  document.getElementById('lg-tit').innerHTML='Acesse o <em>portal</em>';
+  document.getElementById('lg-p').textContent='Entre com o e-mail e a senha da sua conta Rodrigues.';
+  document.getElementById('l-email').focus();
+}
+function lgOlho(){const i=document.getElementById('l-pass');i.type=i.type==='password'?'text':'password';i.focus();}
+function lgCaps(ev){const c=document.getElementById('lg-caps');if(c&&ev.getModifierState)c.style.display=ev.getModifierState('CapsLock')?'block':'none';}
 async function login(){
   const e=document.getElementById('l-email').value.trim();
   const p=document.getElementById('l-pass').value;
   const er=document.getElementById('l-err');
   er.classList.add('hidden');
+  if(!e){lgTrocarConta();er.textContent='Informe seu e-mail.';er.classList.remove('hidden');return;}
+  if(!p){er.textContent='Digite sua senha.';er.classList.remove('hidden');document.getElementById('l-pass').focus();return;}
+  const b=document.getElementById('lg-btn');const old=b.innerHTML;b.disabled=true;b.textContent='Entrando…';
   const {data,error}=await db.auth.signInWithPassword({email:e,password:p});
-  if(error){er.textContent='E-mail ou senha incorretos';er.classList.remove('hidden');return;}
+  b.disabled=false;b.innerHTML=old;
+  if(error){er.textContent='E-mail ou senha incorretos';er.classList.remove('hidden');document.getElementById('l-pass').select();return;}
+  _lgSet(LG_KEY,document.getElementById('l-lembrar').checked?e:null);
+  document.getElementById('l-pass').value='';
   iniciar(data.user);
 }
+lgPreparar();
 async function logout(){await db.auth.signOut();location.reload();}
 
 async function iniciar(u){
@@ -7440,7 +7575,7 @@ function _resetIdle(){
   _idleTimer=setTimeout(function(){
     const app=document.getElementById('app');
     if(app && !app.classList.contains('hidden')){
-      try{alert('Sessão encerrada por inatividade. Faça login novamente.');}catch(e){}
+      try{sessionStorage.setItem('rc_idle','1');}catch(e){}
       logout();
     }
   }, 20*60*1000);
