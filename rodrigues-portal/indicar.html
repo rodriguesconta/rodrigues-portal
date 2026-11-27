@@ -1,241 +1,306 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex">
-<title>Indique e ganhe — Rodrigues Assessoria Contábil</title>
-<meta property="og:title" content="Programa de Indicação — Rodrigues Assessoria Contábil">
-<meta property="og:description" content="Indique uma empresa e ganhe comissão recorrente, todo mês, enquanto ela for cliente.">
+<meta charset="utf-8">
+<script>document.documentElement.classList.add("js")</script>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Indique e ganhe todo mês · Rodrigues Assessoria</title>
+<meta name="description" content="Indique um empresário para a Rodrigues e receba comissão recorrente, todo mês, enquanto ele for cliente. Leva menos de 1 minuto.">
+<link rel="canonical" href="https://rodriguesconta.com.br/indicar">
+<meta name="theme-color" content="#0A1130">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Rodrigues Assessoria">
+<meta property="og:title" content="Indique e ganhe todo mês · Rodrigues Assessoria">
+<meta property="og:description" content="Indique um empresário para a Rodrigues e receba comissão recorrente, todo mês, enquanto ele for cliente. Leva menos de 1 minuto.">
+<meta property="og:url" content="https://rodriguesconta.com.br/indicar">
+<meta property="og:image" content="https://rodriguesconta.com.br/assets/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css?v=1">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"AccountingService","name":"Rodrigues Assessoria Contábil","legalName":"Rodrigues Assessoria Empresarial RJ Ltda","taxID":"55.650.943/0001-51","url":"https://rodriguesconta.com.br/","logo":"https://rodriguesconta.com.br/assets/icon-512.png","image":"https://rodriguesconta.com.br/assets/og.png","email":"contato@rodriguesconta.com.br","telephone":"+55-24-3181-1114","address":{"@type":"PostalAddress","addressLocality":"Volta Redonda","addressRegion":"RJ","addressCountry":"BR"},"areaServed":"BR","openingHours":"Mo-Fr 08:00-18:00","sameAs":["https://www.instagram.com/rodriguescontabil.pro/"]}</script>
 <style>
-  :root{--azul:#1e3a6e;--azul2:#4A6BD4;--laranja:#F57C1A;--ink:#1e293b;--mute:#64748b;--line:#e3e9f3;}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#eef2f8;color:var(--ink);min-height:100vh}
-  .inner{width:100%;max-width:1180px;margin:0 auto;padding:0 32px}
-  @media(max-width:600px){.inner{padding:0 18px}}
-
-  /* HERO full-width */
-  .hero{background:linear-gradient(135deg,var(--azul),var(--azul2));color:#fff;position:relative;overflow:hidden}
-  .hero::after{content:"";position:absolute;right:-140px;top:-160px;width:460px;height:460px;background:rgba(255,255,255,.06);border-radius:50%}
-  .hero::before{content:"";position:absolute;left:-120px;bottom:-200px;width:420px;height:420px;background:rgba(255,255,255,.05);border-radius:50%}
-  .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:3rem;align-items:center;padding:3.4rem 0 3.6rem}
-  .hero-copy img{height:54px;object-fit:contain;margin-bottom:1.4rem}
-  .hero-copy h1{font-size:40px;font-weight:800;line-height:1.1;margin-bottom:1rem;letter-spacing:-.01em}
-  .hero-copy h1 .hl{color:#ffd9b3}
-  .hero-copy p{font-size:16.5px;opacity:.95;line-height:1.6;max-width:520px}
-  .hero-copy .tag{display:inline-block;margin-top:1.4rem;background:var(--laranja);color:#fff;font-size:13px;font-weight:700;padding:8px 20px;border-radius:999px}
-  .trust{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.5rem}
-  .trust span{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);font-size:12.5px;padding:7px 14px;border-radius:999px}
-
-  /* FORM card (sits in hero right column) */
-  .form-card{background:#fff;border-radius:18px;padding:1.8rem 1.8rem;box-shadow:0 24px 60px rgba(12,28,66,.34);color:var(--ink)}
-  .form-card .fc-title{font-size:18px;font-weight:800;color:var(--azul);margin-bottom:.3rem}
-  .form-card .fc-sub{font-size:13px;color:var(--mute);margin-bottom:1.1rem}
-  .sec-t{font-size:11px;font-weight:700;color:var(--azul2);text-transform:uppercase;letter-spacing:.04em;margin:1.2rem 0 .6rem;padding-bottom:.3rem;border-bottom:1px solid var(--line)}
-  .sec-t:first-of-type{margin-top:0}
-  label{display:block;font-size:12px;color:var(--mute);font-weight:600;margin-bottom:4px}
-  .fg{margin-bottom:.85rem}
-  input,select,textarea{width:100%;font-size:14px;padding:11px 13px;border:1px solid #cbd5e1;border-radius:9px;outline:none;font-family:inherit;background:#fff}
-  input:focus,select:focus,textarea:focus{border-color:var(--azul2);box-shadow:0 0 0 3px rgba(74,107,212,.12)}
-  textarea{resize:vertical;min-height:66px}
-  .row{display:flex;gap:.7rem}.row .fg{flex:1}
-  .hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
-  .btn{width:100%;background:var(--laranja);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:.6rem;transition:filter .15s}
-  .btn:hover{filter:brightness(1.05)}.btn:disabled{opacity:.6;cursor:not-allowed}
-  .msg{margin-top:1rem;padding:.9rem 1rem;border-radius:10px;font-size:13.5px;display:none}
-  .msg.ok{display:block;background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
-  .msg.err{display:block;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c}
-  .ok-screen{text-align:center;padding:1rem 0}
-  .ok-screen .big{font-size:52px}.ok-screen h2{color:#15803d;margin:.5rem 0}
-  .ok-screen p{font-size:14px;color:#475569;line-height:1.6}
-  .ok-screen button{margin-top:1.2rem;background:var(--azul2);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer}
-
-  /* COMO FUNCIONA full-width band */
-  .howband{background:#fff;border-top:1px solid var(--line)}
-  .howband h2{text-align:center;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--azul2);font-weight:800;padding-top:2.6rem}
-  .howband .lead2{text-align:center;color:var(--ink);font-size:22px;font-weight:800;margin-top:.4rem}
-  .how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6rem;padding:2rem 0 3rem}
-  .how-card{background:#f7f9fd;border:1px solid var(--line);border-radius:16px;padding:1.6rem 1.5rem;text-align:center}
-  .how-card .n{width:48px;height:48px;border-radius:50%;background:var(--azul2);color:#fff;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
-  .how-card.mid .n{background:var(--laranja)}
-  .how-card b{display:block;color:var(--azul);font-size:16px;margin-bottom:.4rem}
-  .how-card p{font-size:13.5px;color:var(--mute);line-height:1.5}
-
-  /* FOOTER full-width band */
-  .footband{background:var(--azul);color:#cdd8ec}
-  .foot-grid{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;padding:2rem 0}
-  .footband img{height:44px;object-fit:contain}
-  .foot-links{display:flex;gap:.6rem;flex-wrap:wrap}
-  .footband a{display:inline-flex;align-items:center;gap:6px;color:#fff;text-decoration:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:9px 16px;border-radius:999px;font-size:13px;font-weight:600}
-  .footband a:hover{background:rgba(255,255,255,.2)}
-  .foot-note{border-top:1px solid rgba(255,255,255,.12);text-align:center;font-size:11.5px;opacity:.8;line-height:1.6;padding:1rem 0 1.6rem}
-
-  @media(max-width:860px){
-    .hero-grid{grid-template-columns:1fr;gap:2rem;padding:2.4rem 0 2.6rem}
-    .hero-copy h1{font-size:30px}
-    .how-grid{grid-template-columns:1fr;gap:1rem}
-    .foot-grid{justify-content:center;text-align:center}
-  }
+.ind-hero-wrap{padding:18px 0 40px}
+.ind-hero{position:relative;overflow:hidden;border-radius:36px;background:var(--ink);color:#fff;padding:64px 56px}
+.ind-hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(to right,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.05) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 60% 70% at 30% 40%,#000,transparent 78%);mask-image:radial-gradient(ellipse 60% 70% at 30% 40%,#000,transparent 78%)}
+.ind-hero .orb{position:absolute;left:-180px;bottom:-260px;width:560px;height:560px;border-radius:50%;border:1.5px solid rgba(255,122,26,.45)}
+.ind-hero .orb2{position:absolute;right:-120px;top:-160px;width:420px;height:420px;border-radius:50%;border:1px dashed rgba(126,178,255,.28)}
+.ind-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr minmax(0,470px);gap:56px;align-items:start}
+.ind-copy{padding-top:24px}
+.ind-copy h1{margin:24px 0 24px;font-size:clamp(46px,5.6vw,84px)}
+.ind-copy h1 .l2{display:block;color:var(--sky)}
+.ind-copy .lead{color:rgba(255,255,255,.7);max-width:44ch}
+.ind-copy .lead b{color:#fff;font-weight:500}
+.ind-gains{list-style:none;margin:36px 0 0;padding:0;display:grid;gap:0;border-top:1px solid var(--line-ink);max-width:460px}
+.ind-gains li{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line-ink)}
+.ind-gains .gi{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.06);color:var(--orange)}
+.ind-gains .gi svg{width:21px;height:21px}
+.ind-gains b{display:block;font-weight:500;font-size:16.5px}
+.ind-gains small{color:rgba(255,255,255,.58);font-size:14px}
+.ind-card{position:relative}
+.ind-card h3{font-size:26px;margin-bottom:4px}
+.ind-sub{color:var(--muted);font-size:15px;margin-bottom:6px}
+.ind-step{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:22px 0 12px}
+.ind-step span{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff;font-size:11px;letter-spacing:0}
+.ind-step::after{content:"";flex:1;height:1px;background:var(--line)}
+.opt{color:var(--muted-2);font-weight:400}
+.btn-or{background:linear-gradient(90deg,#FF8A24,#F0561A);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 12px 26px -12px rgba(240,86,26,.9)}
+.btn-or:hover{transform:translateY(-1px);filter:brightness(1.04)}
+.btn-or .arr{transition:transform .2s}.btn-or:hover .arr{transform:translateX(3px)}
+.ind-card .chips span{height:38px;font-size:14px}
+.ind-card .err-msg{display:none}
+.ind-card.sent #form-area{display:none}
+.ind-card.sent .ok-state{display:block}
+.ok-btns{display:grid;gap:10px}
+.ok-btns .btn{width:100%;margin:0}
+.ind-steps{grid-template-columns:repeat(3,1fr)}
+.ind-lk{color:inherit;text-decoration:none}
+.ind-lk:hover{color:var(--sky)}
+@media(max-width:1080px){.ind-grid{grid-template-columns:1fr;gap:40px}.ind-copy{padding-top:0}.ind-steps{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:680px){.ind-hero-wrap{padding:6px 0 24px}.ind-hero-wrap .wrap{padding:0 10px}.ind-hero{border-radius:26px;padding:40px 18px 18px}.ind-copy{padding:0 6px}.ind-steps{grid-template-columns:1fr}.ind-card{padding:26px 18px}}
 </style>
 </head>
-<body>
-
-  <!-- HERO -->
-  <header class="hero">
-    <div class="inner">
-      <div class="hero-grid">
-        <div class="hero-copy">
-          <img src="https://xuzcczbdbgihkurcbepw.supabase.co/storage/v1/object/public/assets/LOGO%20RODRIGUES%20CONT.png" alt="Rodrigues Assessoria Contábil">
-          <h1>Indique e ganhe <span class="hl">todo mês</span></h1>
-          <p>Conhece uma empresa que precisa de uma contabilidade de verdade? Indique para a <strong>Rodrigues Assessoria Contábil</strong> e receba <strong>comissão recorrente</strong> por cada indicação que vira cliente.</p>
-          <div class="tag">Programa de Indicação</div>
-          <div class="trust">
-            <span>💬 Atendimento humano</span>
-            <span>⚙️ Tecnologia de ponta</span>
-            <span>🤝 Parceria de verdade</span>
-          </div>
+<body data-wa="Olá! Vim pela página de indicação da Rodrigues.">
+<header class="hdr">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Rodrigues Assessoria — início"><img src="/assets/logo-dark.png" alt="Rodrigues Assessoria Empresarial" width="197" height="42"></a>
+    <nav class="nav" aria-label="Principal">
+      <a href="/#solucoes">Soluções</a>
+      <div class="dd">
+        <button type="button" aria-expanded="false">Segmentos <svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="dd-menu">
+          <a href="/mini-mercado/"><span class="ic"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v10h16V10M3 10l2-6h14l2 6M3 10c0 1.7 1.3 3 3 3s3-1.3 3-3m0 0c0 1.7 1.3 3 3 3s3-1.3 3-3m0 0c0 1.7 1.3 3 3 3s3-1.3 3-3M10 20v-5h4v5"/></svg></span><span><b>Mini mercados</b><small>Recupere o imposto pago duas vezes</small></span></a>
+          <a href="/medicos/"><span class="ic"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3H5v6a5 5 0 0010 0V3h-1M10 14v1.5a5.5 5.5 0 0011 0V13"/><circle cx="21" cy="11" r="2"/></svg></span><span><b>Médicos PJ</b><small>Estrutura certa, menos imposto</small></span></a>
+          <a href="/autonomos/"><span class="ic"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></svg></span><span><b>Autônomos PJ</b><small>Saia do carnê-leão</small></span></a>
+        </div>
+      </div>
+      <a href="/#reforma">Reforma Tributária</a>
+      <a href="/#como">Como trabalhamos</a>
+      <a href="/indicar">Indique</a>
+    </nav>
+    <div class="hdr-cta">
+      <a class="btn btn-primary btn-sm" href="#indicar">Indicar agora <span class="arr"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+    </div>
+    <button class="burger" type="button" aria-label="Abrir menu" aria-expanded="false"><span></span></button>
+  </div>
+</header>
+<nav class="mnav" aria-label="Menu">
+  <small>Navegação</small>
+  <a href="/#solucoes">Soluções</a>
+  <a href="/#reforma">Reforma Tributária</a>
+  <a href="/#como">Como trabalhamos</a>
+  <a href="/indicar">Indique e ganhe</a>
+  <small>Segmentos</small>
+  <a href="/mini-mercado/">Mini mercados</a>
+  <a href="/medicos/">Médicos PJ</a>
+  <a href="/autonomos/">Autônomos PJ</a>
+  <a class="btn btn-primary" href="#indicar">Indicar agora</a>
+  <a class="btn btn-ghost" href="#" data-wa><svg class="wa-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.42.25-.69.25-1.29.18-1.41-.08-.13-.28-.2-.57-.35m-5.42 7.4h-.01a9.87 9.87 0 01-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 01-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 012.89 6.99c0 5.45-4.44 9.88-9.89 9.88m8.41-18.3A11.82 11.82 0 0012.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 005.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.17-3.48-8.41z"/></svg> Falar no WhatsApp</a>
+</nav>
+<main>
+<section class="ind-hero-wrap">
+  <div class="wrap">
+    <div class="ind-hero">
+      <div class="orb" aria-hidden="true"></div><div class="orb2" aria-hidden="true"></div>
+      <div class="ind-grid">
+        <div class="ind-copy">
+          <span class="eyebrow rv" style="color:rgba(255,255,255,.6)"><span class="dot"></span>Programa de indicação Rodrigues</span>
+          <h1 class="rv d1">Indicou, <span class="ring">ganhou.</span><span class="l2">Todo mês.</span></h1>
+          <p class="lead rv d2">Conhece um empresário que paga imposto demais ou não está satisfeito com o contador? Indique para a Rodrigues. Quando ele vira cliente, você recebe <b>comissão recorrente</b>, todo mês, enquanto ele continuar com a gente.</p>
+          <ul class="ind-gains rv d3">
+            <li><span class="gi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 109-9 9.7 9.7 0 00-6.7 2.8L3 8"/><path d="M3 3v5h5M12 7.5v9M14.5 9.5c-.5-.9-1.5-1.3-2.5-1.3-1.4 0-2.5.8-2.5 1.9 0 2.6 5 1.3 5 3.9 0 1.1-1.1 1.9-2.5 1.9-1 0-2-.4-2.5-1.3"/></svg></span><span><b>Comissão recorrente</b><small>não é um bônus único: entra todo mês</small></span></li>
+            <li><span class="gi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 21V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg></span><span><b>Seu indicado também ganha</b><small>condição especial no primeiro mês</small></span></li>
+            <li><span class="gi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span><span><b>Você acompanha tudo</b><small>avisamos pelo WhatsApp a cada passo</small></span></li>
+          </ul>
         </div>
 
-        <div class="form-card">
+        <div class="form ind-card rv d1" id="indicar">
           <div id="form-area">
-            <div class="fc-title">Faça sua indicação</div>
-            <div class="fc-sub">Leva menos de 1 minuto. É só preencher abaixo.</div>
+            <h3>Faça sua indicação</h3>
+            <p class="ind-sub">Leva menos de 1 minuto.</p>
 
-            <div class="sec-t">Seus dados (quem está indicando)</div>
-            <div class="fg"><label>Seu nome *</label><input id="indicador_nome" placeholder="Nome completo"></div>
-            <div class="row">
-              <div class="fg"><label>Seu WhatsApp / e-mail *</label><input id="indicador_contato" placeholder="(21) 99999-9999"></div>
-              <div class="fg" style="max-width:150px"><label>Você é</label><select id="indicador_tipo"><option value="cliente">Cliente</option><option value="parceiro">Parceiro</option></select></div>
+            <div class="ind-step"><span>1</span>Seus dados</div>
+            <div class="fgrid">
+              <div class="fld full"><label for="indicador_nome">Seu nome</label><input id="indicador_nome" autocomplete="name" placeholder="Nome completo"></div>
+              <div class="fld full"><label for="indicador_contato">Seu WhatsApp</label><input id="indicador_contato" type="tel" inputmode="tel" autocomplete="tel" placeholder="(24) 99999-9999"></div>
+              <div class="fld full"><label>Você é</label><div class="chips">
+                <label><input type="radio" name="indicador_tipo" value="cliente" checked><span>Cliente Rodrigues</span></label>
+                <label><input type="radio" name="indicador_tipo" value="parceiro"><span>Parceiro</span></label>
+              </div></div>
             </div>
 
-            <div class="sec-t">Quem você está indicando</div>
-            <div class="fg"><label>Nome da pessoa / empresa *</label><input id="indicado_nome" placeholder="Nome de quem você indica"></div>
-            <div class="fg"><label>Contato da indicação (WhatsApp / e-mail)</label><input id="indicado_contato" placeholder="Como falamos com ela"></div>
-            <div class="fg"><label>O que ela precisa? (opcional)</label>
-              <select id="indicado_necessidade">
-                <option value="">Selecione (opcional)</option>
-                <option value="trocar_contador">Trocar de contador</option>
-                <option value="abrir_cnpj">Abrir CNPJ / empresa</option>
-                <option value="mei_para_me">Sair do MEI (virar ME/Ltda)</option>
-                <option value="outro">Outro</option>
-              </select>
+            <div class="ind-step"><span>2</span>Quem você está indicando</div>
+            <div class="fgrid">
+              <div class="fld full"><label for="indicado_nome">Nome da pessoa ou empresa</label><input id="indicado_nome" placeholder="Ex.: Mercado Bom Preço / João Silva"></div>
+              <div class="fld full"><label for="indicado_contato">WhatsApp de quem você indica <span class="opt">(opcional)</span></label><input id="indicado_contato" type="tel" inputmode="tel" placeholder="Para a gente chamar"></div>
+              <div class="fld full"><label>O que ela precisa? <span class="opt">(opcional)</span></label><div class="chips">
+                <label><input type="radio" name="necessidade" value="Trocar de contador"><span>Trocar de contador</span></label>
+                <label><input type="radio" name="necessidade" value="Pagar menos imposto"><span>Pagar menos imposto</span></label>
+                <label><input type="radio" name="necessidade" value="Abrir empresa"><span>Abrir empresa</span></label>
+                <label><input type="radio" name="necessidade" value="Sair do MEI"><span>Sair do MEI</span></label>
+                <label><input type="radio" name="necessidade" value="Imposto de Renda"><span>Imposto de Renda</span></label>
+              </div></div>
+              <div class="fld full"><label for="observacao">Observação <span class="opt">(opcional)</span></label><textarea id="observacao" placeholder="Algo que ajude no atendimento: segmento, cidade, melhor horário…"></textarea></div>
+              <input class="hp" id="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
             </div>
-            <div class="fg"><label>Observação (opcional)</label><textarea id="observacao" placeholder="Algo que ajude a gente no atendimento..."></textarea></div>
-
-            <input class="hp" id="hp" tabindex="-1" autocomplete="off" placeholder="Não preencha">
-
-            <button class="btn" id="btn-enviar" onclick="enviar()">Enviar indicação</button>
-            <div class="msg" id="msg"></div>
+            <button class="btn btn-or" id="btn-enviar" type="button" onclick="enviar()">Enviar indicação <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+            <p class="err-msg" id="msg" role="alert"></p>
+            <p class="note">Usamos esses dados apenas para falar sobre esta indicação.</p>
           </div>
-
-          <div class="ok-screen" id="ok-area" style="display:none">
-            <div class="big">🎉</div>
-            <h2>Indicação enviada!</h2>
-            <p>Obrigado! Já recebemos sua indicação e nossa equipe vai entrar em contato. Assim que ela virar cliente, sua comissão começa a contar.</p>
-            <button onclick="novaIndicacao()">Fazer outra indicação</button>
+          <div class="ok-state" id="ok-area" aria-live="polite">
+            <div class="big-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div>
+            <h3>Indicação enviada!</h3>
+            <p>Obrigado pela confiança. Nossa equipe vai entrar em contato com quem você indicou e te avisa quando virar cliente — aí sua comissão começa a contar.</p>
+            <div class="ok-btns">
+              <button class="btn btn-ink" type="button" onclick="novaIndicacao()">Fazer outra indicação</button>
+              <a class="btn btn-ghost" href="#" data-wa="Olá! Acabei de fazer uma indicação pelo site da Rodrigues."><svg class="wa-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.42.25-.69.25-1.29.18-1.41-.08-.13-.28-.2-.57-.35m-5.42 7.4h-.01a9.87 9.87 0 01-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 01-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 012.89 6.99c0 5.45-4.44 9.88-9.89 9.88m8.41-18.3A11.82 11.82 0 0012.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 005.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.17-3.48-8.41z"/></svg> Avisar no WhatsApp</a>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </header>
+  </div>
+</section>
 
-  <!-- COMO FUNCIONA -->
-  <section class="howband">
-    <div class="inner">
-      <h2>Como funciona</h2>
-      <div class="lead2">Simples, em três passos</div>
-      <div class="how-grid">
-        <div class="how-card">
-          <div class="n">1</div>
-          <b>Você indica</b>
-          <p>Indique uma empresa (sendo você cliente ou parceiro). É rápido, aqui mesmo nesta página.</p>
-        </div>
-        <div class="how-card mid">
-          <div class="n">2</div>
-          <b>A gente cuida de tudo</b>
-          <p>Entramos em contato, apresentamos a proposta e fechamos o contrato com a empresa indicada.</p>
-        </div>
-        <div class="how-card">
-          <div class="n">3</div>
-          <b>Você recebe todo mês</b>
-          <p>Comissão recorrente enquanto a empresa for cliente. E ela ganha uma condição especial no primeiro mês.</p>
-        </div>
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="rv"><div class="sec-label"><b>01</b> Como funciona</div><h2>Três passos. <span class="serif">Nenhum trabalho para você.</span></h2></div>
+      <p class="lead rv d1">Você só passa o contato. A conversa, o diagnóstico e a proposta ficam com a gente.</p>
+    </div>
+    <div class="steps ind-steps">
+      <div class="step rv"><div class="n">01</div><h3>Você indica</h3><p>Preenche o formulário acima ou manda o contato pelo WhatsApp. Sendo cliente ou parceiro.</p></div>
+      <div class="step hl rv d1"><div class="n">02</div><h3>A gente cuida</h3><p>Fazemos o diagnóstico gratuito e mostramos, em números, quanto ele pode economizar.</p></div>
+      <div class="step rv d2"><div class="n">03</div><h3>Você recebe</h3><p>Fechou? Sua comissão entra todo mês, enquanto a empresa indicada for cliente.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec on-ink">
+  <div class="wrap split">
+    <div class="rv">
+      <div class="sec-label"><b>02</b> Quem indicar</div>
+      <h2>Todo mundo conhece alguém que <span class="serif">paga imposto demais.</span></h2>
+      <p class="lead" style="margin-top:20px">Pense em quem reclama do contador, de multa, de imposto alto ou de não entender as próprias contas.</p>
+      <div class="pros">
+        <span>Donos de mercado e mercearia</span><span>Médicos e clínicas</span><span>Autônomos e liberais</span><span>Comércio e serviços</span><span>Quem quer abrir empresa</span><span>MEI que cresceu</span>
       </div>
     </div>
-  </section>
+    <ul class="list-x rv d1">
+      <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span><span><b><a class="ind-lk" href="/mini-mercado/">Mini mercados →</a></b><span>Recuperamos o imposto pago duas vezes em bebidas, cigarros e higiene.</span></span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span><span><b><a class="ind-lk" href="/medicos/">Médicos PJ →</a></b><span>Estrutura certa para a PJ médica, com até 71% menos imposto que na pessoa física*.</span></span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span><span><b><a class="ind-lk" href="/autonomos/">Autônomos PJ →</a></b><span>Saem do carnê-leão e passam a pagar a partir de 6% no Simples.</span></span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span><span><b><a class="ind-lk" href="/#solucoes">Qualquer empresa →</a></b><span>Contabilidade completa, planejamento tributário e Reforma Tributária.</span></span></li>
+    </ul>
+  </div>
+  <div class="wrap"><p style="margin-top:28px;font-size:12px;color:rgba(255,255,255,.4)">*Comparação entre a alíquota máxima do IR da pessoa física (27,5%) e a carga de uma PJ médica com equiparação hospitalar. Varia conforme o caso.</p></div>
+</section>
 
-  <!-- FOOTER -->
-  <footer class="footband">
-    <div class="inner">
-      <div class="foot-grid">
-        <img src="https://xuzcczbdbgihkurcbepw.supabase.co/storage/v1/object/public/assets/LOGO%20RODRIGUES%20CONT.png" alt="Rodrigues Assessoria Contábil">
-        <div class="foot-links">
-          <a href="https://instagram.com/rodriguescontabil.pro" target="_blank" rel="noopener">📷 @rodriguescontabil.pro</a>
-          <a href="https://rodriguesconta.com.br" target="_blank" rel="noopener">🌐 rodriguesconta.com.br</a>
-          <a href="https://wa.me/5521994014601" target="_blank" rel="noopener">💬 (21) 99401-4601</a>
-        </div>
-      </div>
-      <div class="foot-note">Rodrigues Assessoria Contábil · Atendimento humano no WhatsApp · Seus dados são usados apenas para contato sobre esta indicação.</div>
+<section class="sec on-white">
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="rv"><div class="sec-label"><b>03</b> Por que indicar a Rodrigues</div><h2>Sua indicação <span class="serif">em boas mãos.</span></h2></div>
+      <p class="lead rv d1">Quem você indica é tratado como você gostaria de ser tratado.</p>
     </div>
-  </footer>
+    <div class="pains">
+      <div class="pain rv"><div class="n">01</div><h3>Diagnóstico gratuito</h3><p>Antes de qualquer proposta, mostramos em números o que dá para economizar ou recuperar.</p></div>
+      <div class="pain rv d1"><div class="n">02</div><h3>Sem pressão de venda</h3><p>A economia vem antes do preço. Se não fizer sentido para ele, tudo bem — e você continua sendo bem-vindo.</p></div>
+      <div class="pain rv d2"><div class="n">03</div><h3>Gente que responde</h3><p>Atendimento humano no WhatsApp, guias no celular e um contador que explica.</p></div>
+    </div>
+  </div>
+</section>
 
+<section class="sec" id="duvidas">
+  <div class="wrap faq">
+    <div class="rv">
+      <div class="sec-label"><b>§</b> Dúvidas</div>
+      <h2>Perguntas <span class="serif">frequentes</span></h2>
+      <p class="lead" style="margin-top:20px">Ficou alguma dúvida sobre o programa? Fale com a gente.</p>
+      <a class="btn btn-ghost" style="margin-top:30px" href="#" data-wa="Olá! Quero saber mais sobre o programa de indicação da Rodrigues."><svg class="wa-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.42.25-.69.25-1.29.18-1.41-.08-.13-.28-.2-.57-.35m-5.42 7.4h-.01a9.87 9.87 0 01-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 01-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 012.89 6.99c0 5.45-4.44 9.88-9.89 9.88m8.41-18.3A11.82 11.82 0 0012.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 005.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.17-3.48-8.41z"/></svg> Perguntar no WhatsApp</a>
+    </div>
+    <div class="qa rv d1">
+      <details open><summary>Quem pode indicar?<span class="pm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">Clientes da Rodrigues e parceiros — contadores, advogados, corretores, consultores, fornecedores ou qualquer pessoa que conheça um empresário que precise de uma contabilidade de verdade.</div></details>
+      <details><summary>Quando eu começo a receber?<span class="pm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">Assim que a empresa indicada fecha contrato e vira cliente. A partir daí, a comissão é recorrente: entra todo mês enquanto ela continuar com a gente.</div></details>
+      <details><summary>Quanto é a comissão?<span class="pm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">O percentual depende do tipo de indicação (cliente ou parceiro). Chame a gente no WhatsApp que explicamos tudo, sem letra miúda.</div></details>
+      <details><summary>Preciso avisar a pessoa indicada?<span class="pm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">É recomendado. Avise que alguém da Rodrigues vai entrar em contato — isso deixa a conversa mais natural e aumenta a chance de dar certo.</div></details>
+      <details><summary>E se a pessoa não fechar?<span class="pm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">Sem problema. Ela ainda recebe um diagnóstico gratuito e você pode indicar quantas pessoas quiser.</div></details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr-top">
+      <div>
+        <img src="/assets/logo-light.png" alt="Rodrigues Assessoria Empresarial" width="215" height="46" loading="lazy">
+        <p>Contabilidade consultiva para empresas, profissionais da saúde e autônomos. Menos impostos, mais lucro — com tecnologia e gente que responde.</p>
+      </div>
+      <div>
+        <h4>Segmentos</h4>
+        <ul><li><a href="/mini-mercado/">Mini mercados</a></li><li><a href="/medicos/">Médicos PJ</a></li><li><a href="/autonomos/">Autônomos PJ</a></li></ul>
+      </div>
+      <div>
+        <h4>Rodrigues</h4>
+        <ul><li><a href="/#solucoes">Soluções</a></li><li><a href="/#reforma">Reforma Tributária</a></li><li><a href="/#como">Como trabalhamos</a></li><li><a href="/indicar">Indique e ganhe</a></li><li><a href="/#duvidas">Dúvidas</a></li></ul>
+      </div>
+      <div>
+        <h4>Contato</h4>
+        <ul>
+          <li><a href="#" data-wa>WhatsApp (21) 99401-4601</a></li>
+          <li><a href="tel:+552431811114">Telefone (24) 3181-1114</a></li>
+          <li><a href="mailto:contato@rodriguesconta.com.br">contato@rodriguesconta.com.br</a></li>
+          <li><a href="https://www.instagram.com/rodriguescontabil.pro/" target="_blank" rel="noopener">@rodriguescontabil.pro</a></li>
+          <li>Seg a sex, 8h às 18h</li>
+        </ul>
+      </div>
+    </div>
+    <div class="wordmark" aria-hidden="true">Rodrigues</div>
+    <div class="ftr-bot">
+      <span>© <span id="ano">2026</span> Rodrigues Assessoria Empresarial RJ Ltda · <span class="mono">CNPJ 55.650.943/0001-51</span> · Volta Redonda/RJ</span>
+      <span>Menos impostos. Mais lucro.</span>
+    </div>
+  </div>
+</footer>
+<a class="fab" href="#" data-wa aria-label="Falar no WhatsApp"><span class="d"><svg class="" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.42.25-.69.25-1.29.18-1.41-.08-.13-.28-.2-.57-.35m-5.42 7.4h-.01a9.87 9.87 0 01-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 01-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 012.89 6.99c0 5.45-4.44 9.88-9.89 9.88m8.41-18.3A11.82 11.82 0 0012.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 005.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.17-3.48-8.41z"/></svg></span><span class="t">Fale com a gente</span></a>
+<script src="/assets/site.js?v=1" defer></script>
 <script>
-  const DEFAULT_EMPRESA='b01804f2-30ad-4108-80ea-74044f95cca6';
-  const params=new URLSearchParams(location.search);
-  const EMPRESA_ID=params.get('e')||DEFAULT_EMPRESA;
-
-  function showMsg(t,cls){const m=document.getElementById('msg');m.textContent=t;m.className='msg '+cls;}
-  function val(id){const el=document.getElementById(id);return el?(el.value||'').trim():'';}
-
-  async function enviar(){
-    const btn=document.getElementById('btn-enviar');
-    const indicador_nome=val('indicador_nome');
-    const indicado_nome=val('indicado_nome');
-    const indicador_contato=val('indicador_contato');
-    if(!indicador_nome||!indicador_contato||!indicado_nome){
-      showMsg('Preencha seu nome, seu contato e o nome de quem você indica.','err');return;
-    }
-    btn.disabled=true;btn.textContent='Enviando...';
+(function(){
+  var DEFAULT_EMPRESA='b01804f2-30ad-4108-80ea-74044f95cca6';
+  var EMPRESA_ID=new URLSearchParams(location.search).get('e')||DEFAULT_EMPRESA;
+  function v(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';}
+  function r(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:'';}
+  function msg(t){var m=document.getElementById('msg');m.innerHTML=t;m.style.display=t?'block':'none';}
+  function mask(el){el.addEventListener('input',function(){var d=el.value.replace(/\D/g,'').slice(0,11);if(!d||/[a-z@]/i.test(el.value))return;
+    el.value=d.length>10?'('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7):d.length>6?'('+d.slice(0,2)+') '+d.slice(2,6)+'-'+d.slice(6):d.length>2?'('+d.slice(0,2)+') '+d.slice(2):d;});}
+  mask(document.getElementById('indicador_contato'));mask(document.getElementById('indicado_contato'));
+  window.enviar=async function(){
+    msg('');
+    var nome=v('indicador_nome'),cont=v('indicador_contato'),ind=v('indicado_nome');
+    if(!nome||!cont||!ind){msg('Preencha seu nome, seu WhatsApp e o nome de quem você indica.');return;}
+    var btn=document.getElementById('btn-enviar'),old=btn.innerHTML;btn.disabled=true;btn.textContent='Enviando…';
+    var nec=r('necessidade'),obs=v('observacao');
+    if(nec)obs='Necessidade: '+nec+(obs?' — '+obs:'');
     try{
-      const nec=val('indicado_necessidade');
-      let obs=val('observacao');
-      if(nec){const map={trocar_contador:'Trocar de contador',abrir_cnpj:'Abrir CNPJ',mei_para_me:'Sair do MEI',outro:'Outro'};obs=('Necessidade: '+(map[nec]||nec))+(obs?(' — '+obs):'');}
-      const r=await fetch('/.netlify/functions/indicacao-capturar',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          empresa_id:EMPRESA_ID,
-          indicador_nome,
-          indicador_contato,
-          indicador_tipo:val('indicador_tipo')||'cliente',
-          indicado_nome,
-          indicado_contato:val('indicado_contato'),
-          observacao:obs,
-          hp:val('hp')
-        })
-      });
-      const d=await r.json().catch(()=>({}));
-      if(r.ok&&d.ok){
-        document.getElementById('form-area').style.display='none';
-        document.getElementById('ok-area').style.display='block';
-        window.scrollTo({top:0,behavior:'smooth'});
-      }else{
-        showMsg(d.erro||'Não foi possível enviar agora. Tente novamente.','err');
-        btn.disabled=false;btn.textContent='Enviar indicação';
-      }
-    }catch(e){
-      showMsg('Erro de conexão. Verifique sua internet e tente de novo.','err');
-      btn.disabled=false;btn.textContent='Enviar indicação';
-    }
-  }
-  function novaIndicacao(){
-    ['indicador_nome','indicador_contato','indicado_nome','indicado_contato','observacao'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('indicado_necessidade').value='';
-    document.getElementById('msg').className='msg';
-    document.getElementById('ok-area').style.display='none';
-    document.getElementById('form-area').style.display='block';
-    const btn=document.getElementById('btn-enviar');btn.disabled=false;btn.textContent='Enviar indicação';
-  }
+      var res=await fetch('/.netlify/functions/indicacao-capturar',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({empresa_id:EMPRESA_ID,indicador_nome:nome,indicador_contato:cont,indicador_tipo:r('indicador_tipo')||'cliente',
+          indicado_nome:ind,indicado_contato:v('indicado_contato'),observacao:obs,hp:v('hp')})});
+      var d=await res.json().catch(function(){return {}});
+      if(res.ok&&d.ok){document.getElementById('indicar').classList.add('sent');document.getElementById('indicar').scrollIntoView({behavior:'smooth',block:'center'});}
+      else msg(d.erro||'Não foi possível enviar agora. Tente novamente.');
+    }catch(e){msg('Erro de conexão. Verifique sua internet e tente de novo.');}
+    btn.disabled=false;btn.innerHTML=old;
+  };
+  window.novaIndicacao=function(){
+    ['indicado_nome','indicado_contato','observacao'].forEach(function(id){document.getElementById(id).value='';});
+    var c=document.querySelector('input[name="necessidade"]:checked');if(c)c.checked=false;
+    document.getElementById('indicar').classList.remove('sent');document.getElementById('indicado_nome').focus();
+  };
+})();
 </script>
 </body>
 </html>
