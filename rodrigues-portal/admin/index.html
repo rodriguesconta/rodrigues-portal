@@ -172,6 +172,94 @@ tr:hover td{background:#f8fafc}
 .pix-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:1.25rem;margin-top:1rem}
 .pix-box p{font-size:13px;color:#166534;margin-bottom:.75rem;font-weight:500}
 .pix-code{font-family:monospace;font-size:11px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.75rem;word-break:break-all;color:#1e293b;margin-bottom:.75rem}
+
+/* ===== PERMISSÕES (equipe) ===== */
+.pm-wrap{display:grid;grid-template-columns:300px 1fr;gap:1.1rem;align-items:start}
+.pm-team{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:.9rem;position:sticky;top:1rem}
+.pm-team-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;font-size:14px}
+.pm-team-hd span{font-size:12px;color:#94a3b8}
+.pm-team-q{width:100%;margin-bottom:.6rem}
+.pm-u{display:flex;align-items:center;gap:.65rem;padding:.6rem .55rem;border-radius:11px;cursor:pointer;border:1px solid transparent;transition:background .15s}
+.pm-u:hover{background:#f8fafc}
+.pm-u.sel{background:#eef2ff;border-color:#c7d2fe}
+.pm-u .av{width:38px;height:38px;border-radius:50%;color:#fff;font-weight:700;font-size:13px;display:grid;place-items:center;flex:0 0 38px;position:relative}
+.pm-u .av i{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;border:2px solid #fff;background:#16a34a}
+.pm-u.off .av i{background:#dc2626}
+.pm-u .tx{min-width:0;flex:1}
+.pm-u .n{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm-u .m{font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm-u .bl{font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;border-radius:6px;padding:2px 6px}
+.pm-grp{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#94a3b8;margin:.9rem .4rem .35rem}
+.pm-u.adm{cursor:default;opacity:.85}.pm-u.adm:hover{background:none}
+.pm-empty{background:#fff;border:1px dashed #cbd5e1;border-radius:14px;padding:3.5rem 1.5rem;text-align:center;color:#64748b}
+.pm-empty-ic{font-size:40px;margin-bottom:.6rem}
+.pm-empty h3{color:#1e293b;font-size:17px;margin-bottom:.3rem}
+.pm-prof{display:flex;align-items:center;gap:1rem;background:linear-gradient(120deg,#1e3a6e,#4A6BD4);color:#fff;border-radius:16px;padding:1.1rem 1.3rem;margin-bottom:1rem;flex-wrap:wrap}
+.pm-av{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:19px;font-weight:700;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.35);flex:0 0 56px}
+.pm-prof-tx{flex:1;min-width:200px}
+.pm-prof-n{font-size:19px;font-weight:700}
+.pm-prof-e{font-size:12.5px;opacity:.8}
+.pm-prof-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.45rem}
+.pm-prof-tags span{font-size:11px;font-weight:600;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:3px 10px}
+.pm-prof-tags span.off{background:#dc2626;border-color:#dc2626}
+.pm-prof-act{display:flex;gap:.4rem;flex-wrap:wrap}
+.pm-prof-act .btn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28)}
+.pm-prof-act .btn:hover{background:rgba(255,255,255,.24)}
+.pm-prof-act .pm-btn-del:hover{background:#dc2626;border-color:#dc2626}
+.pm-card{padding:1.1rem 1.2rem;margin-bottom:1rem}
+.pm-sec-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.9rem;flex-wrap:wrap}
+.pm-sec-hd h2{font-size:15px;font-weight:700}
+.pm-sec-hd p{font-size:12px;color:#64748b;margin-top:2px}
+.pm-count{font-size:12px;font-weight:600;color:#4A6BD4;background:#eef2ff;border-radius:999px;padding:4px 11px;white-space:nowrap}
+.pm-presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.6rem}
+.pm-preset{border:1px solid #e2e8f0;background:#f8fafc;border-radius:12px;padding:.75rem .85rem;cursor:pointer;text-align:left;transition:.15s;font:inherit}
+.pm-preset:hover{border-color:#4A6BD4;background:#fff;box-shadow:0 6px 16px -10px rgba(30,58,110,.5)}
+.pm-preset b{display:block;font-size:13.5px;color:#1e293b}
+.pm-preset small{display:block;font-size:11.5px;color:#64748b;margin-top:2px;line-height:1.35}
+.pm-preset.on{border-color:#4A6BD4;background:#eef2ff}
+.pm-pages{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.6rem}
+.pm-pg{border:1px solid #e2e8f0;border-radius:12px;padding:.75rem .85rem;transition:.15s;background:#fff}
+.pm-pg.on{border-color:#bfdbfe;background:#f8fbff}
+.pm-pg.part{border-color:#fed7aa;background:#fffaf3}
+.pm-pg-top{display:flex;align-items:center;gap:.6rem}
+.pm-pg-top .ic{font-size:18px;width:30px;text-align:center}
+.pm-pg-top .tx{flex:1;min-width:0}
+.pm-pg-top b{font-size:13.5px;display:block}
+.pm-pg-top small{font-size:11.5px;color:#64748b;display:block;line-height:1.3}
+.pm-sw{position:relative;width:38px;height:22px;flex:0 0 38px}
+.pm-sw input{opacity:0;width:0;height:0;position:absolute}
+.pm-sw span{position:absolute;inset:0;border-radius:999px;background:#cbd5e1;transition:.2s;cursor:pointer}
+.pm-sw span::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.pm-sw input:checked+span{background:#4A6BD4}
+.pm-sw input:checked+span::after{transform:translateX(16px)}
+.pm-subs{display:flex;flex-wrap:wrap;gap:.35rem;margin:.6rem 0 0 2.4rem}
+.pm-sub{position:relative;cursor:pointer}
+.pm-sub input{position:absolute;opacity:0;pointer-events:none}
+.pm-sub span{display:inline-block;font-size:11.5px;padding:4px 10px;border-radius:999px;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:.15s}
+.pm-sub input:checked+span{background:#1e3a6e;border-color:#1e3a6e;color:#fff}
+.pm-sub input:disabled+span{opacity:.75;cursor:default}
+.pm-depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.6rem}
+.pm-dept{position:relative;cursor:pointer}
+.pm-dept input{position:absolute;opacity:0}
+.pm-dept span{display:block;border:1px solid #e2e8f0;border-radius:12px;padding:.75rem .9rem;transition:.15s}
+.pm-dept b{font-size:13.5px;display:block}
+.pm-dept small{font-size:11.5px;color:#64748b}
+.pm-dept input:checked+span{border-color:#4A6BD4;background:#eef2ff;box-shadow:inset 0 0 0 1px #4A6BD4}
+.pm-cli-bar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.8rem}
+.pm-cli-bar #perm-busca{flex:1;min-width:220px}
+.pm-cli-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.35rem .6rem;max-height:460px;overflow-y:auto;padding-right:.3rem}
+.pm-cli{display:flex;align-items:center;gap:.55rem;padding:.45rem .55rem;border-radius:9px;border:1px solid #eef2f7;cursor:pointer;font-size:12.5px;transition:.12s}
+.pm-cli:hover{background:#f8fafc}
+.pm-cli.on{background:#f0fdf4;border-color:#bbf7d0}
+.pm-cli input{accent-color:#16a34a;width:15px;height:15px}
+.pm-cli .t{min-width:0;flex:1}
+.pm-cli .t b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm-cli .t small{font-size:10.5px;color:#94a3b8;font-family:monospace}
+.pm-save{position:sticky;bottom:12px;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:1rem;background:#0f1d3a;color:#fff;border-radius:14px;padding:.7rem .8rem .7rem 1.1rem;box-shadow:0 18px 40px -16px rgba(15,29,58,.7);transform:translateY(8px);opacity:0;pointer-events:none;transition:.25s}
+.pm-save.show{transform:none;opacity:1;pointer-events:auto}
+.pm-save #pm-save-tx{font-size:13px;font-weight:600}
+.pm-save .btn:not(.btn-primary){background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)}
+@media(max-width:900px){.pm-wrap{grid-template-columns:1fr}.pm-team{position:static}}
 /* MOBILE */
 .mob-header{display:none;background:#1a2744;padding:.75rem 1rem;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99}
 .mob-header h2{color:#f8fafc;font-size:14px;font-weight:600}
@@ -733,7 +821,12 @@ tr:hover td{background:#f8fafc}
       </div>
       <div id="alerta-desp"></div>
       <div id="desp-metrics"></div>
-      <div class="card">
+      <div class="ctl-tabs" id="desp-tabs">
+        <button class="active" data-t="lanc" onclick="despTab('lanc')">🧾 Lançamentos do mês</button>
+        <button data-t="rec" onclick="despTab('rec')">🔁 Recorrentes <span class="ctl-pill" id="desp-rec-n" style="background:#fff7ed;color:#c2410c">0</span></button>
+      </div>
+      <div id="desp-pane-rec" class="hidden"></div>
+      <div class="card" id="desp-pane-lanc">
         <div class="card-hdr">
           <h2>Lançamentos <span id="desp-count" style="font-size:12px;color:#94a3b8;font-weight:400"></span></h2>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
@@ -957,54 +1050,70 @@ tr:hover td{background:#f8fafc}
     <!-- PERMISSÕES -->
     <div id="pg-permissoes" class="hidden">
       <div class="page-hdr">
-        <h1>Permissões</h1>
+        <div><h1>Equipe e permissões</h1><div style="font-size:13px;color:#64748b;margin-top:2px">Quem acessa o quê no portal — páginas, departamentos e carteira de clientes.</div></div>
+        <button class="btn btn-success btn-sm" onclick="abrirModalNovoColab()">+ Novo colaborador</button>
       </div>
       <div id="alerta-perm"></div>
-      <div class="card" style="margin-bottom:1rem">
-        <div class="card-hdr"><h2>Colaboradores</h2><button class="btn btn-success btn-sm" onclick="abrirModalNovoColab()">+ Novo colaborador</button></div>
-        <div style="padding:1rem">
-          <div class="fg"><label>Selecione o colaborador</label>
-            <select id="perm-user" class="si" style="width:100%;max-width:400px" onchange="carregarPermissoes()">
-              <option value="">Selecione...</option>
-            </select>
+      <input type="hidden" id="perm-user" value="">
+      <div class="pm-wrap">
+        <aside class="pm-team">
+          <div class="pm-team-hd"><b>Equipe</b><span id="pm-team-n"></span></div>
+          <input class="si pm-team-q" id="pm-team-q" placeholder="🔎 Buscar pessoa..." oninput="pmRenderEquipe()">
+          <div id="pm-team-list"></div>
+        </aside>
+        <section class="pm-main">
+          <div id="pm-vazio" class="pm-empty">
+            <div class="pm-empty-ic">👥</div>
+            <h3>Selecione alguém da equipe</h3>
+            <p>Escolha um colaborador ao lado para ver e ajustar o que ele pode acessar.</p>
           </div>
-          <div id="perm-conta-wrap" class="hidden" style="display:flex;gap:.5rem;flex-wrap:wrap">
-            <button class="btn btn-sm" onclick="alterarSenhaColab()" style="background:#4A6BD4;color:#fff;border-color:#4A6BD4">🔑 Alterar senha</button>
-            <button class="btn btn-sm" id="btn-bloquear" onclick="toggleBloqueioColab()" style="background:#dc2626;color:#fff;border-color:#dc2626">🔒 Bloquear acesso</button>
-            <button class="btn btn-sm" onclick="excluirColab()" style="background:#1e293b;color:#fff;border-color:#1e293b">🗑 Excluir colaborador</button>
-          </div>
-        </div>
-      </div>
-      <div id="perm-clientes-wrap" class="hidden">
-        <div class="card" style="margin-bottom:1rem">
-          <div class="card-hdr"><h2>Páginas e abas liberadas</h2></div>
-          <div style="padding:1rem">
-            <p style="font-size:11.5px;color:#64748b;margin-bottom:.8rem">Marque o que este colaborador pode acessar. Marcar a página inteira (ex.: Comercial) libera todas as abas dela; ou marque só abas específicas (ex.: só Meta ADS). Integrações e Permissões ficam restritas ao administrador.</p>
-            <div id="perm-paginas-grid"></div>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:1rem">
-          <div class="card-hdr"><h2>Departamentos liberados <span style="font-size:11px;color:#94a3b8;font-weight:400">(filtra Tarefas)</span></h2></div>
-          <div style="padding:1rem;display:flex;gap:1.5rem;flex-wrap:wrap">
-            <label style="font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0"><input type="checkbox" class="perm-dept-cb" value="fiscal" checked> 📊 Fiscal</label>
-            <label style="font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0"><input type="checkbox" class="perm-dept-cb" value="pessoal" checked> 👥 Pessoal</label>
-            <label style="font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0"><input type="checkbox" class="perm-dept-cb" value="contabil" checked> 📒 Contábil</label>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-hdr">
-            <h2>Clientes liberados para <span id="perm-user-nome"></span></h2>
-            <div style="display:flex;gap:.5rem">
-              <button class="btn btn-sm" onclick="toggleTodosPerm(true)" style="background:#16a34a;color:#fff;border:none;font-size:11px">✓ Marcar todos</button>
-              <button class="btn btn-sm" onclick="toggleTodosPerm(false)" style="background:#dc2626;color:#fff;border:none;font-size:11px">✕ Desmarcar todos</button>
-              <button class="btn btn-primary btn-sm" onclick="salvarPermissoes()">💾 Salvar permissões</button>
+          <div id="perm-clientes-wrap" class="hidden">
+            <div class="pm-prof">
+              <div class="pm-av" id="pm-av">?</div>
+              <div class="pm-prof-tx"><div class="pm-prof-n" id="perm-user-nome"></div><div class="pm-prof-e" id="pm-prof-e"></div><div class="pm-prof-tags" id="pm-prof-tags"></div></div>
+              <div class="pm-prof-act" id="perm-conta-wrap">
+                <button class="btn btn-sm" onclick="alterarSenhaColab()">🔑 Alterar senha</button>
+                <button class="btn btn-sm" id="btn-bloquear" onclick="toggleBloqueioColab()">🔒 Bloquear</button>
+                <button class="btn btn-sm pm-btn-del" onclick="excluirColab()" title="Excluir colaborador">🗑</button>
+              </div>
+            </div>
+
+            <div class="card pm-card">
+              <div class="pm-sec-hd"><div><h2>Perfil de acesso</h2><p>Comece por um modelo pronto e ajuste o que precisar.</p></div>
+                <select class="si" id="pm-copiar" onchange="pmCopiarDe(this.value)" style="max-width:260px"><option value="">⧉ Copiar acesso de...</option></select></div>
+              <div class="pm-presets" id="pm-presets"></div>
+            </div>
+
+            <div class="card pm-card">
+              <div class="pm-sec-hd"><div><h2>Páginas e abas</h2><p>Ligue a página inteira ou escolha só as abas. Integrações e Permissões são exclusivas do administrador.</p></div><span class="pm-count" id="pm-pg-count"></span></div>
+              <div class="pm-pages" id="perm-paginas-grid"></div>
+            </div>
+
+            <div class="card pm-card">
+              <div class="pm-sec-hd"><div><h2>Departamentos</h2><p>Define quais tarefas ele vê na aba Tarefas.</p></div></div>
+              <div class="pm-depts">
+                <label class="pm-dept"><input type="checkbox" class="perm-dept-cb" value="fiscal" onchange="pmDirty()"><span><b>📊 Fiscal</b><small>Impostos, guias e obrigações</small></span></label>
+                <label class="pm-dept"><input type="checkbox" class="perm-dept-cb" value="pessoal" onchange="pmDirty()"><span><b>👥 Pessoal</b><small>Folha, admissões e eSocial</small></span></label>
+                <label class="pm-dept"><input type="checkbox" class="perm-dept-cb" value="contabil" onchange="pmDirty()"><span><b>📒 Contábil</b><small>Escrituração e balanços</small></span></label>
+              </div>
+            </div>
+
+            <div class="card pm-card">
+              <div class="pm-sec-hd"><div><h2>Carteira de clientes</h2><p>Clientes que ele enxerga em Tarefas, Clientes e Mensagens.</p></div><span class="pm-count" id="pm-cli-count"></span></div>
+              <div class="pm-cli-bar">
+                <input class="si" id="perm-busca" placeholder="🔎 Buscar cliente ou CNPJ..." oninput="filtrarPermClis()">
+                <div class="ctl-chips" id="pm-cli-chips" style="margin:0"></div>
+                <div style="display:flex;gap:.4rem"><button class="btn btn-sm" onclick="toggleTodosPerm(true)">✓ Marcar visíveis</button><button class="btn btn-sm" onclick="toggleTodosPerm(false)">Desmarcar visíveis</button></div>
+              </div>
+              <div id="perm-grid" class="pm-cli-grid"></div>
+            </div>
+
+            <div class="pm-save" id="pm-save">
+              <span id="pm-save-tx">Nenhuma alteração</span>
+              <div style="display:flex;gap:.5rem"><button class="btn btn-sm" onclick="carregarPermissoes()">Descartar</button><button class="btn btn-primary btn-sm" onclick="salvarPermissoes()">💾 Salvar permissões</button></div>
             </div>
           </div>
-          <div style="padding:1rem">
-            <input class="si" id="perm-busca" placeholder="Buscar cliente..." oninput="filtrarPermClis()" style="width:100%;max-width:400px;margin-bottom:1rem">
-            <div id="perm-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .75rem;max-height:500px;overflow-y:auto"></div>
-          </div>
-        </div>
+        </section>
       </div>
     </div>
 
@@ -2060,6 +2169,15 @@ tr:hover td{background:#f8fafc}
 </div>
 
 <!-- MODAL DESPESA -->
+<div id="m-desp-del" class="overlay hidden">
+  <div class="modal" style="max-width:480px">
+    <h2 style="margin-bottom:.3rem">🔁 Despesa recorrente</h2>
+    <div id="mdd-txt" style="font-size:13.5px;color:#475569;line-height:1.5;margin-bottom:1rem"></div>
+    <div id="mdd-btns" style="display:grid;gap:.5rem"></div>
+    <div class="ma"><button class="btn btn-sm" onclick="fecharModal('m-desp-del')">Cancelar</button></div>
+  </div>
+</div>
+
 <div id="m-desp" class="overlay hidden">
   <div class="modal" style="max-width:460px">
     <h2 id="m-desp-title">Nova despesa</h2>
@@ -4247,11 +4365,13 @@ async function carregarDesps(){
   const cat=document.getElementById('fil-cat-desp').value;
   let q=db.from('despesas').select('*,categorias_despesa(nome)').gte('data_despesa',mes+'-01').lte('data_despesa',mes+'-'+ultimoDia(mes)).order('data_despesa',{ascending:false}).limit(500);
   if(cat)q=q.eq('categoria_id',cat);
-  const {data}=await q;
+  const [{data},{data:recs}]=await Promise.all([q,db.from('despesas').select('*,categorias_despesa(nome)').eq('recorrente',true).order('descricao').limit(500)]);
   _despCache=data||[];
+  _despRecs=recs||[];_despRecMap={};_despRecs.forEach(r=>{_despRecMap[_despRecKey(r.descricao)]=r;});
+  const rn=document.getElementById('desp-rec-n');if(rn)rn.textContent=_despRecs.length;
   const hoje=new Date().toISOString().slice(0,10);
   let tot=0,pago=0,pend=0,venc=0,nVenc=0,rec=0;const porCat={};
-  _despCache.forEach(d=>{const v=parseFloat(d.valor)||0;tot+=v;if(d.status==='pendente'){pend+=v;if(d.data_despesa<hoje){venc+=v;nVenc++;}}else pago+=v;if(d.recorrente)rec++;const c=d.categorias_despesa?.nome||'Sem categoria';porCat[c]=(porCat[c]||0)+v;});
+  _despCache.forEach(d=>{const v=parseFloat(d.valor)||0;tot+=v;if(d.status==='pendente'){pend+=v;if(d.data_despesa<hoje){venc+=v;nVenc++;}}else pago+=v;if(d.recorrente||(_despRecKey(d.descricao) in _despRecMap))rec++;const c=d.categorias_despesa?.nome||'Sem categoria';porCat[c]=(porCat[c]||0)+v;});
   const pct=tot?Math.round(pago/tot*100):0;
   const cats=Object.entries(porCat).sort((a,b)=>b[1]-a[1]);
   const max=cats.length?cats[0][1]:1;
@@ -4263,6 +4383,7 @@ async function carregarDesps(){
     (cats.length?'<div class="card" style="padding:1rem 1.15rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem"><h2 style="font-size:15px;font-weight:700">📊 Para onde foi o dinheiro</h2><span style="font-size:11.5px;color:#64748b">por categoria · '+nomeMes(mes)+'</span></div>'+
       cats.slice(0,8).map((c,i)=>'<div class="dsp-cat"><span class="dsp-cat-n"><i style="background:'+cores[i%cores.length]+'"></i>'+_esc(c[0])+'</span><div class="dsp-cat-bar"><b style="width:'+(c[1]/max*100).toFixed(1)+'%;background:'+cores[i%cores.length]+'"></b></div><span class="dsp-cat-v">'+fmt(c[1])+' <small>'+(tot?Math.round(c[1]/tot*100):0)+'%</small></span></div>').join('')+'</div>':'');
   renderDespTabela();
+  if(_despTabAtiva==='rec')renderDespRecorrentes();
 }
 function filtrarDesp(f){_despFiltro=f;renderDespTabela();}
 function renderDespTabela(){
@@ -4277,7 +4398,7 @@ function renderDespTabela(){
   if(!lista.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:2rem">Nenhuma despesa neste filtro</td></tr>';return;}
   tb.innerHTML=lista.map(d=>{
     const v=isVenc(d);
-    const recBadge=d.recorrente?' <span class="badge badge-orange">🔁 '+(d.periodicidade||'mensal')+'</span>':'';
+    const recBadge=d.recorrente?' <span class="badge badge-orange" title="Este lançamento é o MODELO da recorrência">🔁 modelo '+(d.periodicidade||'mensal')+'</span>':(_despRecKey(d.descricao) in _despRecMap?' <span class="badge badge-gray" title="Gerado pela recorrência">🔁 recorrente</span>':'');
     const st=d.status==='pago'?'<span class="badge badge-green">✓ Pago</span>':v?'<span class="badge badge-red">⚠ Vencida</span>':'<span class="badge badge-amber">Pendente</span>';
     const baixaBtn=d.status==='pendente'?'<button class="btn btn-sm" style="background:#dcfce7;color:#15803d;border:none;font-weight:600" onclick="darBaixaDesp(\''+d.id+'\')" title="Marcar como pago">✓ Dar baixa</button>':'';
     return '<tr'+(v?' style="background:#fef2f2"':'')+'><td style="font-weight:500">'+_esc(d.descricao)+recBadge+(d.observacao?'<div style="font-size:11px;color:#94a3b8">'+_esc(d.observacao)+'</div>':'')+'</td><td><span class="badge badge-gray">'+_esc(d.categorias_despesa?.nome||'--')+'</span></td><td style="font-weight:600;white-space:nowrap">'+fmt(d.valor)+'</td><td style="white-space:nowrap">'+fmtDt(d.data_despesa)+'</td><td>'+st+'</td><td style="display:flex;gap:.4rem;flex-wrap:wrap">'+baixaBtn+'<button class="btn btn-sm" onclick="editarDesp(\''+d.id+'\')">Editar</button><button class="btn btn-danger btn-sm" onclick="excluirDesp(\''+d.id+'\')">Excluir</button></td></tr>';
@@ -4334,9 +4455,97 @@ async function salvarDesp(){
   if(error){const e=document.getElementById('d-err');e.textContent=error.message;e.classList.remove('hidden');return;}
   fecharModal('m-desp');carregarDesps();
 }
+// ===== RECORRENTES: modelos, análise e encerramento =====
+let _despRecs=[],_despRecMap={},_despTabAtiva='lanc',_despHist={};
+function _despRecKey(t){return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();}
+function _despBaseKey(t){return _despRecKey(t).replace(/\(.*?\)/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
+function despTab(t){
+  _despTabAtiva=t;
+  document.querySelectorAll('#desp-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
+  document.getElementById('desp-pane-lanc').classList.toggle('hidden',t!=='lanc');
+  document.getElementById('desp-pane-rec').classList.toggle('hidden',t!=='rec');
+  if(t==='rec')renderDespRecorrentes();
+}
+async function renderDespRecorrentes(){
+  const box=document.getElementById('desp-pane-rec');
+  box.innerHTML='<div class="card" style="padding:1.5rem;color:#94a3b8;text-align:center">Analisando recorrências...</div>';
+  const d0=new Date();d0.setMonth(d0.getMonth()-11);const ini=d0.getFullYear()+'-'+String(d0.getMonth()+1).padStart(2,'0')+'-01';
+  const {data:hist}=await db.from('despesas').select('descricao,valor,data_despesa,status').gte('data_despesa',ini).order('data_despesa',{ascending:false}).limit(5000);
+  _despHist={};(hist||[]).forEach(h=>{(_despHist[_despRecKey(h.descricao)]=_despHist[_despRecKey(h.descricao)]||[]).push(h);});
+  const R=_despRecs.slice();
+  const mensal=R.filter(r=>(r.periodicidade||'mensal')!=='anual'),anual=R.filter(r=>r.periodicidade==='anual');
+  const custoMes=mensal.reduce((a,r)=>a+(parseFloat(r.valor)||0),0)+anual.reduce((a,r)=>a+(parseFloat(r.valor)||0),0)/12;
+  // possíveis duplicadas: mesma descrição-base ou mesmo valor+categoria
+  const grp={};R.forEach(r=>{const k=_despBaseKey(r.descricao);(grp[k]=grp[k]||[]).push(r.id);});
+  const grp2={};R.forEach(r=>{const k=(parseFloat(r.valor)||0).toFixed(2)+'|'+(r.categoria_id||'');(grp2[k]=grp2[k]||[]).push(r.id);});
+  const dup=new Set();Object.values(grp).forEach(a=>{if(a.length>1)a.forEach(x=>dup.add(x));});Object.values(grp2).forEach(a=>{if(a.length>1)a.forEach(x=>dup.add(x));});
+  const hoje=new Date();
+  const proximo=r=>{const dia=parseInt((r.data_despesa||'').split('-')[2])||1;
+    if(r.periodicidade==='anual'){const m=parseInt(r.data_despesa.substring(5,7));let y=hoje.getFullYear();if(m<hoje.getMonth()+1||(m===hoje.getMonth()+1&&dia<hoje.getDate()))y++;return String(dia).padStart(2,'0')+'/'+String(m).padStart(2,'0')+'/'+y;}
+    return 'dia '+dia+' de cada mês';};
+  let html='<div class="metrics" style="margin-bottom:1rem">'+
+    '<div class="metric" style="border-top-color:#F57C1A"><div class="lbl">Custo fixo mensal</div><div class="val" style="color:#c2410c">'+fmt(custoMes)+'</div><div style="font-size:11px;color:#64748b">mensais + anuais ÷ 12</div></div>'+
+    '<div class="metric" style="border-top-color:#4A6BD4"><div class="lbl">Recorrências ativas</div><div class="val" style="color:#1e3a6e">'+R.length+'</div><div style="font-size:11px;color:#64748b">'+mensal.length+' mensais · '+anual.length+' anuais</div></div>'+
+    '<div class="metric" style="border-top-color:#16a34a"><div class="lbl">Custo fixo no ano</div><div class="val" style="color:#15803d">'+fmt(custoMes*12)+'</div><div style="font-size:11px;color:#64748b">projeção 12 meses</div></div>'+
+    '<div class="metric" style="border-top-color:#dc2626"><div class="lbl">Possíveis duplicadas</div><div class="val" style="color:#dc2626">'+dup.size+'</div><div style="font-size:11px;color:#64748b">'+(dup.size?'confira as marcadas em vermelho':'nenhuma encontrada ✓')+'</div></div></div>';
+  html+='<div class="card"><div class="card-hdr"><h2>🔁 Modelos de recorrência</h2><span style="font-size:11.5px;color:#64748b">Cada linha gera um lançamento por mês (ou por ano). <b>Encerrar</b> para de gerar a partir de agora, sem apagar o histórico.</span></div>'+
+    '<div class="tbl-wrap"><table><thead><tr><th>Despesa</th><th>Categoria</th><th>Valor</th><th>Frequência</th><th>Próximo</th><th>Últimos 12 meses</th><th>Ações</th></tr></thead><tbody>'+
+    (R.length?R.map(r=>{
+      const h=(_despHist[_despRecKey(r.descricao)]||[]);const tot=h.reduce((a,x)=>a+(parseFloat(x.valor)||0),0);
+      const ult=h[0];const pend=h.filter(x=>x.status==='pendente').length;
+      const isDup=dup.has(r.id);
+      return '<tr'+(isDup?' style="background:#fef2f2"':'')+'><td style="font-weight:600">'+_esc(r.descricao)+(isDup?' <span class="badge badge-red" title="Mesma descrição-base ou mesmo valor/categoria de outra recorrência">⚠ possível duplicada</span>':'')+(r.observacao?'<div style="font-size:11px;color:#94a3b8;font-weight:400">'+_esc(r.observacao)+'</div>':'')+'<div style="font-size:11px;color:#94a3b8;font-weight:400">desde '+fmtDt(r.data_despesa)+'</div></td>'+
+        '<td><span class="badge badge-gray">'+_esc(r.categorias_despesa?.nome||'--')+'</span></td>'+
+        '<td style="font-weight:700;white-space:nowrap">'+fmt(r.valor)+'</td>'+
+        '<td><span class="badge badge-orange">'+((r.periodicidade||'mensal')==='anual'?'Anual':'Mensal')+'</span></td>'+
+        '<td style="font-size:12.5px;white-space:nowrap">'+proximo(r)+'</td>'+
+        '<td style="font-size:12px;color:#475569;white-space:nowrap">'+h.length+' lançamento'+(h.length===1?'':'s')+' · '+fmt(tot)+(ult?'<div style="font-size:11px;color:#94a3b8">último: '+fmtDt(ult.data_despesa)+(pend?' · <span style="color:#c2410c">'+pend+' pendente'+(pend>1?'s':'')+'</span>':'')+'</div>':'')+'</td>'+
+        '<td style="white-space:nowrap"><button class="btn btn-sm" onclick="editarDesp(\''+r.id+'\')" title="Mudar valor, dia, categoria ou frequência">Editar</button> <button class="btn btn-sm" style="color:#c2410c;border-color:#fed7aa" onclick="encerrarRecorrencia(\''+r.id+'\')">⏹ Encerrar</button></td></tr>';
+    }).join(''):'<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:2rem">Nenhuma despesa recorrente cadastrada. Ao criar uma despesa, marque "Cobrança recorrente? Sim".</td></tr>')+
+    '</tbody></table></div></div>'+
+    '<div style="font-size:12px;color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:.8rem 1rem;margin-top:.8rem">💡 <b>Como funciona:</b> o modelo é a despesa marcada como recorrente. O botão <b>Gerar recorrentes do mês</b> cria uma cópia dele em cada mês. Excluir só a cópia do mês não resolve — o modelo gera de novo. Para parar de vez, use <b>⏹ Encerrar</b> aqui (ou escolha "encerrar a recorrência" ao excluir um lançamento).</div>';
+  box.innerHTML=html;
+}
+async function encerrarRecorrencia(id,silencioso){
+  const r=_despRecs.find(x=>x.id===id);if(!r)return;
+  if(!silencioso&&!confirm('Encerrar a recorrência "'+r.descricao+'"?\n\nEla deixa de ser gerada nos próximos meses. O histórico já lançado continua.'))return;
+  const {error}=await db.from('despesas').update({recorrente:false,periodicidade:null}).eq('id',id);
+  if(error){alerta('alerta-desp','Erro: '+error.message,'e');return false;}
+  // remove o lançamento PENDENTE do mês atual gerado por ela (se existir e não for o próprio modelo)
+  const mes=mesAtual();
+  const {data:inst}=await db.from('despesas').select('id,descricao,status').gte('data_despesa',mes+'-01').lte('data_despesa',mes+'-'+ultimoDia(mes)).eq('status','pendente');
+  const alvo=(inst||[]).filter(x=>x.id!==id&&_despRecKey(x.descricao)===_despRecKey(r.descricao));
+  if(alvo.length&&(silencioso||confirm('Existe '+alvo.length+' lançamento pendente de '+nomeMes(mes)+' gerado por ela. Excluir também?'))){
+    await db.from('despesas').delete().in('id',alvo.map(x=>x.id));
+  }
+  if(!silencioso){toastRC('✓ Recorrência encerrada');}
+  await carregarDesps();
+  return true;
+}
 async function excluirDesp(id){
-  if(!confirm('Excluir esta despesa?'))return;
-  await db.from('despesas').delete().eq('id',id);
+  const d=_despCache.find(x=>x.id===id)||{};
+  const modelo=d.recorrente?d:_despRecMap[_despRecKey(d.descricao)];
+  if(!modelo){
+    if(!confirm('Excluir esta despesa?'))return;
+    await db.from('despesas').delete().eq('id',id);
+    toastRC('✓ Despesa excluída');carregarDesps();return;
+  }
+  const eModelo=modelo.id===id;
+  document.getElementById('mdd-txt').innerHTML='<b>'+_esc(d.descricao)+'</b> faz parte de uma despesa <b>recorrente</b> ('+((modelo.periodicidade||'mensal')==='anual'?'anual':'mensal')+', '+fmt(modelo.valor)+').<br><br>'+(eModelo?'Este lançamento é o <b>modelo</b> da recorrência.':'Se excluir só este mês, ela volta a ser gerada no próximo.')+' O que você quer fazer?';
+  const b=(txt,cls,fn)=>'<button class="btn '+cls+'" style="width:100%;justify-content:center" onclick="'+fn+'">'+txt+'</button>';
+  document.getElementById('mdd-btns').innerHTML=eModelo?
+    b('⏹ Encerrar a recorrência e manter este lançamento','btn-primary',"_mddAcao('encerrar','"+id+"','"+modelo.id+"')")+
+    b('🗑 Excluir este lançamento e encerrar a recorrência','btn-danger',"_mddAcao('tudo','"+id+"','"+modelo.id+"')"):
+    b('🗑 Excluir só este mês','',"_mddAcao('mes','"+id+"','"+modelo.id+"')")+
+    b('⏹ Excluir este mês e encerrar a recorrência','btn-danger',"_mddAcao('tudo','"+id+"','"+modelo.id+"')");
+  document.getElementById('m-desp-del').classList.remove('hidden');
+}
+async function _mddAcao(acao,id,modeloId){
+  fecharModal('m-desp-del');
+  if(acao==='mes'||acao==='tudo'){const {error}=await db.from('despesas').delete().eq('id',id);if(error){alerta('alerta-desp','Erro: '+error.message,'e');return;}}
+  if((acao==='encerrar'||acao==='tudo')&&modeloId!==id){await db.from('despesas').update({recorrente:false,periodicidade:null}).eq('id',modeloId);}
+  if(acao==='encerrar'&&modeloId===id){await db.from('despesas').update({recorrente:false,periodicidade:null}).eq('id',id);}
+  toastRC(acao==='mes'?'✓ Excluída só deste mês':'✓ Recorrência encerrada');
   carregarDesps();
 }
 async function importarExtrato(input){
@@ -5892,28 +6101,211 @@ async function excluirPL(id){
 let permClisList=[];
 let userDepartamentos=null; // null=todos (admin), array=filtrado (colaborador)
 
-let permUsersCache=[];
+let permUsersCache=[],permAdminsCache=[],_pmCliCount={},_pmPerm=new Set(),_pmCliFiltro='todos',_pmIsDirty=false;
+const PM_INFO={dashboard:'Visão geral do escritório',tarefas:'Obrigações e demandas',clientes:'Cadastro e perfil das empresas',caminho:'Jornada e acompanhamento',controle:'Certificados, procurações, Domínio',cobrancas:'Honorários, Pix e boletos',comercial:'CRM, indicações e campanhas',irpf:'Declarações e base da campanha',despesas:'Contas a pagar do escritório',relatorios:'DRE e indicadores',prolabore:'Retiradas dos sócios',historico:'Log de envios e eventos',mensagens:'Conversas de WhatsApp'};
+const PM_PRESETS=[
+  {k:'fiscal',t:'📊 Fiscal',d:'Tarefas fiscais, clientes, controle e mensagens',pg:['tarefas','clientes','controle','mensagens'],dp:['fiscal']},
+  {k:'dp',t:'👥 Departamento Pessoal',d:'Tarefas de DP, clientes e mensagens',pg:['tarefas','clientes','mensagens'],dp:['pessoal']},
+  {k:'contabil',t:'📒 Contábil',d:'Tarefas contábeis, clientes, controle e relatórios',pg:['tarefas','clientes','controle','relatorios','mensagens'],dp:['contabil']},
+  {k:'comercial',t:'📈 Comercial',d:'CRM, indicações, clientes e Caminho do Sucesso',pg:['comercial','clientes','caminho','mensagens'],dp:['fiscal','pessoal','contabil']},
+  {k:'financeiro',t:'💳 Financeiro',d:'Cobranças, despesas, relatórios e históricos',pg:['cobrancas','despesas','relatorios','historico','clientes'],dp:['fiscal','pessoal','contabil']},
+  {k:'total',t:'⭐ Acesso total',d:'Todas as páginas (exceto Integrações e Permissões)',pg:null,dp:['fiscal','pessoal','contabil']}
+];
 async function carregarPermPage(){
-  const sel=document.getElementById('perm-user');
-  sel.innerHTML='<option value="">Selecione...</option>';
-  const {data:users}=await db.from('usuarios').select('*').eq('role','colaborador').order('nome');
-  permUsersCache=users||[];
-  permUsersCache.forEach(u=>{
-    const o=document.createElement('option');o.value=u.email;o.textContent=u.nome+' ('+u.email+')'+(u.ativo===false?' — 🔒 BLOQUEADO':'');sel.appendChild(o);
-  });
-  document.getElementById('perm-clientes-wrap').classList.add('hidden');
+  const [{data:users},{data:vinc}]=await Promise.all([
+    db.from('usuarios').select('*').order('nome'),
+    db.from('usuario_clientes').select('usuario_email').limit(20000)
+  ]);
+  const all=users||[];
+  permUsersCache=all.filter(u=>u.role!=='admin');
+  permAdminsCache=all.filter(u=>u.role==='admin');
+  _pmCliCount={};(vinc||[]).forEach(v=>{_pmCliCount[v.usuario_email]=(_pmCliCount[v.usuario_email]||0)+1;});
+  const cp=document.getElementById('pm-copiar');
+  if(cp)cp.innerHTML='<option value="">⧉ Copiar acesso de...</option>'+permUsersCache.map(u=>'<option value="'+_esc(u.email)+'">'+_esc(u.nome||u.email)+'</option>').join('');
+  pmRenderEquipe();
+  const cur=document.getElementById('perm-user').value;
+  if(!cur||!permUsersCache.some(u=>u.email===cur)){document.getElementById('perm-user').value='';document.getElementById('perm-clientes-wrap').classList.add('hidden');document.getElementById('pm-vazio').classList.remove('hidden');}
   atualizarBotoesConta();
 }
-
+function pmRenderEquipe(){
+  const box=document.getElementById('pm-team-list');if(!box)return;
+  const q=(document.getElementById('pm-team-q').value||'').toLowerCase();
+  const cur=document.getElementById('perm-user').value;
+  const f=u=>!q||((u.nome||'')+' '+(u.email||'')).toLowerCase().includes(q);
+  const card=(u,adm)=>{
+    const pg=Array.isArray(u.paginas_liberadas)?u.paginas_liberadas.length:0, nc=_pmCliCount[u.email]||0;
+    const meta=adm?'Administrador · acesso total':(u.ativo===false?'<span class="bl">BLOQUEADO</span>':pg+' página'+(pg===1?'':'s')+' · '+nc+' cliente'+(nc===1?'':'s'));
+    return '<div class="pm-u'+(adm?' adm':'')+(u.email===cur?' sel':'')+(u.ativo===false?' off':'')+'" '+(adm?'':'onclick="pmSelecionar(\''+_esc(u.email)+'\')"')+'><div class="av" style="background:'+_avColor(u.nome||u.email)+'">'+_iniciais(u.nome||u.email)+'<i></i></div><div class="tx"><div class="n">'+_esc(u.nome||u.email)+'</div><div class="m">'+meta+'</div></div></div>';
+  };
+  const L=permUsersCache.filter(f),A=permAdminsCache.filter(f);
+  document.getElementById('pm-team-n').textContent=permUsersCache.length+' colaborador'+(permUsersCache.length===1?'':'es');
+  box.innerHTML=(L.length?L.map(u=>card(u,false)).join(''):'<div style="font-size:12.5px;color:#94a3b8;padding:.6rem">Ninguém encontrado.</div>')+
+    (A.length?'<div class="pm-grp">Administradores</div>'+A.map(u=>card(u,true)).join(''):'');
+}
+async function pmSelecionar(email){
+  if(_pmIsDirty&&!confirm('Há alterações não salvas. Descartar e trocar de pessoa?'))return;
+  document.getElementById('perm-user').value=email;
+  pmRenderEquipe();
+  await carregarPermissoes();
+}
 function atualizarBotoesConta(){
   const email=document.getElementById('perm-user').value;
-  const wrap=document.getElementById('perm-conta-wrap');
-  if(!email){wrap.classList.add('hidden');return;}
   const u=permUsersCache.find(x=>x.email===email);
   const btn=document.getElementById('btn-bloquear');
-  if(u&&u.ativo===false){btn.textContent='🔓 Desbloquear acesso';btn.style.background='#16a34a';btn.style.borderColor='#16a34a';}
-  else{btn.textContent='🔒 Bloquear acesso';btn.style.background='#dc2626';btn.style.borderColor='#dc2626';}
-  wrap.classList.remove('hidden');
+  if(btn){if(u&&u.ativo===false){btn.textContent='🔓 Desbloquear';}else{btn.textContent='🔒 Bloquear';}}
+  if(!u)return;
+  document.getElementById('perm-user-nome').textContent=u.nome||u.email;
+  document.getElementById('pm-prof-e').textContent=u.email;
+  const av=document.getElementById('pm-av');av.textContent=_iniciais(u.nome||u.email);
+  const tags=document.getElementById('pm-prof-tags');
+  if(tags)tags.innerHTML=(u.ativo===false?'<span class="off">🔒 Acesso bloqueado</span>':'<span>● Ativo</span>')+'<span>Colaborador</span>';
+  pmRenderEquipe();
+}
+function pmDirty(v){
+  _pmIsDirty=v!==false;
+  const bar=document.getElementById('pm-save');if(!bar)return;
+  bar.classList.toggle('show',_pmIsDirty);
+  document.getElementById('pm-save-tx').textContent=_pmIsDirty?'● Alterações não salvas':'Nenhuma alteração';
+  pmContagens();
+}
+function pmContagens(){
+  const pgs=coletarPaginasPerm();
+  const e1=document.getElementById('pm-pg-count');if(e1)e1.textContent=pgs.length+' liberada'+(pgs.length===1?'':'s');
+  const marc=document.querySelectorAll('.perm-cb:checked').length;
+  const e2=document.getElementById('pm-cli-count');if(e2)e2.textContent=marc+' de '+permClisList.length+' clientes';
+  document.querySelectorAll('.pm-pg').forEach(c=>{
+    const k=c.dataset.k,full=c.querySelector('.perm-pg-cb').checked,anySub=c.querySelectorAll('.perm-sub-cb:checked').length;
+    c.classList.toggle('on',full);c.classList.toggle('part',!full&&anySub>0);
+  });
+  document.querySelectorAll('.pm-preset').forEach(b=>{const p=PM_PRESETS.find(x=>x.k===b.dataset.k);const alvo=p.pg||PERM_PAGES.map(x=>x.k);b.classList.toggle('on',alvo.length===pgs.length&&alvo.every(k=>pgs.includes(k)));});
+  pmRenderCliChips();
+}
+
+async function carregarPermissoes(){
+  const email=document.getElementById('perm-user').value;
+  if(!email){document.getElementById('perm-clientes-wrap').classList.add('hidden');document.getElementById('pm-vazio').classList.remove('hidden');return;}
+  document.getElementById('pm-vazio').classList.add('hidden');
+  const [{data:usr},{data:clis},{data:perms}]=await Promise.all([
+    db.from('usuarios').select('departamentos_permitidos,paginas_liberadas').eq('email',email).single(),
+    db.from('clientes').select('id,nome,documento').eq('status','ativo').order('nome'),
+    db.from('usuario_clientes').select('cliente_id').eq('usuario_email',email)
+  ]);
+  const depts=(usr&&usr.departamentos_permitidos)||['fiscal','pessoal','contabil'];
+  document.querySelectorAll('.perm-dept-cb').forEach(cb=>{cb.checked=depts.includes(cb.value);});
+  document.getElementById('pm-presets').innerHTML=PM_PRESETS.map(p=>'<button type="button" class="pm-preset" data-k="'+p.k+'" onclick="pmAplicarPreset(\''+p.k+'\')"><b>'+p.t+'</b><small>'+p.d+'</small></button>').join('');
+  renderPermPaginas((usr&&Array.isArray(usr.paginas_liberadas))?usr.paginas_liberadas:[]);
+  permClisList=clis||[];
+  _pmPerm=new Set((perms||[]).map(p=>p.cliente_id));
+  document.getElementById('perm-busca').value='';_pmCliFiltro='todos';
+  renderPermGrid(permClisList,_pmPerm);
+  document.getElementById('pm-copiar').value='';
+  document.getElementById('perm-clientes-wrap').classList.remove('hidden');
+  atualizarBotoesConta();
+  pmDirty(false);
+}
+
+function renderPermGrid(lista,permSet){
+  const grid=document.getElementById('perm-grid');
+  grid.innerHTML=lista.map(c=>{const on=permSet.has(c.id);
+    return '<label class="pm-cli'+(on?' on':'')+'" data-nome="'+_esc(((c.nome||'')+' '+soDigitos(c.documento||'')).toLowerCase())+'"><input type="checkbox" class="perm-cb" value="'+c.id+'" '+(on?'checked':'')+' onchange="this.parentElement.classList.toggle(\'on\',this.checked);pmDirty()"><span class="t"><b>'+_esc(c.nome)+'</b>'+(c.documento?'<small>'+_esc(c.documento)+'</small>':'')+'</span></label>';}).join('')||'<div style="color:#94a3b8;font-size:12.5px">Nenhum cliente ativo.</div>';
+  filtrarPermClis();
+}
+function pmRenderCliChips(){
+  const box=document.getElementById('pm-cli-chips');if(!box)return;
+  const tot=document.querySelectorAll('.perm-cb').length,on=document.querySelectorAll('.perm-cb:checked').length;
+  const ch=[['todos','Todos',tot],['on','Liberados',on],['off','Não liberados',tot-on]];
+  box.innerHTML=ch.map(c=>'<button class="'+(_pmCliFiltro===c[0]?'active':'')+'" onclick="_pmCliFiltro=\''+c[0]+'\';filtrarPermClis();pmRenderCliChips()">'+c[1]+' <b>'+c[2]+'</b></button>').join('');
+}
+function filtrarPermClis(){
+  const q=(document.getElementById('perm-busca').value||'').toLowerCase();const qd=soDigitos(q);
+  document.querySelectorAll('#perm-grid .pm-cli').forEach(l=>{
+    const on=l.querySelector('input').checked;
+    const okQ=!q||l.dataset.nome.includes(q)||(qd&&l.dataset.nome.includes(qd));
+    const okF=_pmCliFiltro==='todos'||(_pmCliFiltro==='on'?on:!on);
+    l.style.display=okQ&&okF?'flex':'none';
+  });
+}
+function toggleTodosPerm(marcar){
+  document.querySelectorAll('.perm-cb').forEach(cb=>{
+    if(cb.closest('label').style.display!=='none'){cb.checked=marcar;cb.parentElement.classList.toggle('on',marcar);}
+  });
+  pmDirty();filtrarPermClis();
+}
+function pmAplicarPreset(k){
+  const p=PM_PRESETS.find(x=>x.k===k);if(!p)return;
+  renderPermPaginas(p.pg||PERM_PAGES.map(x=>x.k));
+  document.querySelectorAll('.perm-dept-cb').forEach(cb=>{cb.checked=p.dp.includes(cb.value);});
+  pmDirty();toastRC('✓ Perfil "'+p.t.replace(/^\S+\s/,'')+'" aplicado — revise e salve');
+}
+async function pmCopiarDe(email){
+  if(!email)return;
+  const [{data:u},{data:pv}]=await Promise.all([
+    db.from('usuarios').select('departamentos_permitidos,paginas_liberadas,nome').eq('email',email).single(),
+    db.from('usuario_clientes').select('cliente_id').eq('usuario_email',email)
+  ]);
+  renderPermPaginas((u&&u.paginas_liberadas)||[]);
+  const d=(u&&u.departamentos_permitidos)||['fiscal','pessoal','contabil'];
+  document.querySelectorAll('.perm-dept-cb').forEach(cb=>{cb.checked=d.includes(cb.value);});
+  const set=new Set((pv||[]).map(x=>x.cliente_id));
+  document.querySelectorAll('.perm-cb').forEach(cb=>{cb.checked=set.has(cb.value);cb.parentElement.classList.toggle('on',cb.checked);});
+  document.getElementById('pm-copiar').value='';
+  pmDirty();filtrarPermClis();toastRC('✓ Acesso copiado de '+((u&&u.nome)||email)+' — revise e salve');
+}
+
+// ===== Árvore de páginas/abas (Permissões) =====
+function renderPermPaginas(selected){
+  selected=selected||[];
+  const full=k=>selected.includes(k);
+  const subOn=(k,s)=>selected.includes(k)||selected.includes(k+'.'+s);
+  const box=document.getElementById('perm-paginas-grid'); if(!box)return;
+  box.innerHTML=PERM_PAGES.map(p=>{
+    const m=p.t.match(/^(\S+)\s(.*)$/)||[0,'',p.t];
+    let h='<div class="pm-pg" data-k="'+p.k+'"><div class="pm-pg-top"><span class="ic">'+m[1]+'</span><span class="tx"><b>'+m[2]+'</b><small>'+(PM_INFO[p.k]||'')+'</small></span>'+
+      '<label class="pm-sw" title="Liberar a página inteira"><input type="checkbox" class="perm-pg-cb" value="'+p.k+'" '+(full(p.k)?'checked':'')+' onchange="onPermPgToggle(this)"><span></span></label></div>';
+    if(p.subs){
+      h+='<div class="pm-subs">'+p.subs.map(s=>'<label class="pm-sub"><input type="checkbox" class="perm-sub-cb" data-parent="'+p.k+'" value="'+s.k+'" '+(subOn(p.k,s.k)?'checked':'')+(full(p.k)?' disabled':'')+' onchange="pmDirty()"><span>'+s.t+'</span></label>').join('')+'</div>';
+    }
+    return h+'</div>';
+  }).join('');
+  pmContagens();
+}
+function onPermPgToggle(cb){
+  document.querySelectorAll('.perm-sub-cb[data-parent="'+cb.value+'"]').forEach(s=>{
+    if(cb.checked){s.checked=true;s.disabled=true;}else{s.disabled=false;s.checked=false;}
+  });
+  pmDirty();
+}
+function coletarPaginasPerm(){
+  const sel=[];
+  PERM_PAGES.forEach(p=>{
+    const pcb=document.querySelector('.perm-pg-cb[value="'+p.k+'"]');
+    if(pcb&&pcb.checked){sel.push(p.k);return;}
+    if(p.subs){p.subs.forEach(s=>{const scb=document.querySelector('.perm-sub-cb[data-parent="'+p.k+'"][value="'+s.k+'"]');if(scb&&scb.checked)sel.push(p.k+'.'+s.k);});}
+  });
+  return sel;
+}
+async function salvarPermissoes(){
+  const email=document.getElementById('perm-user').value;
+  if(!email)return;
+  const marcados=[...document.querySelectorAll('.perm-cb:checked')].map(cb=>cb.value);
+  let depts=[...document.querySelectorAll('.perm-dept-cb:checked')].map(cb=>cb.value);
+  if(!depts.length) depts=['fiscal','pessoal','contabil'];
+  const paginas=coletarPaginasPerm();
+  if(!paginas.length){alerta('alerta-perm','⚠ Libere ao menos uma página/aba para este colaborador.','e');return;}
+  const {error:e1}=await db.from('usuarios').update({departamentos_permitidos:depts,paginas_liberadas:paginas}).eq('email',email);
+  if(e1){alerta('alerta-perm','Erro ao salvar: '+e1.message,'e');return;}
+  await db.from('usuario_clientes').delete().eq('usuario_email',email);
+  if(marcados.length){
+    const novas=marcados.map(cid=>({usuario_email:email,cliente_id:cid}));
+    const {error:e2}=await db.from('usuario_clientes').insert(novas);
+    if(e2){alerta('alerta-perm','Erro ao salvar clientes: '+e2.message,'e');return;}
+  }
+  pmDirty(false);
+  toastRC('✓ Permissões salvas');
+  alerta('alerta-perm','✅ Permissões salvas! '+paginas.length+' página(s)/aba(s), '+marcados.length+' clientes, '+depts.length+' departamento(s).','s');
+  const u=permUsersCache.find(x=>x.email===email);if(u){u.paginas_liberadas=paginas;u.departamentos_permitidos=depts;}
+  _pmCliCount[email]=marcados.length;pmRenderEquipe();
+  if(typeof invalidarRespMap==='function') invalidarRespMap();
 }
 
 async function chamarAdminUser(payload){
@@ -6015,107 +6407,6 @@ async function salvarNovoColab(){
   }finally{
     btn.disabled=false;btn.textContent='Criar colaborador';
   }
-}
-
-async function carregarPermissoes(){
-  atualizarBotoesConta();
-  const email=document.getElementById('perm-user').value;
-  if(!email){document.getElementById('perm-clientes-wrap').classList.add('hidden');return;}
-  // Buscar dados do user
-  const {data:usr}=await db.from('usuarios').select('departamentos_permitidos,paginas_liberadas').eq('email',email).single();
-  const depts=(usr&&usr.departamentos_permitidos)||['fiscal','pessoal','contabil'];
-  // Marcar checkboxes de departamento
-  document.querySelectorAll('.perm-dept-cb').forEach(cb=>{
-    cb.checked=depts.includes(cb.value);
-  });
-  // Árvore de páginas/abas liberadas
-  renderPermPaginas((usr&&Array.isArray(usr.paginas_liberadas))?usr.paginas_liberadas:[]);
-  // Buscar todos os clientes ativos
-  const {data:clis}=await db.from('clientes').select('id,nome').eq('status','ativo').order('nome');
-  permClisList=clis||[];
-  // Buscar permissões atuais
-  const {data:perms}=await db.from('usuario_clientes').select('cliente_id').eq('usuario_email',email);
-  const permSet=new Set((perms||[]).map(p=>p.cliente_id));
-  // Preencher nome do user
-  const opt=document.getElementById('perm-user').selectedOptions[0];
-  document.getElementById('perm-user-nome').textContent=opt?opt.textContent:'';
-  // Renderizar grid
-  renderPermGrid(permClisList,permSet);
-  document.getElementById('perm-clientes-wrap').classList.remove('hidden');
-}
-
-function renderPermGrid(lista,permSet){
-  const grid=document.getElementById('perm-grid');
-  grid.innerHTML=lista.map(c=>
-    '<label style="font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:4px;background:'+(permSet.has(c.id)?'#f0fdf4':'#fff')+'" data-nome="'+c.nome.toLowerCase()+'"><input type="checkbox" class="perm-cb" value="'+c.id+'" '+(permSet.has(c.id)?'checked':'')+' onchange="this.parentElement.style.background=this.checked?\'#f0fdf4\':\'#fff\'"> '+c.nome+'</label>'
-  ).join('');
-}
-
-function filtrarPermClis(){
-  const q=document.getElementById('perm-busca').value.toLowerCase();
-  document.querySelectorAll('#perm-grid label').forEach(l=>{
-    l.style.display=l.dataset.nome.includes(q)?'flex':'none';
-  });
-}
-
-function toggleTodosPerm(marcar){
-  document.querySelectorAll('.perm-cb').forEach(cb=>{
-    if(cb.closest('label').style.display!=='none'){
-      cb.checked=marcar;
-      cb.parentElement.style.background=marcar?'#f0fdf4':'#fff';
-    }
-  });
-}
-
-// ===== Árvore de páginas/abas (Permissões) =====
-function renderPermPaginas(selected){
-  selected=selected||[];
-  const full=k=>selected.includes(k);
-  const subOn=(k,s)=>selected.includes(k)||selected.includes(k+'.'+s);
-  const box=document.getElementById('perm-paginas-grid'); if(!box)return;
-  box.innerHTML=PERM_PAGES.map(p=>{
-    let h='<div style="border:1px solid #e2e8f0;border-radius:10px;padding:.55rem .8rem;margin-bottom:.5rem">';
-    h+='<label style="display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;cursor:pointer"><input type="checkbox" class="perm-pg-cb" value="'+p.k+'" '+(full(p.k)?'checked':'')+' onchange="onPermPgToggle(this)"> '+p.t+(p.subs?' <span style="font-size:10.5px;color:#94a3b8;font-weight:400">(ou escolha abas abaixo)</span>':'')+'</label>';
-    if(p.subs){
-      h+='<div style="display:flex;flex-wrap:wrap;gap:.45rem 1.1rem;margin:.55rem 0 .15rem 1.6rem">';
-      h+=p.subs.map(s=>'<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#475569;cursor:pointer"><input type="checkbox" class="perm-sub-cb" data-parent="'+p.k+'" value="'+s.k+'" '+(subOn(p.k,s.k)?'checked':'')+(full(p.k)?' disabled':'')+'> '+s.t+'</label>').join('');
-      h+='</div>';
-    }
-    return h+'</div>';
-  }).join('');
-}
-function onPermPgToggle(cb){
-  document.querySelectorAll('.perm-sub-cb[data-parent="'+cb.value+'"]').forEach(s=>{
-    if(cb.checked){s.checked=true;s.disabled=true;}else{s.disabled=false;}
-  });
-}
-function coletarPaginasPerm(){
-  const sel=[];
-  PERM_PAGES.forEach(p=>{
-    const pcb=document.querySelector('.perm-pg-cb[value="'+p.k+'"]');
-    if(pcb&&pcb.checked){sel.push(p.k);return;}
-    if(p.subs){p.subs.forEach(s=>{const scb=document.querySelector('.perm-sub-cb[data-parent="'+p.k+'"][value="'+s.k+'"]');if(scb&&scb.checked)sel.push(p.k+'.'+s.k);});}
-  });
-  return sel;
-}
-async function salvarPermissoes(){
-  const email=document.getElementById('perm-user').value;
-  if(!email)return;
-  const marcados=[...document.querySelectorAll('.perm-cb:checked')].map(cb=>cb.value);
-  let depts=[...document.querySelectorAll('.perm-dept-cb:checked')].map(cb=>cb.value);
-  if(!depts.length) depts=['fiscal','pessoal','contabil']; // sem depto marcado = todos (não bloqueia)
-  const paginas=coletarPaginasPerm();
-  if(!paginas.length){alerta('alerta-perm','⚠ Libere ao menos uma página/aba para este colaborador.','e');return;}
-  // Salvar departamentos + páginas liberadas no perfil
-  await db.from('usuarios').update({departamentos_permitidos:depts,paginas_liberadas:paginas}).eq('email',email);
-  // Limpar permissões de clientes e inserir novas
-  await db.from('usuario_clientes').delete().eq('usuario_email',email);
-  if(marcados.length){
-    const novas=marcados.map(cid=>({usuario_email:email,cliente_id:cid}));
-    await db.from('usuario_clientes').insert(novas);
-  }
-  alerta('alerta-perm','✅ Permissões salvas! '+paginas.length+' página(s)/aba(s), '+marcados.length+' clientes, '+depts.length+' departamento(s).','s');
-  if(typeof invalidarRespMap==='function') invalidarRespMap();
 }
 
 let todasTarefas=[];
